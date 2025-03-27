@@ -3,18 +3,18 @@
 \docType{data}
 \name{oz_lga}
 \alias{oz_lga}
-\title{oz_lga}
+\title{Local Government Areas (LGA) Polygons for Australia}
 \format{
-A spatial polygon object
+A spatial polygons object
 }
 \usage{
 oz_lga
 }
 \description{
-LGA polygons for Australia
+A spatial polygons object representing the boundaries of local government areas (LGAs) in Australia.
 }
 \examples{
-
+data(oz_lga)
 head(oz_lga)
 }
 \keyword{datasets}

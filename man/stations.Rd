@@ -3,24 +3,24 @@
 \docType{data}
 \name{stations}
 \alias{stations}
-\title{stations}
+\title{Nearest Weather Stations for Cuttlefish Records}
 \format{
-A 750 x 3 numeric array
+A data frame with 750 rows and 3 variables
 }
 \usage{
 stations
 }
 \description{
-This is the nearest stations for each records in cuttlefish data
+A dataset of the nearest weather stations corresponding to each record in the cuttlefish sightings data.
 }
 \details{
 \itemize{
-\item stnid, record id given by Atlas
-\item lon, lat spatial coordinates of the sighting
+\item stnid: Station ID
+\item lon, lat: Spatial coordinates of the station
 }
 }
 \examples{
-
+data(stations)
 head(stations)
 }
 \keyword{datasets}

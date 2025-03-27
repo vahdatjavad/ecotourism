@@ -3,27 +3,28 @@
 \docType{data}
 \name{weather}
 \alias{weather}
-\title{weather}
+\title{Weather Data from Sightings Locations}
 \format{
-A 15274 x 9 numeric array
+A data frame with 15,274 rows and 9 variables
 }
 \usage{
 weather
 }
 \description{
-Daily records of precipitation, min and max temperature, covering locations and times of sightings, as available using the \code{rnoaa} package.
+Daily records of precipitation, and minimum and maximum temperature,
+covering locations and times of sightings, as available using the \code{rnoaa} package.
 }
 \details{
 \itemize{
-\item stnid, station id
-\item lon, lat, elev spatial coordinates of the station
-\item date, day of records
-\item prcp precipitation in mm
-\item tmax, tmin temperature in Celsius
+\item stnid: Station ID
+\item lon, lat, elev: Spatial coordinates and elevation of the station
+\item date: Date of the record
+\item prcp: Precipitation in mm
+\item tmax, tmin: Temperature in Celsius
 }
 }
 \examples{
-
+data(weather)
 head(weather)
 }
 \keyword{datasets}

@@ -3,9 +3,12 @@
 \docType{data}
 \name{cuttlefish}
 \alias{cuttlefish}
-\title{cuttlefish}
+\title{Cuttlefish Sightings Dataset}
 \format{
-A 750 x 9 numeric array
+A data frame with 750 rows and 9 variables
+}
+\source{
+https://www.ala.org.au
 }
 \usage{
 cuttlefish
@@ -15,16 +18,16 @@ Sightings of cuttlefish downloaded from https://www.ala.org.au
 }
 \details{
 \itemize{
-\item id, record id given by Atlas
-\item name, scientific name
-\item lon, lat spatial coordinates of the sighting
-\item date, year, month, wday, time of sighting
-\item source, original provider of the record
-\item stnid, station id for the nearest weather station
+\item id: Record ID given by Atlas
+\item name: Scientific name
+\item lon, lat: Spatial coordinates of the sighting
+\item date, year, month, wday, time: Date and time of sighting
+\item source: Original provider of the record
+\item stnid: Station ID for the nearest weather station
 }
 }
 \examples{
-
+data(cuttlefish)
 head(cuttlefish)
 }
 \keyword{datasets}

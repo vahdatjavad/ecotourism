@@ -3,33 +3,34 @@
 \docType{data}
 \name{tourism}
 \alias{tourism}
-\title{tourism}
+\title{Quarterly Tourism Data}
 \format{
-A 1228000 x 4 numeric array
+A data frame with 1,228,000 rows and 7 variables
 }
 \usage{
 tourism
 }
 \description{
-Quarterly records of tourist counts in regions across the country
+Quarterly records of tourist counts in regions across Australia.
 }
 \details{
 \itemize{
-\item Quarter
-\item Region
-\item Purpose
-\item Trips
-\item lon
-\item lat
+\item Quarter: The quarter in which the tourism activity was recorded (e.g., 2019 Q1)
+\item Region: Geographic region where the data was collected
+\item Purpose: Purpose of the trip (e.g., Holiday, Business)
+\item Trips: Number of trips
+\item lon, lat: Coordinates of the region
+\item stnid: Station ID used for matching with weather data
 }
 }
 \examples{
-
-library(tsibble)
 data(tourism)
-tourism <- tourism |>
-  mutate(Quarter = yearquarter(myd(Quarter))) |>
-  as_tsibble(key = c(Region, Purpose), index = Quarter)
+head(tourism)
 
+# Example of converting to tsibble (requires tsibble package)
+# library(tsibble)
+# tourism <- tourism |>
+#   dplyr::mutate(Quarter = yearquarter(lubridate::myd(Quarter))) |>
+#   as_tsibble(key = c(Region, Purpose), index = Quarter)
 }
 \keyword{datasets}
