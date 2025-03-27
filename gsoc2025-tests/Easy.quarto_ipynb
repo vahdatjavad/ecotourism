@@ -1,0 +1,45 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"Easy Task for GSOC\"\n",
+        "author: \"Javad Vahdat Atashgah\"\n",
+        "format: html\n",
+        "execute: \n",
+        "  warning: false\n",
+        "  message: false\n",
+        "---\n",
+        "\n",
+        "```{css, echo = FALSE}\n",
+        ".justify {\n",
+        "  text-align: justify !important\n",
+        "}\n",
+        "```\n",
+        "\n",
+        "\n",
+        "### Task 1 (Easy)\n",
+        "\n",
+        "-   Download the occurrence data of **platypus** in Australia from the ***Atlas of Living Australia***, and make a map showing the spatial locations of sightings for 2024.\n",
+        "\n",
+        "### Introduction\n",
+        "\n",
+        "The platypus (Ornithorhynchus anatinus), sometimes referred to as the duck-billed platypus, is a [semiaquatic](https://en.wikipedia.org/wiki/Semiaquatic \"Semiaquatic\"), egg-laying [mammal](https://en.wikipedia.org/wiki/Mammal \"Mammal\") endemic to [eastern Australia](https://en.wikipedia.org/wiki/Eastern_states_of_Australia \"Eastern states of Australia\"), including [Tasmania](https://en.wikipedia.org/wiki/Tasmania \"Tasmania\"). The platypus is the sole living representative or [monotypic taxon](https://en.wikipedia.org/wiki/Monotypic_taxon \"Monotypic taxon\") of its [family](https://en.wikipedia.org/wiki/Family_(biology) \"Family (biology)\") [Ornithorhynchidae](https://en.wikipedia.org/wiki/Ornithorhynchidae \"Ornithorhynchidae\") and [genus](https://en.wikipedia.org/wiki/Genus \"Genus\") Ornithorhynchus, though a number of [related species](https://en.wikipedia.org/wiki/Fossil_Monotremes \"Fossil Monotremes\") appear in the fossil record.\n",
+        "\n",
+        "This report shows how to download platypus occurrence data in Australia from the [Atlas of Living Australia (ALA)](https://www.ala.org.au/) and create a map of sightings from the year 2024."
+      ],
+      "id": "8ea833a2"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
