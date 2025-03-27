@@ -1,5 +1,5 @@
 Package: ecotourism
-Title: Collection of data on records of wild life sightings, tourism counts and weather from Australia.
+Title: Collection of Data on Records of Wildlife Sightings, Tourism Counts and Weather from Australia
 Version: 0.0.0.9000
 Authors@R: 
     c(
@@ -19,5 +19,5 @@ Suggests:
 Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Config/Needs/website: rmarkdown
