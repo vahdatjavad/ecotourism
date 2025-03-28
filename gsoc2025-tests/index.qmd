@@ -1,0 +1,42 @@
+---
+title: "GSoC 2025 Tests"
+format: html
+page-layout: full
+toc: false
+---
+
+# 🧪 Google Summer of Code 2025 – Test Results
+
+Welcome! This page presents the results of the easy, medium, and hard tasks completed as part of the GSoC 2025 preparatory work for the **spinebil** project.
+
+## 📂 Test Tasks
+
+<div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
+
+<div style="flex: 1; min-width: 250px;">
+<h3>🟢 Easy Task</h3>
+<p>Basic implementation and understanding of core ideas.</p>
+<p><a href="articles/Easy.html" target="_blank">View Easy Task →</a></p>
+</div>
+
+<div style="flex: 1; min-width: 250px;">
+<h3>🟡 Medium Task</h3>
+<p>More advanced functionality showing intermediate skill.</p>
+<p><a href="articles/Medium.html" target="_blank">View Medium Task →</a></p>
+</div>
+
+<div style="flex: 1; min-width: 250px;">
+<h3>🔴 Hard Task</h3>
+<p>Challenging work demonstrating strong technical depth.</p>
+<p><a href="articles/Hard.html" target="_blank">View Hard Task →</a></p>
+</div>
+
+</div>
+
+---
+
+## 📬 Contact
+
+If you'd like to know more about this project, feel free to check the [GitHub repository](https://github.com/vahdatjavad/ecotourism).
+
+---
