@@ -1,0 +1,11 @@
+pandoc: '3.2'
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  Easy: Easy.html
+  Hard: Hard.html
+  Medium: Medium.html
+last_built: 2025-03-28T03:33Z
+urls:
+  reference: https://vahdatjavad.github.io/ecotourism/gsoc2025-tests/reference
+  article: https://vahdatjavad.github.io/ecotourism/gsoc2025-tests/articles

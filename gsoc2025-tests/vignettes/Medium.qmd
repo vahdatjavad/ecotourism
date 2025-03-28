@@ -1,0 +1,223 @@
+---
+title: "Medium Task for GSOC"
+author: "Javad Vahdat Atashgah"
+format: html
+toc: true
+toc-depth: 4
+toc-location: left
+engine: knitr
+execute: 
+  warning: false
+  message: false
+---
+
+## Task 2 (Medium)
+
+- Use the `GSODR` package to download one year of daily weather data (temperature and precipitation) for a station in Victoria, Australia, near where large numbers of platypus are spotted.
+
+### Actionable Workflow
+
+My approach is doing a spatial join between platypus sightings and GSOD weather stations, then aggregating to identify the most relevant stations.
+
+#### Filter Platypus Sightings to Victoria
+
+Load Data platypus
+```{r}
+load(file= "../data/platypus_2024.RDA")
+```
+
+Filter Platypus Sightings to Victoria
+```{r}
+library(dplyr)
+platypus_2024_vic <- platypus_2024 %>%
+  filter(decimalLatitude >= -39, decimalLatitude <= -34,
+         decimalLongitude >= 141, decimalLongitude <= 150)
+```
+
+### Get All GSOD Stations in Victoria
+
+Install and load package
+```{r}
+if (!requireNamespace("GSODR", quietly = TRUE)) {install.packages("GSODR")}
+
+library(GSODR)
+```
+
+Download and Return weather station Data
+```{r}
+stations <- get_inventory()
+```
+
+```{r}
+vic_stations <- stations %>%
+  filter(CTRY == "AS", LAT >= -39, LAT <= -33.9, LON >= 140.9, LON <= 150.1) %>%
+  select(STNID, NAME, LAT, LON)
+
+head(vic_stations)
+```
+
+### Relate Each Occurrence to Its Nearest Station
+Use a spatial distance function to map each platypus record to its closest station:
+
+```{r}
+if (!requireNamespace("geosphere", quietly = TRUE)) {install.packages("geosphere")}
+
+library(geosphere)
+
+# For each occurrence, find the nearest station
+nearest_station_ids <- sapply(1:nrow(platypus_2024_vic), function(i) {
+  dists <- distHaversine(
+    cbind(vic_stations$LON, vic_stations$LAT),
+    c(platypus_2024_vic$decimalLongitude[i],    platypus_2024_vic$decimalLatitude[i])
+  )
+  vic_stations$STNID[which.min(dists)]
+})
+
+# Add the nearest station ID to the platypus data
+platypus_2024_vic$nearest_station <- nearest_station_ids
+
+```
+
+
+### Count Number of Sightings per Station
+
+```{r}
+station_counts <- platypus_2024_vic %>%
+  count(nearest_station, sort = TRUE) %>%
+  left_join(vic_stations, by = c("nearest_station" = "STNID")) |> 
+  distinct()
+
+head(station_counts)
+```
+
+```{r}
+#install.packages("ozmaps")
+
+library(ggplot2)
+library(ozmaps)
+
+
+# Filter only VIC map
+vic_map <- ozmaps::ozmap_states %>% 
+  dplyr::filter(NAME == "Victoria")
+
+# Plot
+ggplot() +
+  geom_sf(data = vic_map, fill = "gray95", color = "gray70") +
+  geom_point(data = station_counts, 
+             aes(x = LON, y = LAT, size = n, color = n), 
+             alpha = 0.8) +
+  scale_color_viridis_c(option = "plasma", direction = -1) +
+  scale_size_continuous(range = c(2, 10)) +
+  labs(
+    title = "Platypus Observations per Weather Station in Victoria",
+    x = "Longitude", y = "Latitude",
+    size = "Count", color = "Count"
+  ) +
+  coord_sf() +
+  theme_minimal()
+```
+
+### Choose Top Stations
+
+```{r}
+top_stations <- station_counts %>%
+  slice_max(n, n = 3)  # Top 3 stations by sighting proximity
+head(top_stations)
+```
+
+### Download Weather Data for Top 3 Stations
+
+```{r}
+weather_data_list <- lapply(top_stations$nearest_station, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine if needed
+weather_data_combined <- dplyr::bind_rows(weather_data_list)
+
+```
+
+### tidying datasets colnames
+```{r, echo=FALSE}
+platypus_2024_vic |> transmute(
+  LAT = decimalLatitude,
+  LON = decimalLongitude,
+  YEAR = year,
+  eventDate = eventDate,
+  scientificName = scientificName,
+  STNID = nearest_station
+) -> platypus_2024_vic
+  
+weather_data_combined |> transmute(
+  STNID = STNID,
+  NAME = NAME,
+  LAT = LATITUDE,
+  LON = LONGITUDE,
+  DATE = YEARMODA,
+  YEAR = YEAR,
+  MONTH = MONTH,
+  DAY = DAY,
+  YDAY = YDAY,
+  TEMP = TEMP,
+  TEMP_MIN = MIN,
+  TEMP_MAX = MAX,
+  PRCP = PRCP,
+  DEWP = DEWP,
+  WDSP = WDSP,
+  VISIB = VISIB
+) -> weather_data_combined
+```
+
+
+
+### save data
+
+```{r}
+save(platypus_2024_vic, file = "../data/platypus_2024_vic.RDA")
+
+save(vic_stations, file = "../data/vic_stations.RDA")
+
+save(weather_data_combined, file = "../data/weather_data.RDA")
+```
+
+
+### 🔗 Data Structure and Relationships
+
+All three datasets share a common key: **`STNID`**, which represents a unique weather station ID.
+
+#### 1. `platypus_2024_vic`
+
+| Column           | Description                                 |
+|------------------|---------------------------------------------|
+| `LAT`, `LON`     | Coordinates of platypus sightings           |
+| `YEAR`, `eventDate` | Year and full timestamp of sighting      |
+| `scientificName` | Name of the species (platypus)             |
+| `STNID`          | Nearest weather station ID (linked key)     |
+
+#### 2. `vic_stations`
+
+| Column    | Description                        |
+|-----------|------------------------------------|
+| `STNID`   | Weather station ID (primary key)   |
+| `NAME`    | Name of the station                |
+| `LAT`, `LON` | Coordinates of the station     |
+
+#### 3. `weather_data_combined`
+
+| Column    | Description                                 |
+|-----------|---------------------------------------------|
+| `STNID`   | Weather station ID (linked key)             |
+| `DATE`    | Date of observation                         |
+| `TEMP`    | Daily mean temperature (°C)                 |
+| `TEMP_MIN`, `TEMP_MAX` | Daily min/max temperatures     |
+| `PRCP`    | Daily precipitation (mm)                    |
+| `DEWP`, `WDSP`, `VISIB` | Other daily weather variables |
+
+---
+
+These datasets can be **joined using `STNID`** for analyses like:
+
+- Matching platypus sightings with same-day weather
+- Analyzing seasonal patterns in specific regions
+- Aggregating sightings and climate trends by station

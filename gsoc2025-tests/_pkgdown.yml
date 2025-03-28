@@ -1,0 +1,21 @@
+# _pkgdown.yml
+package: gsoc2025tests
+
+template:
+  bootstrap: 5
+
+url: https://vahdatjavad.github.io/ecotourism/gsoc2025-tests
+
+
+
+navbar:
+  title: "GSoC 2025 Tests"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Easy"
+      href: articles/Easy.html
+    - text: "Medium"
+      href: articles/Medium.html
+    - text: "Hard"
+      href: articles/Hard.html

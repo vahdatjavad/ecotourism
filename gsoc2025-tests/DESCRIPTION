@@ -1,0 +1,16 @@
+Package: gsoc2025tests
+Title: GSoC 2025 Tests
+Version: 0.0.0.9000
+Authors@R: 
+    c(
+    person("Javad", "Vahdat Atashgah", email="vahdatjavad@gmail.com", role = c("aut"),
+           comment = c(ORCID = "0009-0004-5845-2584"))           
+    )
+Description: This is a collection of data files for 
+  exploring sightings of wild things, relative to weather 
+  and tourism patterns in Australia.
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Config/Needs/website: rmarkdown
+URL: https://vahdatjavad.github.io/ecotourism/gsoc2025-tests
