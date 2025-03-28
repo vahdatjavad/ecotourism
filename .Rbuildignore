@@ -1,0 +1,11 @@
+^ecotourism\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
+^cran-comments\.md$
+^vignettes/articles$
+^data-raw$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^gsoc2025-tests$
