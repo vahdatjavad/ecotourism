@@ -1,0 +1,83 @@
+---
+title: "Downloading data using the galah package"
+author: "Javad Vahdat"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Introduction
+
+This manual provides a step-by-step guide on how to download data for the species  for example *Sepia apama* (Giant Cuttlefish) using the `galah` package in R. The `galah` package is an interface to the Atlas of Living Australia (ALA) APIs, which allows you to query and download biodiversity data.
+
+## Prerequisites
+
+Ensure you have R and RStudio installed on your computer. You'll also need an internet connection to download the data.
+
+## Installation
+
+First, you need to install the `galah` package if you haven't already. You can do this by running the following command in your R console:
+
+```r
+install.packages("galah")
+```
+
+## Loading the galah Package
+
+After installing the package, load it into your R session:
+
+``` r
+library(galah)
+```
+
+## Configuration
+
+Before you can download data, you need to configure the `galah` package with your email. This email will be used to identify your requests to the ALA servers.
+
+``` r
+galah_config(email = "youremail@email.com")
+```
+
+Replace `"youremail@email.com"` with your own email address.
+
+## Downloading Sepia apama Data
+
+You can now download data for *Sepia apama* by using a series of `galah` functions. Here's the complete code to do so:
+
+``` r
+sepia <- galah_call() |>
+  galah_identify("Sepia apama") |>
+  galah_select(basisOfRecord, recordedBy, recordedByID, eventType, group = c("basic", "event")) |>
+  atlas_occurrences()
+```
+
+### Explanation of the Code
+
+-   `galah_call()`: Initializes the call to the ALA API.
+-   `galah_identify("Sepia apama")`: Specifies the species of interest.
+-   `galah_select(...)`: Selects specific fields to download. In this case, we are selecting `basisOfRecord`, `recordedBy`, `recordedByID`, `eventType`, along with groups `basic` and `event`.
+-   `atlas_occurrences()`: Executes the query and retrieves the occurrence data.
+
+## Saving the Data
+
+Once you have downloaded the data, you might want to save it for future use. You can do this using the `save` function:
+
+``` r
+save(sepia, file = "data-raw/sepia.RDA")
+```
+
+This will save the data to a file named `sepia.RDA` in the `data-raw` directory. You can load this data in future sessions using:
+
+``` r
+load("data-raw/sepia.RDA")
+```
+
+## Conclusion
+
+By following this manual, you should be able to download and save occurrence data for *Sepia apama* using the `galah` package. This process can be adapted to download data for other species by changing the species name in the `galah_identify` function.
+
+## References
+
+For more information on the `galah` package, visit the [galah GitHub page](https://github.com/AtlasOfLivingAustralia/galah).
+
+\`\`\`
+

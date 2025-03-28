@@ -1,0 +1,49 @@
+---
+title: "How to extract the tourism data"
+author: "Tina Rashid Jafari"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+knitr::opts_chunk$set(eval = FALSE, include = FALSE)
+library(ecotourism)
+
+```
+
+Test
+
+## Instructions to Find the Dataset
+
+This dataset is exclusively accessible to Monash University students or staff. However, other universities in Australia may have similar platforms and datasets that can utilize this package.
+
+**Steps:**
+
+1.  Go to [my.monash](https://my.monash/campusm/home#menu).
+
+2.  Select the Library section. ![Screenshot](images/1.png).
+
+3.  Choose Databases. ![Screenshot](images/2.png).
+
+4.  Pick A-Z Databases. ![Screenshot](images/3.png).
+
+5.  Select Tourism Research Australia online for students. ![Screenshot](images/4.png).
+
+6.  Click on Student Databases and double click on "Domestic Overnight Trips".
+
+7.  Select quarters, click on all of them, and add them to rows. ![Screenshot](images/6.png).
+
+8.  In the stopover section, find "Stopover state/region/SA2", click on the subsection SA2, and then add it to rows. ![Screenshot](images/7.png).
+
+9.  You will encounter this prompt. ![Screenshot](images/8.png). Simply click "Ok".
+
+10. Now it's time to choose columns. Go to the "Stopover reason" section and select "Holiday", "Visiting friends and relatives", "Business", and any other reasons, then click on columns. ![Screenshot](images/9.png).
+
+11. The final step is to go to Summation options, click on "Overnight trips (000) Sum", and in the top right corner, click on "Download table". ![Screenshot](images/10.png).
