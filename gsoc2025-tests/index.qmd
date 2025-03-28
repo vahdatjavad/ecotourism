@@ -7,7 +7,7 @@ toc: false
 
 # 🧪 Google Summer of Code 2025 – Test Results
 
-Welcome! This page presents the results of the easy, medium, and hard tasks completed as part of the GSoC 2025 preparatory work for the **spinebil** project.
+Welcome! This page presents the results of the easy, medium, and hard tasks completed as part of the GSoC 2025 preparatory work for the **ecotourism** project.
 
 ## 📂 Test Tasks
 
