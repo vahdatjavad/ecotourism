@@ -1,0 +1,250 @@
+---
+title: "orchids"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{orchids}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#"
+)
+```
+![Hooded Parrot](image/orchids.jpg)
+We are investigating occurrence data of [**orchids(Orchidaceae)**](https://en.wikipedia.org/wiki/Orchid) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings for 2024.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# load required packages
+library(galah)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+# Set up ALA Access
+galah_config(email = "vahdatjavad@gmail.com")
+
+# Define and perform the search
+orchids_taxon <- search_taxa("Orchidaceae")
+occ_data <- galah_call() |> 
+  galah_identify(orchids_taxon) |>  
+  galah_filter(year == 2024) |>
+  galah_select(decimalLatitude, decimalLongitude, year, eventDate, scientificName) |>
+  atlas_occurrences()
+  
+# Drop records with missing coordinates
+orchids_2024 <- occ_data |> 
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude), !is.na(eventDate)) |> 
+  rename(lat = decimalLatitude, lon = decimalLongitude)
+
+#save data
+usethis::use_data(orchids_2024)
+```
+
+The head of **Orchids** dataset:
+
+```{r echo=FALSE}
+load("../data/orchids_2024.rda")
+head(orchids_2024)
+```
+
+the length of the records is `r nrow(orchids_2024)`
+
+#### Monthly Distribution of Orchid Occurrences (2024)
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+# Extract month
+orchids_2024$month <- format(orchids_2024$eventDate, "%B")
+orchids_2024$month_num <- as.numeric(format(orchids_2024$eventDate, "%m"))
+
+ggplot(orchids_2024, aes(x = factor(month, levels = month.name))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Monthly Distribution of Orchid Occurrences (2024)",
+    x = "Month", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#### Data Regularity & Temporal Gaps
+
+```{r, echo=FALSE, fig.width=6, fig.height=4}
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+
+load("../data/orchids_2024.rda")
+# Convert to date format
+orchids_2024$date <- as.Date(orchids_2024$eventDate)
+
+# Temporal coverage analysis
+date_range <- range(orchids_2024$date)
+total_days <- as.numeric(diff(date_range))
+obs_days <- n_distinct(orchids_2024$date)
+gap_percentage <-  obs_days-total_days
+
+# Daily observation frequency
+daily_counts <- orchids_2024 %>%
+  count(date) %>%
+  complete(date = seq(min(date), max(date), by = "day"), 
+           fill = list(n = 0))
+
+# Gap visualization
+ggplot(daily_counts, aes(x = date, y = n)) +
+  geom_col(fill = "#1f77b4") +
+  geom_hline(yintercept = 0, color = "gray30") +
+  labs(title = paste0("Observation Gaps: ", gap_percentage, " days missing"),
+       x = "Date", y = "Daily Observations") +
+  theme_minimal()
+```
+
+#### In this section we want to find nearest weather station for each occrurance of Orchids
+
+```{r, echo=FALSE}
+# load data sets
+load("../data/orchids_2024.rda")
+load("../data/weather_stations.rda")
+```
+
+```{r eval=FALSE, include=TRUE, echo=FALSE}
+# load package
+library(geosphere)
+
+# For each occurrence, find the nearest station
+nearest_station_ids <- sapply(1:nrow(orchids_2024), function(i) {
+  dists <- distHaversine(
+    cbind(weather_stations$lon, weather_stations$lat),
+    c(orchids_2024$lon[i], orchids_2024$lat[i])
+  )
+  weather_stations$stnid[which.min(dists)]
+})
+
+# Add the nearest station ID to the platypus data
+orchids_2024$weather_station_id <- nearest_station_ids
+
+# Join orchid data with weather station metadata
+orchids_2024_ws <- orchids_2024 %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid"))
+
+# save dataset
+usethis::use_data(orchids_2024_ws)
+```
+
+```{r eval=TRUE, include=TRUE, echo=FALSE}
+load("../data/orchids_2024_ws.rda")
+head(orchids_2024_ws, n = 3)
+```
+
+```{r, echo=FALSE}
+# Calculate frequency by state
+state_freq <- table(orchids_2024_ws$state)
+
+# Sort by frequency (descending order)
+state_freq <- sort(state_freq, decreasing = TRUE)
+
+#Convert to data frame for better presentation
+state_freq_df <- as.data.frame(state_freq)
+colnames(state_freq_df) <- c("State", "Frequency")
+state_freq_df
+```
+
+#### Pattern Analysis
+
+```{r echo=FALSE, fig.width=8, fig.height=6}
+# Extract month
+orchids_2024_ws$month <- format(orchids_2024_ws$eventDate, "%B")
+orchids_2024_ws$month_num <- as.numeric(format(orchids_2024_ws$eventDate, "%m"))
+
+ggplot(orchids_2024_ws, aes(x = factor(month, levels = month.name))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Monthly Distribution of Orchid Occurrences (2024) vs each state",
+    x = "Month", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  facet_wrap(.~state , scales = "free_y") + 
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))  # Add padding for labels
+```
+
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+# Weekly patterns
+
+# Convert to date format
+orchids_2024_ws$date <- as.Date(orchids_2024_ws$eventDate)
+
+orchids_2024_ws <- orchids_2024_ws %>%
+  mutate(week = week(date),
+         week_start = floor_date(date, "week"))
+
+# Weekly aggregation
+weekly_counts <- orchids_2024_ws %>%
+  count(week_start, state)
+
+# Seasonal plot
+ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
+  geom_line(color = "#2ca02c") +
+  geom_smooth(method = "loess", se = FALSE, color = "#d62728") +
+  facet_wrap(~state, scales = "free_y") +
+  labs(title = "Weekly Occurrence Patterns with Trend Lines",
+       x = "Week Starting", y = "Observations") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r, echo=FALSE, fig.width=8, fig.height=6}
+# First create month column if not already present
+orchids_2024_ws <- orchids_2024_ws %>%
+  mutate(
+    date = as.Date(eventDate),  # Ensure date format
+    month = format(date, "%B"),  # Full month name
+    month_num = as.numeric(format(date, "%m"))  # Month number
+  )
+
+
+# Monthly patterns by state
+state_monthly <- orchids_2024_ws %>%
+  group_by(state, month) %>%
+  summarize(count = n(), .groups = "drop") %>%
+  group_by(state) %>%
+  mutate(percent = 100 * count / sum(count))
+
+# Circular seasonality plot
+ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state)) +
+  geom_line(linewidth = 1.5) +
+  coord_polar() +
+  scale_x_discrete(limits = month.name) +
+  labs(title = "Seasonal Patterns by State",
+       x = NULL, y = "Percentage of Occurrences") +
+  theme_minimal()
+
+```
+
+### Datasets Overview
+
+We have organized the orchid occurrence and weather station data into the following structured datasets, stored in the data/ directory:
+
+-   `orchids_2024.rda` Contains orchid occurrence records across all states in Australia.
+
+-   `orchids_2024_ws.rda` An enhanced version of the occurrence data, merged with the nearest weather station information, including:
+
+    <div>
+
+    ```         
+    --Station ID (weather_station_id)
+
+    --Station name (stname)
+
+    --Geographic details (lat.y, lon.y, address, city, state)
+    ```
+
+    </div>
+
+-   `orchids_top_weather.rda` Focuses on weather data from the top 3 most frequently recorded stations associated with orchid occurrences.
+
+-   `weather_stations.rda` A standalone dataset of all unique weather stations in Australia, providing reference metadata for cross-referencing.
