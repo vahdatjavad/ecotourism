@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>weather_data_2024</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">weather_data_2024</h1>
+
+
+
+<div id="download-weather-data-for-top-3-stations" class="section level4">
+<h4>Download Weather Data for Top 3 Stations</h4>
+<div id="top-3-station-for-orchids" class="section level5">
+<h5>Top 3 Station for <strong>Orchids</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname              lat   lon address     city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 948720-99999        2999 FERNY CREEK       -37.9  145. Stewart Tr… Stew… Vict…
+#&gt; 2 958740-99999        1620 VIEWBANK (ARPNSA) -37.7  145. 3, Rainsfo… Rain… Vict…
+#&gt; 3 948460-99999        1483 AIREYS INLET      -38.4  144. 1-3, Luggs… 1-3   Vict…</code></pre>
+</div>
+<div id="top-3-station-for-gouldian-finch" class="section level5">
+<h5>Top 3 Station for <strong>Gouldian finch</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname         lat   lon address          city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 941310-99999          43 TINDAL       -14.5  132. RAAF Base Tinda… RAAF… Nort…
+#&gt; 2 952140-99999          35 WYNDHAM AERO -15.5  128. Arthur Road, Wy… Arth… West…
+#&gt; 3 942010-99999          14 CYGNET BAY   -16.4  123  Dampier Peninsu… Damp… West…</code></pre>
+</div>
+<div id="top-3-station-for-hooded-parrot" class="section level5">
+<h5>Top 3 Station for <strong>Hooded parrot</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname          lat   lon address         city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 956680-99999         192 GLUEPOT       -33.8  140. Track 1, Gluep… Trac… Sout…
+#&gt; 2 948310-99999         166 OUYEN         -35.1  142. 68, Rowe Stree… Rowe… Vict…
+#&gt; 3 941280-99999          69 DOUGLAS RIVER -13.8  131. Douglas Daly E… Doug… Nort…</code></pre>
+</div>
+<div id="top-3-station-for-golden-shouldered-parrot" class="section level5">
+<h5>Top 3 Station for <strong>Golden-shouldered parrot</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname          lat   lon address         city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;         &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 956680-99999         192 GLUEPOT       -33.8  140. Track 1, Gluep… Trac… Sout…
+#&gt; 2 948310-99999         166 OUYEN         -35.1  142. 68, Rowe Stree… Rowe… Vict…
+#&gt; 3 941280-99999          69 DOUGLAS RIVER -13.8  131. Douglas Daly E… Doug… Nort…</code></pre>
+</div>
+<div id="top-3-station-for-southern-black-throated-finch" class="section level5">
+<h5>Top 3 Station for <strong>Southern black-throated
+finch</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname         lat   lon address          city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 941200-99999         103 DARWIN INTL  -12.4  131. Henry Wrigley D… Henr… Nort…
+#&gt; 2 941310-99999          97 TINDAL       -14.5  132. RAAF Base Tinda… RAAF… Nort…
+#&gt; 3 952040-99999          54 WEST ROEBUCK -17.9  122. Roebuck, Shire … Roeb… West…</code></pre>
+</div>
+<div id="top-3-station-for-humpback-whale" class="section level5">
+<h5>Top 3 Station for <strong>Humpback whale</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                  lat   lon address city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 955650-99999        1147 HERVEY BAY AIRPORT    -25.3  153. John D… John… Quee…
+#&gt; 2 943900-99999         485 SANDY CAPE LIGHTHOUSE -24.7  153. Coral … Cora… Quee…
+#&gt; 3 957680-99999         322 NORTH HEAD            -33.8  151. North … Nort… New …</code></pre>
+</div>
+<div id="top-3-station-for-whale-sharks" class="section level5">
+<h5>Top 3 Station for <strong>Whale Sharks</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                  lat   lon address city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 943020-99999          27 LEARMONTH             -22.2  114. Minily… Mini… West…
+#&gt; 2 941860-99999           1 LOCKHART RIVER AIRPO… -12.8  143. Lockha… Lock… Quee…
+#&gt; 3 952830-99999           1 COOKTOWN AIRPORT      -15.4  145. Cookto… Cook… Quee…</code></pre>
+</div>
+<div id="top-3-station-for-koala" class="section level5">
+<h5>Top 3 Station for <strong>Koala</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                  lat   lon address city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 945760-99999        2005 BRISBANE              -27.5  153. St Jos… St J… Quee…
+#&gt; 2 945910-99999        1588 BANANA BANK NORTH BE… -27.5  153. Moreto… More… Quee…
+#&gt; 3 947860-99999         746 PORT MACQUARIE AIRPO… -31.4  153. Fernba… Fern… New …</code></pre>
+<p><code>Warning : This station, 947860-99999, only provides data for years 1996 to 2022. Please send a request that falls within these years.</code></p>
+</div>
+<div id="top-3-station-for-platypus" class="section level5">
+<h5>Top 3 Station for <strong>Platypus</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                 lat   lon address  city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 952840-99999         124 WALKAMIN DPI         -17.1  145. Walkami… Walk… Quee…
+#&gt; 2 955720-99999          94 NAMBOUR DPI-HILLSIDE -26.6  153. Towen M… Towe… Quee…
+#&gt; 3 958740-99999          79 VIEWBANK (ARPNSA)    -37.7  145. 3, Rain… Rain… Vict…</code></pre>
+</div>
+<div id="top-3-station-for-wombat" class="section level5">
+<h5>Top 3 Station for <strong>Wombat</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname               lat   lon address    city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 947540-99999        1790 NULLO MOUNTAIN AWS -32.7  150. Nullo Eas… Null… New …
+#&gt; 2 947500-99999         268 NOWRA              -34.9  151. HMAS Alba… HMAS… New …
+#&gt; 3 947460-99999         241 MOSS VALE AWS      -34.5  150. 19-21, Er… 19-21 New …</code></pre>
+</div>
+<div id="top-3-station-for-glowworms" class="section level5">
+<h5>Top 3 Station for <strong>Glowworms</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                  lat   lon address city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 945820-99999          21 MURWILLUMBAH (BRAY P… -28.4  153. Commer… Comm… New …
+#&gt; 2 949630-99999           9 MAYDENA POST OFFICE   -42.8  147. Junee … June… Tasm…
+#&gt; 3 957520-99999           8 WATTAMOLLA AWS        -34.1  151. Wattam… Watt… New …</code></pre>
+<pre><code>Warning :
+This station, 949630-99999, only provides data for years 1968 to 2020.
+Please send a request that falls within these years.</code></pre>
+</div>
+<div id="top-3-station-for-penguins" class="section level5">
+<h5>Top 3 Station for <strong>Penguins</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                  lat   lon address city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 948920-99999         239 RHYLL (AWS)           -38.4  145. Lady N… Lady… Vict…
+#&gt; 2 946740-99999          51 PORT LINCOLN          -34.6  136. Port L… Port… Sout…
+#&gt; 3 949410-99999          44 BATEMANS BAY (CATALI… -35.7  150. Vista … Vist… New …</code></pre>
+</div>
+<div id="top-3-station-for-giant-cuttlefish" class="section level5">
+<h5>Top 3 Station for <strong>Giant cuttlefish</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                  lat   lon address city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 957680-99999         129 NORTH HEAD            -33.8  151. North … Nort… New …
+#&gt; 2 957790-99999          53 NELSON BAY (NELSON H… -32.7  152. Port S… Port… New …
+#&gt; 3 956640-99999          44 WHYALLA               -33.1  138. Whyall… Whya… Sout…</code></pre>
+<pre><code>Warning :
+This station, 957790-99999, only provides data for years 2003 to 2023.
+Please send a request that falls within these years.</code></pre>
+</div>
+<div id="top-3-station-for-manta-rays" class="section level5">
+<h5>Top 3 Station for <strong>Manta Rays</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname               lat   lon address    city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 943020-99999          22 LEARMONTH          -22.2  114. Minilya-E… Mini… West…
+#&gt; 2 943880-99999          15 LADY ELLIOT ISLAND -24.1  153. Lady Elli… Lady… Quee…
+#&gt; 3 945930-99999          10 POINT LOOKOUT      -27.4  154. North Gor… Nort… Quee…</code></pre>
+</div>
+<div id="top-3-station-for-salt-water-crocodiles" class="section level5">
+<h5>Top 3 Station for <strong>Salt Water Crocodiles</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                 lat   lon address  city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 942850-99999         222 LOW ISLES LIGHTHOUSE -16.4  146. Low Isl… Low … Quee…
+#&gt; 2 951210-99999         105 MIDDLE POINT AWS     -12.6  131. Anzac P… Anza… Nort…
+#&gt; 3 941370-99999          65 JABIRU AIRPORT       -12.7  133. Kakadu,… Kaka… Nort…</code></pre>
+</div>
+<div id="top-3-station-for-thorny-devil" class="section level5">
+<h5>Top 3 Station for <strong>Thorny Devil</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                 lat   lon address  city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 944010-99999          42 KALBARRI             -27.7  114. Walker … Walk… West…
+#&gt; 2 944150-99999           9 CARNAMAH POST OFFICE -29.7  116. Midland… Midl… West…
+#&gt; 3 956640-99999           9 WHYALLA              -33.1  138. Whyalla… Whya… Sout…</code></pre>
+</div>
+<div id="top-3-station-for-sea-turtles" class="section level5">
+<h5>Top 3 Station for <strong>Sea Turtles</strong></h5>
+<pre><code>#&gt; # A tibble: 3 × 8
+#&gt;   weather_station_id     n stname                 lat   lon address  city  state
+#&gt;   &lt;chr&gt;              &lt;int&gt; &lt;chr&gt;                &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;
+#&gt; 1 943020-99999       16653 LEARMONTH            -22.2  114. Minilya… Mini… West…
+#&gt; 2 943860-99999          61 HERON ISLAND RES STN -23.4  152. Heron I… Hero… Quee…
+#&gt; 3 943840-99999          55 SEVENTEEN SEVENTY    -24.2  152. Round H… Roun… Quee…</code></pre>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,652 @@
+---
+title: "weather_data_2024"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{weather_data_2024}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+#### Download Weather Data for Top 3 Stations
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# load required packages
+library(GSODR)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+##### Top 3 Station for **Orchids**
+```{r echo=FALSE}
+# find top 3 station 
+
+load("../data/orchids_2024_ws.rda")
+load("../data/weather_stations.rda")
+
+orchids_station_counts <- orchids_2024_ws %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) |> 
+  distinct()
+
+head(orchids_station_counts, n = 3)
+```
+
+```{r echo=FALSE, eval=FALSE}
+orchids_top_stations <- orchids_station_counts |> slice_max(n, n=3)
+
+orchids_weather_data_list <- lapply(orchids_top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine if needed
+orchids_top_weather <- dplyr::bind_rows(orchids_weather_data_list)
+
+usethis::use_data(orchids_top_weather)
+```
+
+##### Top 3 Station for **Gouldian finch**
+```{r echo=FALSE}
+organism <- "gouldian_finch"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+
+```
+
+##### Top 3 Station for **Hooded parrot**
+```{r echo=FALSE}
+organism <- "hooded_parrot"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+
+```
+
+##### Top 3 Station for **Golden-shouldered parrot**
+```{r echo=FALSE}
+organism <- "golden_shouldered_parrot"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+
+```
+
+##### Top 3 Station for **Southern black-throated finch**
+```{r echo=FALSE}
+organism <- "southern_black_throated_finch"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+
+```
+
+##### Top 3 Station for **Humpback whale**
+```{r echo=FALSE}
+organism <- "whales"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+
+```
+
+
+##### Top 3 Station for **Whale Sharks**
+```{r echo=FALSE}
+organism <- "whale_sharks"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+
+```
+
+##### Top 3 Station for **Koala**
+```{r echo=FALSE}
+organism <- "koala"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+
+```
+```Warning :
+This station, 947860-99999, only provides data for years 1996 to 2022.
+Please send a request that falls within these years.
+```
+
+
+##### Top 3 Station for **Platypus**
+```{r echo=FALSE}
+organism <- "platypus"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```
+
+##### Top 3 Station for **Wombat**
+```{r echo=FALSE}
+organism <- "wombat"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```
+
+
+##### Top 3 Station for **Glowworms**
+```{r echo=FALSE}
+organism <- "glowworms"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```
+```
+Warning :
+This station, 949630-99999, only provides data for years 1968 to 2020.
+Please send a request that falls within these years.
+```
+
+##### Top 3 Station for **Penguins**
+```{r echo=FALSE}
+organism <- "penguins"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```
+
+##### Top 3 Station for **Giant cuttlefish**
+```{r echo=FALSE}
+organism <- "giant_cuttlefish"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```
+
+```
+Warning :
+This station, 957790-99999, only provides data for years 2003 to 2023.
+Please send a request that falls within these years.
+```
+##### Top 3 Station for **Manta Rays**
+```{r echo=FALSE}
+organism <- "manta_rays"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```
+
+##### Top 3 Station for **Salt Water Crocodiles**
+```{r echo=FALSE}
+organism <- "saltwater_crocodiles"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```
+
+##### Top 3 Station for **Thorny Devil**
+```{r echo=FALSE}
+organism <- "thorny_devil"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```
+
+##### Top 3 Station for **Sea Turtles**
+```{r echo=FALSE}
+organism <- "sea_turtles"
+# Load required data
+load(paste0("../data/", organism, "_2024_ws.rda"))
+load("../data/weather_stations.rda")
+
+# Identify top 3 stations
+station_counts <- get(paste0(organism, "_2024_ws")) %>%
+  count(weather_station_id, sort = TRUE) %>%
+  left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
+  distinct()
+
+head(station_counts, n = 3)
+
+```
+
+```{r echo=FALSE, eval=FALSE}
+# Get weather data for top 3 stations (optional)
+top_stations <- station_counts |> slice_max(n, n = 3)
+
+weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
+  get_GSOD(years = 2024, station = stn)
+})
+
+# Combine and save
+top_weather <- dplyr::bind_rows(weather_data_list)
+
+# Dynamically assign it to the global environment under a specific name
+obj_name <- paste0(organism, "_top_weather")
+file_path <- file.path("../data", paste0(obj_name, ".rda"))
+assign(obj_name, top_weather)
+
+save(list = obj_name, file = file_path)
+```

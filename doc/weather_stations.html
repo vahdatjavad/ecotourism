@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>weather</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">weather</h1>
+
+
+
+<p>We are using <code>GSODR</code> package to download one year of daily
+weather data(temperature and precipitation).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># load required packages</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(GSODR)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(tidygeocoder)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Download and Return weather station Data</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>stations_all <span class="ot">&lt;-</span> <span class="fu">get_inventory</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Data Wrangling</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>weather_stations <span class="ot">&lt;-</span> stations_all <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">filter</span>(CTRY <span class="sc">==</span> <span class="st">&quot;AS&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">select</span>(STNID, NAME, LAT, LON) <span class="sc">|&gt;</span> </span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">lat =</span> LAT, <span class="at">lon =</span> LON, <span class="at">stnid =</span> STNID, <span class="at">stname =</span> NAME) <span class="sc">|&gt;</span> </span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="fu">distinct</span>(lat, lon, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  </span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># save data</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_data</span>(weather_stations, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># load data</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;../data/weather_stations.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># print head of data</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">head</span>(weather_stations, <span class="at">n =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># A tibble: 6 x 7</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#  stnid        stname                  lat   lon</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#  &lt;chr&gt;        &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#1 941000-99999 KALUMBURU             -14.3  127.</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#2 941020-99999 TROUGHTON ISLAND      -13.8  126.</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#3 941030-99999 BROWSE ISLAND AWS     -14.1  124.</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Plotting the Map of the Weather Stations</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> weather_stations) <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="fu">borders</span>(<span class="st">&quot;world&quot;</span>, <span class="at">regions =</span> <span class="st">&quot;Australia&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;gray95&quot;</span>, <span class="at">colour =</span> <span class="st">&quot;gray50&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> lon, <span class="at">y =</span> lat), <span class="at">color =</span> <span class="st">&quot;darkblue&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="fu">coord_fixed</span>(<span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Weather Stations in Australia (2024)&quot;</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;Longitude&quot;</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;Latitude&quot;</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p>We added address column to the weather stations dataset</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Adding State Column and city column</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co"># Reverse geocode using latitude and longitude</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>stations_with_location <span class="ot">&lt;-</span> weather_stations <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">reverse_geocode</span>(<span class="at">lat =</span> lat, <span class="at">long =</span> lon, <span class="at">method =</span> <span class="st">&quot;osm&quot;</span>)  <span class="co"># Uses OpenStreetMap</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">head</span>(stations_with_location, <span class="at">n =</span> <span class="dv">3</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># A tibble: 3 x 7</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#  stnid        stname              lat   lon address                                                             </span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#  &lt;chr&gt;        &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                                                               </span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#1 941000-99999 KALUMBURU         -14.3  127. Drysdale River, Shire Of Wyndham-East Kimberley, Western Australia~</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#2 941020-99999 TROUGHTON ISLAND  -13.8  126. Troughton Island Airport, Shire Of Wyndham-East Kimberley, Western~</span></span></code></pre></div>
+<p>Now we want to extract state and city name from address text.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># --- helper to extract city / state --------------------------------------</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>parse_address <span class="ot">&lt;-</span> <span class="cf">function</span>(addr) {</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  tokens <span class="ot">&lt;-</span> <span class="fu">str_split</span>(addr, <span class="st">&quot;,&quot;</span>)[[<span class="dv">1</span>]]          <span class="co"># split at commas</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  tokens <span class="ot">&lt;-</span> <span class="fu">str_trim</span>(tokens)                   <span class="co"># trim spaces</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  tokens <span class="ot">&lt;-</span> tokens[<span class="sc">!</span>(tokens <span class="sc">==</span> <span class="st">&quot;Australia&quot;</span>)]   <span class="co"># drop country</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  tokens <span class="ot">&lt;-</span> tokens[<span class="sc">!</span><span class="fu">str_detect</span>(tokens, <span class="st">&quot;^[0-9]+$&quot;</span>)]  <span class="co"># drop pure numerics (postcodes)</span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="co"># State  = last token remaining</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="co"># City   = first token remaining</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  state <span class="ot">&lt;-</span> tokens[<span class="fu">length</span>(tokens)]</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  city  <span class="ot">&lt;-</span> tokens[<span class="dv">1</span>]</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">city =</span> city, <span class="at">state =</span> state)</span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>}</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co"># --- apply to tibble ------------------------------------------------------</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>stations_with_location <span class="ot">&lt;-</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  stations_with_location <span class="sc">%&gt;%</span></span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span>                               <span class="co"># operate row-by-row</span></span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>  <span class="fu">mutate</span>(                                       <span class="co"># append new columns</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>    <span class="at">parsed =</span> <span class="fu">list</span>(<span class="fu">parse_address</span>(address))</span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>  <span class="fu">unnest</span>(parsed) <span class="sc">%&gt;%</span>                           <span class="co"># expand list-column</span></span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a>  <span class="fu">ungroup</span>()           </span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">head</span>(stations_with_location, <span class="at">n =</span> <span class="dv">3</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co"># A tibble: 3 x 7</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#  stnid        stname              lat   lon address                        city  state</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#  &lt;chr&gt;        &lt;chr&gt;             &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                          &lt;chr&gt; &lt;chr&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#1 941000-99999 KALUMBURU         -14.3  127. Drysdale River, Shire Of Wynd~ Drys~ West~</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#2 941020-99999 TROUGHTON ISLAND  -13.8  126. Troughton Island Airport, Shi~ Trou~ West~</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#3 941030-99999 BROWSE ISLAND AWS -14.1  124. Shire Of Wyndham-East Kimberl~ Shir~ West~</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># save final data set</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>weather_stations <span class="ot">&lt;-</span> stations_with_location</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_data</span>(weather_stations, <span class="at">overwrite =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
