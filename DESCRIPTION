@@ -1,24 +1,41 @@
 Package: ecotourism
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Authors@R: c(
-    person(
-      "Jane", "Doe",
-      email = "jane@example.com",
-      role = c("aut", "cre")
+Title: Collection of data on records of wild life sightings, tourism counts and weather from Australia
+Version: 0.0.0.9000
+Authors@R:
+    c(
+    person("Dianne", "Cook", email="visnut@gmail.com", role = c("aut"),
+           comment = c(ORCID = "0000-0002-3813-7155")),
+    person("Lyn", "Cook", email="----", role = c("aut"),
+           comment = c(ORCID = "0000-0000-0000-0000")),           
+    person("Javad", "Vahdat", email="vahdatjavad@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0004-5845-2584"))           
     )
-  )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Description: This is a collection of data files for 
+  exploring sightings of wild things, relative to weather 
+  and tourism patterns in Australia.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    tidyverse,
+    dplyr,
+    tidyr,
+    ggplot2,
+    sf,
+    lubridate,
+    rnaturalearth,
+    rnaturalearthdata,
+    tidygeocoder,
+    galah,
+    GSODR,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)
 URL: https://github.com/vahdatjavad/ecotourism
 BugReports: https://github.com/vahdatjavad/ecotourism/issues
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3

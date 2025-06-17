@@ -197,6 +197,78 @@ ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state))
   theme_minimal()
 ```
 
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+# Load required packages
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+# Clean and prepare data
+df <- sea_turtles_2024_ws %>%
+  filter(!is.na(lat.x), !is.na(lon.x), !is.na(month)) %>%
+  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
+
+# Load Australia base map (sf object)
+aus_map <- ne_states(country = "Australia", returnclass = "sf")
+
+# Create faceted map by month
+ggplot() +
+  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
+  geom_point(data = df, aes(x = lon.x, y = lat.x, color = state), alpha = 0.6, size = 1.5) +
+  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    title = "Distribution of Sea Turtle Sightings in Australia (2024)",
+    x = "Longitude",
+    y = "Latitude",
+    color = "State"
+  )
+
+
+```
+
+```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
+# Load required packages
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+# Clean and prepare data
+df <- sea_turtles_2024_ws %>%
+  filter(!is.na(lat.x), !is.na(lon.x), !is.na(month)) %>%
+  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
+
+# Load Australia base map (sf object)
+aus_map <- ne_states(country = "Australia", returnclass = "sf")
+
+# Create faceted map by month
+ggplot() +
+  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
+  geom_point(data = df, aes(x = lon.x, y = lat.x, color = state), alpha = 0.6, size = 1.5) +
+  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
+  facet_wrap(~ month, ncol = 4) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    title = "Monthly Distribution of Sea Turtle Sightings in Australia (2024)",
+    x = "Longitude",
+    y = "Latitude",
+    color = "State"
+  )
+
+
+```
+
+
 ### Datasets Overview
 
 We have organized the sea turtle occurrence and weather station data into the following structured datasets, stored in the `data/` directory:
