@@ -19,7 +19,7 @@ We are using `GSODR` package to download one year of daily weather data(temperat
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
 # load required packages
 library(GSODR)
-library(ggplot2)
+library(tidyverse)
 library(tidygeocoder)
 ```
 
@@ -32,8 +32,9 @@ stations_all <- get_inventory()
 # Data Wrangling
 weather_stations <- stations_all |>
   filter(CTRY == "AS") |> select(STNID, NAME, LAT, LON) |> 
-  rename(lat = LAT, lon = LON, stnid = STNID, stname = NAME) |> 
-  distinct(lat, lon, .keep_all = TRUE)
+  rename(stn_lat = LAT, stn_lon = LON, stnid = STNID, stname = NAME) |> 
+  distinct(stn_lat, stn_lon, .keep_all = TRUE) |> 
+  filter(stn_lat>=-44, stn_lat <= -8, stn_lon>= 110, stn_lon<= 160)
   
 ```
 
@@ -45,6 +46,8 @@ usethis::use_data(weather_stations, overwrite = TRUE)
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
 # load data
 load("../data/weather_stations.rda")
+
+weather_stations |> count(state, sort = TRUE)
 ```
 
 
@@ -63,15 +66,14 @@ head(weather_stations, n = 2)
 ```
 
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
 # Plotting the Map of the Weather Stations
-
 ggplot(data = weather_stations) +
   borders("world", regions = "Australia", fill = "gray95", colour = "gray50") +
-  geom_point(aes(x = lon, y = lat), color = "darkblue", alpha = 0.6, size = 2) +
+  geom_point(aes(x = stn_lon, y = stn_lat, colour = state), alpha = 0.6, size = 2) +
   coord_fixed(1.3) +
   labs(
-    title = "Weather Stations in Australia (2024)",
+    title = "Weather Stations in Australia",
     x = "Longitude",
     y = "Latitude"
   ) +
@@ -83,7 +85,7 @@ We added address column to the weather stations dataset
 # Adding State Column and city column
 # Reverse geocode using latitude and longitude
 stations_with_location <- weather_stations |>
-  reverse_geocode(lat = lat, long = lon, method = "osm")  # Uses OpenStreetMap
+  reverse_geocode(lat = stn_lat, long = stn_lon, method = "osm")  # Uses OpenStreetMap
 ```
 
 ```{r eval=FALSE, include=TRUE}
@@ -96,7 +98,7 @@ stations_with_location <- weather_stations |>
 ```
 
 Now we want to extract state and city name from address text.
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+```{r eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 # --- helper to extract city / state --------------------------------------
 parse_address <- function(addr) {
   tokens <- str_split(addr, ",")[[1]]          # split at commas
@@ -134,7 +136,7 @@ stations_with_location <-
 ```
 
 
-```{r eval=FALSE, include=TRUE}
+```{r eval=FALSE, echo=FALSE, include=TRUE}
 # save final data set
 weather_stations <- stations_with_location
 usethis::use_data(weather_stations, overwrite = TRUE)
