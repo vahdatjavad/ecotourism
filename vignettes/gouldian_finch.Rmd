@@ -14,14 +14,17 @@ knitr::opts_chunk$set(
 )
 ```
 ![Hooded Parrot](image/gouldian_finch.jpg)
-We are investigating occurrence data of [**Gouldian finch**](https://en.wikipedia.org/wiki/Gouldian_finch) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings for 2024.
+We are investigating occurrence data of [**Gouldian finch**](https://en.wikipedia.org/wiki/Gouldian_finch) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # load required packages
 library(galah)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
+library(lubridate)
+library(geosphere)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
 ```
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
@@ -32,126 +35,127 @@ galah_config(email = "vahdatjavad@gmail.com")
 finch_taxon <- search_taxa("Gouldian finch")
 occ_data <- galah_call() |> 
   galah_identify(finch_taxon) |>  
-  galah_filter(year == 2024) |>
+  galah_filter(year >= 2014, year <= 2024) |>
   galah_select(decimalLatitude, decimalLongitude, year, eventDate, scientificName) |>
   atlas_occurrences()
 
 # Drop records with missing coordinates
-gouldian_finch_2024 <- occ_data |> 
+gouldian_finch <- occ_data |> 
   filter(!is.na(decimalLatitude), !is.na(decimalLongitude), !is.na(eventDate)) |> 
-  rename(lat = decimalLatitude, lon = decimalLongitude)
+  mutate(
+    obs_lat = decimalLatitude,
+    obs_lon = decimalLongitude,
+    eventDate = ymd_hms(eventDate),
+    datetime = eventDate,
+    month = month(eventDate),
+    day = day(eventDate),
+    weekday = wday(eventDate, label = TRUE, abbr = FALSE),
+    dayofyear = yday(eventDate),
+    scientificName = str_remove(scientificName, "\\s*\\([^\\)]+\\)")
+  ) %>%
+  select(obs_lat, obs_lon, year, month, day, weekday, dayofyear, datetime, scientificName)
 
 # Save data
-usethis::use_data(gouldian_finch_2024)
+usethis::use_data(gouldian_finch)
 ```
 
 The head of dataset:
 
 
 ```{r echo=FALSE}
-load("../data/gouldian_finch_2024.rda")
-head(gouldian_finch_2024)
+load("../data/gouldian_finch.rda")
+head(gouldian_finch)
+```
+```{r echo=FALSE}
+gouldian_finch |> count(scientificName, sort = TRUE)
 ```
 
-the length of the records is `r nrow(gouldian_finch_2024)`
+the length of the records is `r nrow(gouldian_finch)`
 
-#### Monthly Distribution of organisim (2024)
+#### Weekly Distribution of organism 
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-# Extract month
-gouldian_finch_2024$month <- format(gouldian_finch_2024$eventDate, "%B")
-gouldian_finch_2024$month_num <- as.numeric(format(gouldian_finch_2024$eventDate, "%m"))
-
-# Plot monthly distribution
-ggplot(gouldian_finch_2024, aes(x = factor(month, levels = month.name))) +
+week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+gouldian_finch |> drop_na(weekday) |> 
+ggplot(aes(x = factor(weekday, levels = week_order))) +
   geom_bar(fill = "steelblue") +
   labs(
-    title = "Monthly Distribution of Gouldian Finch Occurrences (2024)",
-    x = "Month", y = "Number of Records"
+    title = "Week Days Distribution of Occurrences",
+    x = "Week day", y = "Number of Records"
   ) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-#### Data Regularity & Temporal Gaps
+#### Monthly Distribution of organisim
 
-```{r, echo=FALSE, fig.width=6, fig.height=4}
-library(ggplot2)
-library(dplyr)
-library(lubridate)
-library(tidyr)  # for `complete()`
-
-# Load data
-load("../data/gouldian_finch_2024.rda")
-
-# Convert to date format
-gouldian_finch_2024$date <- as.Date(gouldian_finch_2024$eventDate)
-
-# Temporal coverage analysis
-date_range <- range(gouldian_finch_2024$date)
-total_days <- as.numeric(diff(date_range))
-obs_days <- n_distinct(gouldian_finch_2024$date)
-gap_days <- total_days - obs_days
-
-# Daily observation frequency
-daily_counts <- gouldian_finch_2024 %>%
-  count(date) %>%
-  complete(date = seq(min(date), max(date), by = "day"), 
-           fill = list(n = 0))
-
-# Gap visualization
-ggplot(daily_counts, aes(x = date, y = n)) +
-  geom_col(fill = "#1f77b4") +
-  geom_hline(yintercept = 0, color = "gray30") +
-  labs(title = paste0("Observation Gaps: ", gap_days, " days missing"),
-       x = "Date", y = "Daily Observations") +
-  theme_minimal()
+```{r echo=FALSE, fig.width=6, fig.height=4}
+gouldian_finch |> drop_na(month) |>
+  mutate(month = month(month, label = TRUE, abbr = FALSE)) |> 
+ggplot(aes(x = factor(month, levels = month.name))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Monthly Distribution of Occurrences",
+    x = "Month", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+#### Yearly Distribution of organism
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+gouldian_finch |> drop_na(year) |>
+ggplot(aes(x = factor(year))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Distribution of Occurrences",
+    x = "Year", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
 
 #### In this section we want to find nearest weather station for each occrurance of organism
 
 ```{r, echo=FALSE}
 # load data sets
-load("../data/gouldian_finch_2024.rda")
+load("../data/gouldian_finch.rda")
 load("../data/weather_stations.rda")
 ```
 
 ```{r eval=FALSE, include=TRUE, echo=FALSE}
-# Load package
-library(geosphere)
-library(dplyr)
-
 # For each occurrence, find the nearest station
-nearest_station_ids <- sapply(1:nrow(gouldian_finch_2024), function(i) {
+nearest_station_ids <- sapply(1:nrow(gouldian_finch), function(i) {
   dists <- distHaversine(
-    cbind(weather_stations$lon, weather_stations$lat),
-    c(gouldian_finch_2024$lon[i], gouldian_finch_2024$lat[i])
+    cbind(weather_stations$stn_lon, weather_stations$stn_lat),
+    c(gouldian_finch$obs_lon[i], gouldian_finch$obs_lat[i])
   )
   weather_stations$stnid[which.min(dists)]
 })
 
 # Add the nearest station ID to the finch data
-gouldian_finch_2024$weather_station_id <- nearest_station_ids
+gouldian_finch$weather_station_id <- nearest_station_ids
 
 # Join finch data with weather station metadata
-gouldian_finch_2024_ws <- gouldian_finch_2024 %>%
+gouldian_finch_ws <- gouldian_finch %>%
   left_join(weather_stations, by = c("weather_station_id" = "stnid"))
 
 # Save dataset
-usethis::use_data(gouldian_finch_2024_ws)
+usethis::use_data(gouldian_finch_ws)
 ```
 
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
-load("../data/gouldian_finch_2024_ws.rda")
-head(gouldian_finch_2024_ws, n = 3)
+load("../data/gouldian_finch_ws.rda")
+head(gouldian_finch_ws, n = 3)
 ```
 
 ```{r, echo=FALSE}
 # Load data
-load("../data/gouldian_finch_2024_ws.rda")
+load("../data/gouldian_finch_ws.rda")
 
 # Calculate frequency by state
-state_freq <- table(gouldian_finch_2024_ws$state)
+state_freq <- table(gouldian_finch_ws$state)
 
 # Sort by frequency (descending order)
 state_freq <- sort(state_freq, decreasing = TRUE)
@@ -166,14 +170,14 @@ state_freq_df
 
 ```{r echo=FALSE, fig.width=8, fig.height=6}
 # Extract month
-gouldian_finch_2024_ws$month <- format(gouldian_finch_2024_ws$eventDate, "%B")
-gouldian_finch_2024_ws$month_num <- as.numeric(format(gouldian_finch_2024_ws$eventDate, "%m"))
+gouldian_finch_ws$month <- format(gouldian_finch_ws$datetime, "%B")
+gouldian_finch_ws$month_num <- as.numeric(format(gouldian_finch_ws$datetime, "%m"))
 
 # Plot monthly distribution faceted by state
-ggplot(gouldian_finch_2024_ws, aes(x = factor(month, levels = month.name))) +
+ggplot(gouldian_finch_ws, aes(x = factor(month, levels = month.name))) +
   geom_bar(fill = "steelblue") +
   labs(
-    title = "Monthly Distribution of Gouldian Finch Occurrences (2024) by State",
+    title = "Monthly Distribution of Gouldian Finch Occurrences by State",
     x = "Month", y = "Number of Records"
   ) +
   theme_bw() +
@@ -184,15 +188,15 @@ ggplot(gouldian_finch_2024_ws, aes(x = factor(month, levels = month.name))) +
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 # Convert to date format
-gouldian_finch_2024_ws$date <- as.Date(gouldian_finch_2024_ws$eventDate)
+gouldian_finch_ws$date <- as.Date(gouldian_finch_ws$datetime)
 
 # Add week and week_start columns
-gouldian_finch_2024_ws <- gouldian_finch_2024_ws %>%
+gouldian_finch_ws <- gouldian_finch_ws %>%
   mutate(week = week(date),
          week_start = floor_date(date, "week"))
 
 # Weekly aggregation by state
-weekly_counts <- gouldian_finch_2024_ws %>%
+weekly_counts <- gouldian_finch_ws %>%
   count(week_start, state)
 
 # Seasonal plot with LOESS smoothing
@@ -201,7 +205,7 @@ ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
   geom_smooth(method = "loess", se = FALSE, color = "#d62728") +
   facet_wrap(~state, scales = "free_y") +
   labs(
-    title = "Weekly Occurrence Patterns of Gouldian Finch (2024) with Trend Lines",
+    title = "Weekly Occurrence Patterns of Gouldian Finch with Trend Lines",
     x = "Week Starting", y = "Observations"
   ) +
   theme_bw() +
@@ -211,15 +215,15 @@ ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
 
 ```{r, echo=FALSE, fig.width=8, fig.height=6}
 # First create month column if not already present
-gouldian_finch_2024_ws <- gouldian_finch_2024_ws %>%
+gouldian_finch_ws <- gouldian_finch_ws %>%
   mutate(
-    date = as.Date(eventDate),  # Ensure date format
+    date = as.Date(datetime),  # Ensure date format
     month = format(date, "%B"),  # Full month name
     month_num = as.numeric(format(date, "%m"))  # Month number
   )
 
 # Monthly patterns by state
-state_monthly <- gouldian_finch_2024_ws %>%
+state_monthly <- gouldian_finch_ws %>%
   group_by(state, month) %>%
   summarize(count = n(), .groups = "drop") %>%
   group_by(state) %>%
@@ -237,15 +241,9 @@ ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state))
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-# Load required packages
-library(tidyverse)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
-
 # Clean and prepare data
-df <- gouldian_finch_2024_ws %>%
-  filter(!is.na(lat.x), !is.na(lon.x), !is.na(month)) %>%
+df <- gouldian_finch_ws %>%
+  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
   mutate(month = factor(month, levels = month.name))  # Ensure proper month order
 
 # Load Australia base map (sf object)
@@ -254,7 +252,8 @@ aus_map <- ne_states(country = "Australia", returnclass = "sf")
 # Create faceted map by month
 ggplot() +
   geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = lon.x, y = lat.x, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5)+
   coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
   theme_minimal() +
   theme(
@@ -262,7 +261,7 @@ ggplot() +
     panel.grid = element_blank()
   ) +
   labs(
-    title = "Distribution of Gouldian Finch Sightings in Australia (2024)",
+    title = "Distribution of Gouldian Finch Sightings in Australia",
     x = "Longitude",
     y = "Latitude",
     color = "State"
@@ -272,15 +271,9 @@ ggplot() +
 ```
 
 ```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
-# Load required packages
-library(tidyverse)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
-
 # Clean and prepare data
-df <- gouldian_finch_2024_ws %>%
-  filter(!is.na(lat.x), !is.na(lon.x), !is.na(month)) %>%
+df <- gouldian_finch_ws %>%
+  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
   mutate(month = factor(month, levels = month.name))  # Ensure proper month order
 
 # Load Australia base map (sf object)
@@ -289,7 +282,8 @@ aus_map <- ne_states(country = "Australia", returnclass = "sf")
 # Create faceted map by month
 ggplot() +
   geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = lon.x, y = lat.x, color = state), alpha = 0.6, size = 1.5) +
+ geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5) +
   coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
   facet_wrap(~ month, ncol = 4) +
   theme_minimal() +

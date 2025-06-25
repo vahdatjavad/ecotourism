@@ -65,6 +65,10 @@ usethis::use_data(glowworms, overwrite = TRUE)
 load("../data/glowworms.rda")
 head(glowworms)
 ```
+```{r echo=FALSE}
+glowworms |> count(scientificName, sort = TRUE)
+```
+
 
 the **length** of the records is `r nrow(glowworms)`
 

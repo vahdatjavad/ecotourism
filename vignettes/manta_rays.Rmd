@@ -16,14 +16,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-We are investigating occurrence data of [**Manta rays**](https://en.wikipedia.org/wiki/Manta_ray) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings for 2024.
+We are investigating occurrence data of [**Manta rays**](https://en.wikipedia.org/wiki/Manta_ray) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # load required packages
 library(galah)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
+library(lubridate)
+library(geosphere)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
 ```
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
@@ -31,104 +34,122 @@ library(tidyverse)
 galah_config(email = "vahdatjavad@gmail.com")
 
 # Define and perform the search
-manta_taxon <- search_taxa("Manta birostris")
+manta_taxon <- search_taxa("Mobula alfredi")
 occ_data <- galah_call() |> 
   galah_identify(manta_taxon) |>  
-  galah_filter(year == 2024) |>
+  galah_filter(year >= 2014, year <= 2024) |>
   galah_select(decimalLatitude, decimalLongitude, year, eventDate, scientificName) |>
   atlas_occurrences()
 
 # Drop records with missing coordinates
-manta_rays_2024 <- occ_data |> 
+manta_rays <- occ_data |> 
   filter(!is.na(decimalLatitude), !is.na(decimalLongitude), !is.na(eventDate)) |> 
-  rename(lat = decimalLatitude, lon = decimalLongitude)
+  mutate(
+    obs_lat = decimalLatitude,
+    obs_lon = decimalLongitude,
+    eventDate = ymd_hms(eventDate),
+    datetime = eventDate,
+    month = month(eventDate),
+    day = day(eventDate),
+    weekday = wday(eventDate, label = TRUE, abbr = FALSE),
+    dayofyear = yday(eventDate),
+    scientificName = str_remove(scientificName, "\\s*\\([^\\)]+\\)")
+  ) %>%
+  select(obs_lat, obs_lon, year, month, day, weekday, dayofyear, datetime, scientificName)
 
 # Save data
-usethis::use_data(manta_rays_2024)
+usethis::use_data(manta_rays, overwrite = TRUE)
 ```
 
 ```{r echo=FALSE}
-load("../data/manta_rays_2024.rda")
-head(manta_rays_2024)
+load("../data/manta_rays.rda")
+head(manta_rays)
 ```
 
-the length of the records is `r nrow(manta_rays_2024)`
 
-#### Monthly Distribution of organism (2024)
+```{r echo=FALSE}
+manta_rays |> count(scientificName, sort = TRUE)
+```
+
+
+the length of the records is `r nrow(manta_rays)`
+
+#### Weekly Distribution of organism 
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-manta_rays_2024$month <- format(manta_rays_2024$eventDate, "%B")
-manta_rays_2024$month_num <- as.numeric(format(manta_rays_2024$eventDate, "%m"))
-
-ggplot(manta_rays_2024, aes(x = factor(month, levels = month.name))) +
+week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+manta_rays |> drop_na(weekday) |> 
+ggplot(aes(x = factor(weekday, levels = week_order))) +
   geom_bar(fill = "steelblue") +
   labs(
-    title = "Monthly Distribution of Manta Ray Occurrences (2024)",
-    x = "Month", y = "Number of Records"
+    title = "Week Days Distribution of Glowworm Occurrences",
+    x = "Week day", y = "Number of Records"
   ) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-#### Data Regularity & Temporal Gaps
 
-```{r, echo=FALSE, fig.width=6, fig.height=4}
-library(lubridate)
-library(tidyr)
+#### Monthly Distribution of organism
 
-manta_rays_2024$date <- as.Date(manta_rays_2024$eventDate)
+```{r echo=FALSE, fig.width=6, fig.height=4}
+manta_rays |> drop_na(month) |>
+  mutate(month = month(month, label = TRUE, abbr = FALSE)) |> 
+ggplot(aes(x = factor(month, levels = month.name))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Monthly Distribution of Manta Ray Occurrences",
+    x = "Month", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+#### Yearly Distribution of organism
 
-date_range <- range(manta_rays_2024$date)
-total_days <- as.numeric(diff(date_range))
-obs_days <- n_distinct(manta_rays_2024$date)
-gap_days <- total_days - obs_days
-
-daily_counts <- manta_rays_2024 %>%
-  count(date) %>%
-  complete(date = seq(min(date), max(date), by = "day"), 
-           fill = list(n = 0))
-
-ggplot(daily_counts, aes(x = date, y = n)) +
-  geom_col(fill = "#1f77b4") +
-  geom_hline(yintercept = 0, color = "gray30") +
-  labs(title = paste0("Observation Gaps: ", gap_days, " days missing"),
-       x = "Date", y = "Daily Observations") +
-  theme_minimal()
+```{r echo=FALSE, fig.width=6, fig.height=4}
+manta_rays |> drop_na(year) |>
+ggplot(aes(x = factor(year))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Distribution of Glowworm Occurrences",
+    x = "Year", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 #### Nearest Weather Station Mapping
 
 ```{r, echo=FALSE}
-load("../data/manta_rays_2024.rda")
+load("../data/manta_rays.rda")
 load("../data/weather_stations.rda")
 ```
 
 ```{r eval=FALSE, include=TRUE, echo=FALSE}
-library(geosphere)
 
-nearest_station_ids <- sapply(1:nrow(manta_rays_2024), function(i) {
+nearest_station_ids <- sapply(1:nrow(manta_rays), function(i) {
   dists <- distHaversine(
-    cbind(weather_stations$lon, weather_stations$lat),
-    c(manta_rays_2024$lon[i], manta_rays_2024$lat[i])
+    cbind(weather_stations$stn_lon, weather_stations$stn_lat),
+    c(manta_rays$obs_lon[i], manta_rays$obs_lat[i])
   )
   weather_stations$stnid[which.min(dists)]
 })
 
-manta_rays_2024$weather_station_id <- nearest_station_ids
-manta_rays_2024_ws <- manta_rays_2024 %>%
+manta_rays$weather_station_id <- nearest_station_ids
+manta_rays_ws <- manta_rays %>%
   left_join(weather_stations, by = c("weather_station_id" = "stnid"))
 
-usethis::use_data(manta_rays_2024_ws)
+usethis::use_data(manta_rays_ws)
 ```
 
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
-load("../data/manta_rays_2024_ws.rda")
-head(manta_rays_2024_ws, n = 3)
+load("../data/manta_rays_ws.rda")
+head(manta_rays_ws, n = 3)
 ```
 
 ```{r, echo=FALSE}
-load("../data/manta_rays_2024_ws.rda")
-state_freq <- table(manta_rays_2024_ws$state)
+load("../data/manta_rays_ws.rda")
+state_freq <- table(manta_rays_ws$state)
 state_freq <- sort(state_freq, decreasing = TRUE)
 state_freq_df <- as.data.frame(state_freq)
 colnames(state_freq_df) <- c("State", "Frequency")
@@ -138,13 +159,13 @@ state_freq_df
 #### Pattern Analysis
 
 ```{r echo=FALSE, fig.width=8, fig.height=6}
-manta_rays_2024_ws$month <- format(manta_rays_2024_ws$eventDate, "%B")
-manta_rays_2024_ws$month_num <- as.numeric(format(manta_rays_2024_ws$eventDate, "%m"))
+manta_rays_ws$month <- format(manta_rays_ws$datetime, "%B")
+manta_rays_ws$month_num <- as.numeric(format(manta_rays_ws$datetime, "%m"))
 
-ggplot(manta_rays_2024_ws, aes(x = factor(month, levels = month.name))) +
+ggplot(manta_rays_ws, aes(x = factor(month, levels = month.name))) +
   geom_bar(fill = "steelblue") +
   labs(
-    title = "Monthly Distribution of Manta Ray Occurrences (2024) by State",
+    title = "Monthly Distribution of Manta Ray Occurrences by State",
     x = "Month", y = "Number of Records"
   ) +
   theme_bw() +
@@ -154,12 +175,12 @@ ggplot(manta_rays_2024_ws, aes(x = factor(month, levels = month.name))) +
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-manta_rays_2024_ws$date <- as.Date(manta_rays_2024_ws$eventDate)
-manta_rays_2024_ws <- manta_rays_2024_ws %>%
+manta_rays_ws$date <- as.Date(manta_rays_ws$datetime)
+manta_rays_ws <- manta_rays_ws %>%
   mutate(week = week(date),
          week_start = floor_date(date, "week"))
 
-weekly_counts <- manta_rays_2024_ws %>%
+weekly_counts <- manta_rays_ws %>%
   count(week_start, state)
 
 ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
@@ -175,14 +196,14 @@ ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
 ```
 
 ```{r, echo=FALSE, fig.width=8, fig.height=6}
-manta_rays_2024_ws <- manta_rays_2024_ws %>%
+manta_rays_ws <- manta_rays_ws %>%
   mutate(
-    date = as.Date(eventDate),
+    date = as.Date(datetime),
     month = format(date, "%B"),
     month_num = as.numeric(format(date, "%m"))
   )
 
-state_monthly <- manta_rays_2024_ws %>%
+state_monthly <- manta_rays_ws %>%
   group_by(state, month) %>%
   summarize(count = n(), .groups = "drop") %>%
   group_by(state) %>%
@@ -198,15 +219,10 @@ ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state))
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-# Load required packages
-library(tidyverse)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
 
 # Clean and prepare data
-df <- manta_rays_2024_ws %>%
-  filter(!is.na(lat.x), !is.na(lon.x), !is.na(month)) %>%
+df <- manta_rays_ws %>%
+   filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
   mutate(month = factor(month, levels = month.name))  # Ensure proper month order
 
 # Load Australia base map (sf object)
@@ -215,7 +231,8 @@ aus_map <- ne_states(country = "Australia", returnclass = "sf")
 # Create faceted map by month
 ggplot() +
   geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = lon.x, y = lat.x, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5)+
   coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
   theme_minimal() +
   theme(
@@ -223,7 +240,7 @@ ggplot() +
     panel.grid = element_blank()
   ) +
   labs(
-    title = "Distribution of Manta Ray Sightings in Australia (2024)",
+    title = "Distribution of Manta Ray Sightings in Australia",
     x = "Longitude",
     y = "Latitude",
     color = "State"
@@ -233,15 +250,10 @@ ggplot() +
 ```
 
 ```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
-# Load required packages
-library(tidyverse)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
 
 # Clean and prepare data
-df <- manta_rays_2024_ws %>%
-  filter(!is.na(lat.x), !is.na(lon.x), !is.na(month)) %>%
+df <- manta_rays_ws %>%
+  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
   mutate(month = factor(month, levels = month.name))  # Ensure proper month order
 
 # Load Australia base map (sf object)
@@ -250,7 +262,8 @@ aus_map <- ne_states(country = "Australia", returnclass = "sf")
 # Create faceted map by month
 ggplot() +
   geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = lon.x, y = lat.x, color = state), alpha = 0.6, size = 1.5) +
+ geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5) +
   coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
   facet_wrap(~ month, ncol = 4) +
   theme_minimal() +
@@ -259,7 +272,7 @@ ggplot() +
     panel.grid = element_blank()
   ) +
   labs(
-    title = "Monthly Distribution of Manta Ray Sightings in Australia (2024)",
+    title = "Monthly Distribution of Manta Ray Sightings in Australia",
     x = "Longitude",
     y = "Latitude",
     color = "State"
@@ -267,7 +280,36 @@ ggplot() +
 
 
 ```
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 
+# Clean and prepare data
+df <- manta_rays_ws %>%
+   filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
+  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
+
+# Load Australia base map (sf object)
+aus_map <- ne_states(country = "Australia", returnclass = "sf")
+
+# Create faceted map by month
+ggplot() +
+  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
+  geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = scientificName), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5)+
+  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    panel.grid = element_blank()
+  ) +
+  labs(
+    title = "Distribution of Manta Ray Sightings in Australia",
+    x = "Longitude",
+    y = "Latitude",
+    color = "State"
+  )
+
+
+```
 
 
 ### Datasets Overview
