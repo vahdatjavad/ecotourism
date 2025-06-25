@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-We are investigating occurrence data of [**Glowworms**](https://en.wikipedia.org/wiki/Glowworm) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings for 2024.
+We are investigating occurrence data of [**Glowworms**](https://en.wikipedia.org/wiki/Glowworm) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # load required packages
@@ -66,7 +66,22 @@ load("../data/glowworms.rda")
 head(glowworms)
 ```
 
-the length of the records is `r nrow(glowworms)`
+the **length** of the records is `r nrow(glowworms)`
+
+#### Weekly Distribution of organism 
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+glowworms |> drop_na(weekday) |> 
+ggplot(aes(x = factor(weekday, levels = week_order))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Week Days Distribution of Glowworm Occurrences",
+    x = "Week day", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
 #### Monthly Distribution of organism 
 
@@ -83,7 +98,7 @@ ggplot(aes(x = factor(month, levels = month.name))) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-#### Distribution of organism
+#### Yearly Distribution of organism
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
 glowworms |> drop_na(year) |>
@@ -167,7 +182,7 @@ ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
   geom_smooth(method = "loess", se = FALSE, color = "#d62728") +
   facet_wrap(~state, scales = "free_y") +
   labs(
-    title = "Weekly Occurrence Patterns of Glowworms (2024) with Trend Lines",
+    title = "Weekly Occurrence Patterns of Glowworms with Trend Lines",
     x = "Week Starting", y = "Observations"
   ) +
   theme_bw() +
@@ -196,6 +211,8 @@ ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state))
        x = NULL, y = "Percentage of Occurrences") +
   theme_minimal()
 ```
+
+
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 
 # Clean and prepare data

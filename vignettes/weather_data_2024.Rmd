@@ -93,11 +93,11 @@ save(list = obj_name, file = file_path)
 ```{r echo=FALSE}
 organism <- "glowworms"
 # Load required data
-load(paste0("../data/", organism, "_2024_ws.rda"))
+load(paste0("../data/", organism, "_ws.rda"))
 load("../data/weather_stations.rda")
 
 # Identify top 3 stations
-station_counts <- get(paste0(organism, "_2024_ws")) %>%
+station_counts <- get(paste0(organism, "_ws")) %>%
   count(weather_station_id, sort = TRUE) %>%
   left_join(weather_stations, by = c("weather_station_id" = "stnid")) %>%
   distinct()
@@ -106,12 +106,24 @@ head(station_counts, n = 3)
 
 ```
 
+```{r, echo=FALSE}
+aus_map <- ne_states(country = "Australia", returnclass = "sf")
+ggplot() +
+  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
+ geom_point(data = glowworms_ws, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = station_counts[1:3,], aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 1, size = 2) +
+  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
+  theme_minimal()
+```
+
+
+
 ```{r echo=FALSE, eval=FALSE}
 # Get weather data for top 3 stations (optional)
 top_stations <- station_counts |> slice_max(n, n = 3)
 
 weather_data_list <- lapply(top_stations$weather_station_id, function(stn) {
-  get_GSOD(years = 2024, station = stn)
+  get_GSOD(years = 2014:2024, station = stn)
 })
 
 # Combine and save
@@ -123,11 +135,6 @@ file_path <- file.path("../data", paste0(obj_name, ".rda"))
 assign(obj_name, top_weather)
 
 save(list = obj_name, file = file_path)
-```
-```
-Warning :
-This station, 949630-99999, only provides data for years 1968 to 2020.
-Please send a request that falls within these years.
 ```
 
 
