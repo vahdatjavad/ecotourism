@@ -14,14 +14,17 @@ knitr::opts_chunk$set(
 )
 ```
 ![Hooded Parrot](image/orchids.jpg)
-We are investigating occurrence data of [**orchids(Orchidaceae)**](https://en.wikipedia.org/wiki/Orchid) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings for 2024.
+We are investigating occurrence data of [**orchids(Orchidaceae)**](https://en.wikipedia.org/wiki/Orchid) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # load required packages
 library(galah)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
+library(lubridate)
+library(geosphere)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
 ```
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
@@ -32,117 +35,126 @@ galah_config(email = "vahdatjavad@gmail.com")
 orchids_taxon <- search_taxa("Orchidaceae")
 occ_data <- galah_call() |> 
   galah_identify(orchids_taxon) |>  
-  galah_filter(year == 2024) |>
+  galah_filter(year >= 2014, year <= 2024) |>
   galah_select(decimalLatitude, decimalLongitude, year, eventDate, scientificName) |>
   atlas_occurrences()
   
 # Drop records with missing coordinates
-orchids_2024 <- occ_data |> 
+orchids <- occ_data |> 
   filter(!is.na(decimalLatitude), !is.na(decimalLongitude), !is.na(eventDate)) |> 
-  rename(lat = decimalLatitude, lon = decimalLongitude)
+  mutate(
+    obs_lat = decimalLatitude,
+    obs_lon = decimalLongitude,
+    eventDate = ymd_hms(eventDate),
+    datetime = eventDate,
+    month = month(eventDate),
+    day = day(eventDate),
+    weekday = wday(eventDate, label = TRUE, abbr = FALSE),
+    dayofyear = yday(eventDate),
+    scientificName = str_remove(scientificName, "\\s*\\([^\\)]+\\)")
+  ) %>%
+  select(obs_lat, obs_lon, year, month, day, weekday, dayofyear, datetime, scientificName)
 
 #save data
-usethis::use_data(orchids_2024)
+usethis::use_data(orchids, overwrite = TRUE)
 ```
 
 The head of **Orchids** dataset:
 
 ```{r echo=FALSE}
-load("../data/orchids_2024.rda")
-head(orchids_2024)
+load("../data/orchids.rda")
+head(orchids)
+```
+```{r echo=FALSE}
+orchids |> count(scientificName, sort = TRUE)
+
 ```
 
-the length of the records is `r nrow(orchids_2024)`
+the length of the records is `r nrow(orchids)`
 
-#### Monthly Distribution of Orchid Occurrences (2024)
+#### Weekly Distribution of organism 
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-# Extract month
-orchids_2024$month <- format(orchids_2024$eventDate, "%B")
-orchids_2024$month_num <- as.numeric(format(orchids_2024$eventDate, "%m"))
-
-ggplot(orchids_2024, aes(x = factor(month, levels = month.name))) +
+week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+orchids |> drop_na(weekday) |> 
+ggplot(aes(x = factor(weekday, levels = week_order))) +
   geom_bar(fill = "steelblue") +
   labs(
-    title = "Monthly Distribution of Orchid Occurrences (2024)",
+    title = "Week Days Distribution of Glowworm Occurrences",
+    x = "Week day", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#### Monthly Distribution of Orchid Occurrences
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+orchids |> drop_na(month) |>
+  mutate(month = month(month, label = TRUE, abbr = FALSE)) |> 
+ggplot(aes(x = factor(month, levels = month.name))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Monthly Distribution of Occurrences",
     x = "Month", y = "Number of Records"
   ) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-#### Data Regularity & Temporal Gaps
+#### Yearly Distribution of organism
 
-```{r, echo=FALSE, fig.width=6, fig.height=4}
-library(ggplot2)
-library(dplyr)
-library(lubridate)
-
-load("../data/orchids_2024.rda")
-# Convert to date format
-orchids_2024$date <- as.Date(orchids_2024$eventDate)
-
-# Temporal coverage analysis
-date_range <- range(orchids_2024$date)
-total_days <- as.numeric(diff(date_range))
-obs_days <- n_distinct(orchids_2024$date)
-gap_percentage <-  obs_days-total_days
-
-# Daily observation frequency
-daily_counts <- orchids_2024 %>%
-  count(date) %>%
-  complete(date = seq(min(date), max(date), by = "day"), 
-           fill = list(n = 0))
-
-# Gap visualization
-ggplot(daily_counts, aes(x = date, y = n)) +
-  geom_col(fill = "#1f77b4") +
-  geom_hline(yintercept = 0, color = "gray30") +
-  labs(title = paste0("Observation Gaps: ", gap_percentage, " days missing"),
-       x = "Date", y = "Daily Observations") +
-  theme_minimal()
+```{r echo=FALSE, fig.width=6, fig.height=4}
+orchids |> drop_na(year) |>
+ggplot(aes(x = factor(year))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Distribution of Occurrences",
+    x = "Year", y = "Number of Records"
+  ) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 
 #### In this section we want to find nearest weather station for each occrurance of Orchids
 
 ```{r, echo=FALSE}
 # load data sets
-load("../data/orchids_2024.rda")
+load("../data/orchids.rda")
 load("../data/weather_stations.rda")
 ```
 
 ```{r eval=FALSE, include=TRUE, echo=FALSE}
-# load package
-library(geosphere)
 
 # For each occurrence, find the nearest station
-nearest_station_ids <- sapply(1:nrow(orchids_2024), function(i) {
+nearest_station_ids <- sapply(1:nrow(orchids), function(i) {
   dists <- distHaversine(
-    cbind(weather_stations$lon, weather_stations$lat),
-    c(orchids_2024$lon[i], orchids_2024$lat[i])
+    cbind(weather_stations$stn_lon, weather_stations$stn_lat),
+    c(orchids$obs_lon[i], orchids$obs_lat[i])
   )
   weather_stations$stnid[which.min(dists)]
 })
 
 # Add the nearest station ID to the platypus data
-orchids_2024$weather_station_id <- nearest_station_ids
+orchids$weather_station_id <- nearest_station_ids
 
 # Join orchid data with weather station metadata
-orchids_2024_ws <- orchids_2024 %>%
+orchids_ws <- orchids %>%
   left_join(weather_stations, by = c("weather_station_id" = "stnid"))
 
 # save dataset
-usethis::use_data(orchids_2024_ws)
+usethis::use_data(orchids_ws)
 ```
 
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
-load("../data/orchids_2024_ws.rda")
-head(orchids_2024_ws, n = 3)
+load("../data/orchids_ws.rda")
+head(orchids_ws, n = 3)
 ```
 
 ```{r, echo=FALSE}
 # Calculate frequency by state
-state_freq <- table(orchids_2024_ws$state)
+state_freq <- table(orchids_ws$state)
 
 # Sort by frequency (descending order)
 state_freq <- sort(state_freq, decreasing = TRUE)
@@ -157,10 +169,10 @@ state_freq_df
 
 ```{r echo=FALSE, fig.width=8, fig.height=6}
 # Extract month
-orchids_2024_ws$month <- format(orchids_2024_ws$eventDate, "%B")
-orchids_2024_ws$month_num <- as.numeric(format(orchids_2024_ws$eventDate, "%m"))
+orchids_ws$month <- format(orchids_ws$datetime, "%B")
+orchids_ws$month_num <- as.numeric(format(orchids_ws$datetime, "%m"))
 
-ggplot(orchids_2024_ws, aes(x = factor(month, levels = month.name))) +
+ggplot(orchids_ws, aes(x = factor(month, levels = month.name))) +
   geom_bar(fill = "steelblue") +
   labs(
     title = "Monthly Distribution of Orchid Occurrences (2024) vs each state",
@@ -176,14 +188,14 @@ ggplot(orchids_2024_ws, aes(x = factor(month, levels = month.name))) +
 # Weekly patterns
 
 # Convert to date format
-orchids_2024_ws$date <- as.Date(orchids_2024_ws$eventDate)
+orchids_ws$date <- as.Date(orchids_ws$datetime)
 
-orchids_2024_ws <- orchids_2024_ws %>%
+orchids_ws <- orchids_ws %>%
   mutate(week = week(date),
          week_start = floor_date(date, "week"))
 
 # Weekly aggregation
-weekly_counts <- orchids_2024_ws %>%
+weekly_counts <- orchids_ws %>%
   count(week_start, state)
 
 # Seasonal plot
@@ -199,16 +211,16 @@ ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
 
 ```{r, echo=FALSE, fig.width=8, fig.height=6}
 # First create month column if not already present
-orchids_2024_ws <- orchids_2024_ws %>%
+orchids_ws <- orchids_ws %>%
   mutate(
-    date = as.Date(eventDate),  # Ensure date format
+    date = as.Date(datetime),  # Ensure date format
     month = format(date, "%B"),  # Full month name
     month_num = as.numeric(format(date, "%m"))  # Month number
   )
 
 
 # Monthly patterns by state
-state_monthly <- orchids_2024_ws %>%
+state_monthly <- orchids_ws %>%
   group_by(state, month) %>%
   summarize(count = n(), .groups = "drop") %>%
   group_by(state) %>%
@@ -226,15 +238,10 @@ ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state))
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-# Load required packages
-library(tidyverse)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
 
 # Clean and prepare data
-df <- orchids_2024_ws %>%
-  filter(!is.na(lat.x), !is.na(lon.x), !is.na(month)) %>%
+df <- orchids_ws %>%
+   filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
   mutate(month = factor(month, levels = month.name))  # Ensure proper month order
 
 # Load Australia base map (sf object)
@@ -243,7 +250,8 @@ aus_map <- ne_states(country = "Australia", returnclass = "sf")
 # Create faceted map by month
 ggplot() +
   geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = lon.x, y = lat.x, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5)+
   coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
   theme_minimal() +
   theme(
@@ -251,7 +259,7 @@ ggplot() +
     panel.grid = element_blank()
   ) +
   labs(
-    title = "Distribution of Orchid Sightings in Australia (2024)",
+    title = "Distribution of Orchid Sightings in Australia",
     x = "Longitude",
     y = "Latitude",
     color = "State"
@@ -261,15 +269,9 @@ ggplot() +
 ```
 
 ```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
-# Load required packages
-library(tidyverse)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
-
 # Clean and prepare data
-df <- orchids_2024_ws %>%
-  filter(!is.na(lat.x), !is.na(lon.x), !is.na(month)) %>%
+df <- orchids_ws %>%
+  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
   mutate(month = factor(month, levels = month.name))  # Ensure proper month order
 
 # Load Australia base map (sf object)
@@ -278,7 +280,8 @@ aus_map <- ne_states(country = "Australia", returnclass = "sf")
 # Create faceted map by month
 ggplot() +
   geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = lon.x, y = lat.x, color = state), alpha = 0.6, size = 1.5) +
+ geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
+  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5) +
   coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
   facet_wrap(~ month, ncol = 4) +
   theme_minimal() +
