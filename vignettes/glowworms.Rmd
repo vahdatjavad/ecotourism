@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-  ![](image/glowworm.jpg)
+![](image/glowworm.jpg)
 
 ```{r "markdown initiation", include = FALSE}
 knitr::opts_chunk$set(
@@ -16,111 +16,57 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+source("vignette-utils.R")
+```
+
 We are investigating occurrence data of [**Glowworms**](https://en.wikipedia.org/wiki/Glowworm) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
 
-```{r "load library", echo=FALSE, message=FALSE, warning=FALSE}
-# load required packages
-library(galah)
-library(tidyverse)
-library(lubridate)
-library(geosphere)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
-library(knitr)
-library(DT)
-library(janitor)
+```{r echo=FALSE}
+# global variables
+organism_name <- "glowworms"
+organism_title <- "Glowworms"
+taxa     <- "Arachnocampa"
+start    <- 2014
+end      <- 2024
 ```
 
 ```{r "request data ALA", eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-# requesting data from ALA 
 
-# Set up ALA Access
-galah_config(email = "vahdatjavad@gmail.com")
-
-# Define and perform the search
-glowworm_taxon <- search_taxa("Arachnocampa")
-occ_data <- galah_call() |> 
-  galah_identify(glowworm_taxon) |>  
-  galah_filter(year >= 2014, year <= 2024) |>
-  galah_select(decimalLatitude, decimalLongitude, year, month, day, eventDate, scientificName, stateProvince) |>
-  atlas_occurrences()
-
-# Drop records with missing coordinates
-glowworms_raw <- occ_data |> 
-  filter(!is.na(decimalLatitude), !is.na(decimalLongitude), !is.na(eventDate)) |>
-  mutate(
-    obs_lat = decimalLatitude,
-    obs_lon = decimalLongitude,
-    datetime = eventDate,
-    weekday = wday(eventDate, label = TRUE, abbr = FALSE),
-    dayofyear = yday(eventDate),
-    scientificName = str_remove(scientificName, "\\s*\\([^\\)]+\\)"),
-    obs_state = stateProvince
-  ) %>%
-  select(obs_lat, obs_lon, year, month, day, weekday, dayofyear, datetime, scientificName, obs_state)
-
+organism_raw <- obs_data(taxa, start, end) |> polished_data()
 # Save data
-save(glowworms_raw, file = "../data-raw/glowworms_raw.rda")
+mysave_raw(organism_name, organism_raw)
 ```
 
-This is the head of dataset: 
+This is the head of data set:
 
 ```{r "print head of data", echo=FALSE}
-load("../data-raw/glowworms_raw.rda")
-glowworms_raw |> slice_head(n = 3) |>  kable()
+organism_raw <- myload_raw(organism_name)
+organism_raw |> slice_head(n = 3) |> as_tibble() 
 ```
 
-Now we want to know the number of occurance in each state:
+Now we want to know the number of occurrence in each state:
 
 ```{r "number of occ in state", echo=FALSE}
-glowworms_raw |>    count(scientificName, obs_state) |> 
-  pivot_wider(
-    names_from = obs_state,
-    values_from = n,
-    values_fill = 0
-  ) |> 
-  adorn_totals(where = c("row", "col")) |>       # Fill missing values with 0
-  kable(caption = "Occurrences by Scientific Name and State")
+organism_raw |> my_count(scientificName, obs_state) |> as_tibble() 
 ```
 
-
-This is the selected species and in the next we will consider all `Arachnocampa`
-around `Arachnocampa flava` as a `falava` because `Arachnocampa` is a genus species.
-
+This is the selected species and in the next we will consider all `Arachnocampa` around `Arachnocampa flava` as a `falava` because `Arachnocampa` is a genus species.
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
 
 # Clean and prepare data
-glowworms_raw |> 
+organism_raw |> 
   filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month), 
          scientificName == "Arachnocampa" | 
          scientificName == "Arachnocampa flava" |
          scientificName == "Arachnocampa tasmaniensis") |> 
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(aes(x = obs_lon, y = obs_lat, color = scientificName), alpha = 0.6, size = 1.5) +
-  coord_sf(xlim = c(115, 155), ylim = c(-45, -10)) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Distribution of Glowworm Occurrences Sightings in Australia",
-    x = "Longitude",
-    y = "Latitude",
-    color = "Scientific Name"
-  )
+  plot_map1(color_by = scientificName)
 
 ```
 
 we want to assign genus "Arachnocampa" records to the "Arachnocampa flava" specie — based on how close they are geographically to other records.
- 
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 # Set radius threshold in meters (250 km)
@@ -128,10 +74,10 @@ radius_threshold <- 250000
 
 
 # Split into unknowns and references
-unknowns <- glowworms_raw |> 
+unknowns <- organism_raw |> 
   filter(scientificName == "Arachnocampa")
 
-references <- glowworms_raw |> 
+references <- organism_raw |> 
   filter(scientificName == "Arachnocampa flava")
 
 # Function to assign if within distance
@@ -155,7 +101,7 @@ unknowns_updated <- unknowns |>
 
 
 # Combine with other records
-glowworms <- glowworms_raw |> 
+organism <- organism_raw |> 
   filter(scientificName != "Arachnocampa") |> 
   bind_rows(unknowns_updated) |> 
   filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month), 
@@ -164,307 +110,123 @@ glowworms <- glowworms_raw |>
 
   
 
-usethis::use_data(glowworms, overwrite = TRUE)
+mysave(organism_name, organism)
 ```
- 
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
-
 # Clean and prepare data
-glowworms |> 
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(aes(x = obs_lon, y = obs_lat, color = scientificName), alpha = 0.6, size = 1.5) +
-  coord_sf(xlim = c(115, 155), ylim = c(-45, -10)) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Distribution of Glowworm Occurrences Sightings in Australia",
-    x = "Longitude",
-    y = "Latitude",
-    color = "Scientific Name"
-  )
+organism |> plot_map1(color_by = scientificName)
 
 ```
 
 ```{r "number of occ in state v2", echo=FALSE}
-glowworms |>    count(scientificName, obs_state) |> 
-  pivot_wider(
-    names_from = obs_state,
-    values_from = n,
-    values_fill = 0
-  ) |> 
-  adorn_totals(where = c("row", "col")) |>       # Fill missing values with 0
-  kable(caption = "Occurrences by Scientific Name and State")
+organism |> my_count(scientificName, obs_state) |> as_tibble()
 ```
 
-
-
-#### Weekly Distribution of organism 
+#### Weekly Distribution of organism
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-glowworms |> drop_na(weekday) |> 
-ggplot(aes(x = factor(weekday, levels = week_order))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Week Days Distribution of Glowworm Occurrences",
-    x = "Week day", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+organism |>  plot_bar_week()
 ```
 
-#### Monthly Distribution of organism 
+#### Monthly Distribution of organism
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-glowworms |> drop_na(month) |>
-  mutate(month = month(month, label = TRUE, abbr = FALSE)) |> 
-ggplot(aes(x = factor(month, levels = month.name))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Monthly Distribution of Glowworm Occurrences",
-    x = "Month", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+organism |> plot_bar_month()
 ```
 
 #### Yearly Distribution of organism
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-glowworms |> drop_na(year) |>
-ggplot(aes(x = factor(year))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Distribution of Glowworm Occurrences",
-    x = "Year", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+organism |> plot_bar_year()
 ```
 
 #### Nearest Weather Station Mapping
 
-```{r, echo=FALSE}
-load("../data/glowworms.rda")
-load("../data/weather_stations.rda")
-```
-
-```{r eval=FALSE, include=TRUE, message=FALSE, warning=FALSE}
-
-nearest_station_ids <- sapply(1:nrow(glowworms), function(i) {
-  dists <- distHaversine(
-    cbind(weather_stations$stn_lon, weather_stations$stn_lat),
-    c(glowworms$obs_lon[i], glowworms$obs_lat[i])
-  )
-  weather_stations$stnid[which.min(dists)]
-})
-
-glowworms$weather_station_id <- nearest_station_ids
-glowworms_ws <- glowworms %>%
-  left_join(weather_stations, by = c("weather_station_id" = "stnid")) |> 
-  rename(stn_state = )
-
-usethis::use_data(glowworms_ws, overwrite = TRUE)
+```{r, echo=FALSE, message=FALSE}
+attach_nearest_station(organism_name)
 ```
 
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
-load("../data/glowworms_ws.rda")
-head(glowworms_ws, n = 2) |> kable()
+organism_ws <- myload_ws(organism_name)
+
+head(organism_ws, n = 2) |> as_tibble()
 ```
 
 ```{r, echo=FALSE}
-load("../data/glowworms_ws.rda")
-state_freq <- table(glowworms_ws$state)
-state_freq <- sort(state_freq, decreasing = TRUE)
-state_freq_df <- as.data.frame(state_freq)
-colnames(state_freq_df) <- c("State", "Frequency")
-state_freq_df
+
+summarize_state_frequencies(organism_name)
+
 ```
+
+Interpretation:
+
+-    Queensland:\
+    61 of your organism records were observed in Queensland.\
+    However, only 17 of those were linked to weather stations also located in Queensland.
+
+-   Tasmania:\
+    40 observations were made in Tasmania, and\
+    All 40 were matched to Tasmanian weather stations — a perfect match.
+
+-   New South Wales:\
+    23 observations occurred there,\
+    But 67 records were linked to weather stations in New South Wales — suggesting many observations from other states were matched to NSW stations.
 
 #### Pattern Analysis
 
 ```{r echo=FALSE, fig.width=8, fig.height=6}
-glowworms_ws$month <- format(glowworms_ws$datetime, "%B")
-glowworms_ws$month_num <- as.numeric(format(glowworms_ws$datetime, "%m"))
-
-ggplot(glowworms_ws, aes(x = factor(month, levels = month.name))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Monthly Distribution of Glowworm Occurrences by State",
-    x = "Month", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(. ~ state, scales = "free_y") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
+plot_monthly_occurrences_by_state(organism_name)
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-glowworms_ws$date <- as.Date(glowworms_ws$datetime)
-glowworms_ws <- glowworms_ws %>%
-  mutate(week = week(date),
-         week_start = floor_date(date, "week"))
-
-weekly_counts <- glowworms_ws %>%
-  count(week_start, state)
-
-ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
-  geom_line(color = "#2ca02c") +
-  geom_smooth(method = "loess", se = FALSE, color = "#d62728") +
-  facet_wrap(~state, scales = "free_y") +
-  labs(
-    title = "Weekly Occurrence Patterns of Glowworms with Trend Lines",
-    x = "Week Starting", y = "Observations"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+plot_weekly_occurrences_by_state(organism_name)
 ```
 
 ```{r, echo=FALSE, fig.width=8, fig.height=6}
-glowworms_ws <- glowworms_ws %>%
-  mutate(
-    date = as.Date(datetime),
-    month = format(date, "%B"),
-    month_num = as.numeric(format(date, "%m"))
-  )
-
-state_monthly <- glowworms_ws %>%
-  group_by(state, month) %>%
-  summarize(count = n(), .groups = "drop") %>%
-  group_by(state) %>%
-  mutate(percent = 100 * count / sum(count))
-
-ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state)) +
-  geom_line(linewidth = 1.5) +
-  coord_polar() +
-  scale_x_discrete(limits = month.name) +
-  labs(title = "Seasonal Patterns of Glowworm Occurrences by State",
-       x = NULL, y = "Percentage of Occurrences") +
-  theme_minimal()
+plot_seasonal_occurrence_polar(organism_name)
 ```
-
-
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 
-# Clean and prepare data
-df <- glowworms_ws %>%
-  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
-  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
-
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = scientificName), alpha = 0.6, size = 1.5) +
-  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5)+
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Distribution of Glowworm Occurrences Sightings in Australia",
-    x = "Longitude",
-    y = "Latitude",
-    color = ""
-  )
+plot_monthly_occurrence_map(organism_name)
 
 
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 
-# Clean and prepare data
-df <- glowworms_ws %>%
-  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
-  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
-
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
-  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5)+
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Distribution of Glowworm Occurrences Sightings in Australia",
-    x = "Longitude",
-    y = "Latitude",
-    color = "State"
-  )
-
+plot_monthly_occurrence_map_by_state(organism_name)
 
 ```
 
 ```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
-# Clean and prepare data
-df <- glowworms_ws %>%
-  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
-  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
-
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
- geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
-  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5) +
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
-  facet_wrap(~ month, ncol = 4) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Monthly Distribution of Glowworm Occurrences Sightings in Australia",
-    x = "Longitude",
-    y = "Latitude",
-    color = "State"
-  )
-
-
+plot_monthly_distribution_map(organism_name)
 ```
 
-### Datasets Overview
+## 📦 Datasets Overview
 
-We have organized the glowworm occurrence and weather station data into the following structured datasets, stored in the `data/` directory:
+The occurrence and weather station data have been processed and organized into the following structured datasets, all stored in the `data/` directory:
 
--   `glowworms_2024.rda`  
-    Contains glowworm occurrence records across all states in Australia.
+### ```r paste0(organism_name, ".rda") ```
 
--   `glowworms_2024_ws.rda`  
-    An enhanced version of the occurrence data, merged with the nearest weather station information, including:
+Contains raw occurrence records for the target organism across various regions, including key spatial and temporal fields such as latitude, longitude, observation date/time, and administrative boundaries (e.g., state or territory).
 
-    ```
-    --Station ID (weather_station_id)
-    --Station name (stname)
-    --Geographic details (lat.y, lon.y, address, city, state)
-    ```
+### ```r paste0(organism_name, "_ws.rda") ```
 
--   `glowworms_top_weather.rda`  
-    Focuses on weather data from the top 3 most frequently recorded stations associated with glowworm occurrences.
+An enhanced version of the occurrence dataset in which each record has been spatially matched to its **nearest weather station**. This dataset includes additional metadata fields:
 
--   `weather_stations.rda`  
-    A standalone dataset of all unique weather stations in Australia, providing reference metadata for cross-referencing.
+```
+- weather_station_id  : ID of the nearest weather station  
+- stname              : Weather station name  
+- stn_lat, stn_lon    : Coordinates of the weather station  
+- stn_state, stn_city : Location details of the station  
+```
+
+### ```r paste0(organism_name, "_top_weather.rda") ```
+
+A subset of weather data extracted from the **top N most frequently linked weather stations** in ```r paste0(organism_name, "_ws.rda") ```, used to investigate environmental patterns surrounding the most common observation sites.
+
+### `weather_stations.rda`
+
+A complete reference dataset of unique weather stations, including their identifiers, names, coordinates, and associated administrative metadata. This serves as a lookup or cross-reference for station matching and environmental analysis.
