@@ -1,5 +1,5 @@
 ---
-title: "weather"
+title: "Australia Weather Station"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{weather}
@@ -14,27 +14,34 @@ knitr::opts_chunk$set(
 )
 ```
 
-We are using `GSODR` package to download one year of daily weather data(temperature and precipitation).
-
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
-# load required packages
-library(GSODR)
-library(tidyverse)
-library(tidygeocoder)
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+source("vignette-utils.R")
 ```
 
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+We are using `GSODR` package to download weather Stations data(location).
+
+```{r eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 # Download and Return weather station Data
 stations_all <- get_inventory()
-```
 
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
 # Data Wrangling
 weather_stations <- stations_all |>
   filter(CTRY == "AS") |> select(STNID, NAME, LAT, LON) |> 
   rename(stn_lat = LAT, stn_lon = LON, stnid = STNID, stname = NAME) |> 
   distinct(stn_lat, stn_lon, .keep_all = TRUE) |> 
-  filter(stn_lat>=-44, stn_lat <= -8, stn_lon>= 110, stn_lon<= 160)
+  filter(stn_lat>=-44, stn_lat <= -8, stn_lon>= 110, stn_lon<= 160) |> 
+  # add address for each lat lon weather station
+  reverse_geocode(lat = stn_lat, long = stn_lon, method = "osm")  # Uses OpenStreetMap
+
+# --- apply to tibble ------------------------------------------------------
+# extract city name and state name from address
+weather_stations <- weather_stations %>%
+  rowwise() %>%                               # operate row-by-row
+  mutate(                                       # append new columns
+    parsed = list(parse_address(address))
+  ) %>% 
+  unnest(parsed) %>%                           # expand list-column
+  ungroup()      
   
 ```
 
@@ -43,103 +50,41 @@ weather_stations <- stations_all |>
 usethis::use_data(weather_stations, overwrite = TRUE)
 ```
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+
+The count of Weather Stations in each State
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 # load data
 load("../data/weather_stations.rda")
-
-weather_stations |> count(state, sort = TRUE)
+weather_stations |> count(stn_state, sort = TRUE) |> kable()
 ```
 
 
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
 # print head of data
-head(weather_stations, n = 2)
-```
-
-```{r eval=FALSE, include=TRUE}
-# A tibble: 6 x 7
-#  stnid        stname                  lat   lon
-#  <chr>        <chr>                 <dbl> <dbl>
-#1 941000-99999 KALUMBURU             -14.3  127.
-#2 941020-99999 TROUGHTON ISLAND      -13.8  126.
-#3 941030-99999 BROWSE ISLAND AWS     -14.1  124.
+head(weather_stations, n = 3) |>  kable()
 ```
 
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+
 # Plotting the Map of the Weather Stations
-ggplot(data = weather_stations) +
-  borders("world", regions = "Australia", fill = "gray95", colour = "gray50") +
-  geom_point(aes(x = stn_lon, y = stn_lat, colour = state), alpha = 0.6, size = 2) +
-  coord_fixed(1.3) +
+# Load Australia base map (sf object)
+aus_map <- ne_states(country = "Australia", returnclass = "sf")
+
+ggplot() +
+    geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
+    geom_point(data = weather_stations, 
+             aes(x = stn_lon, y = stn_lat, colour = stn_state),
+             alpha = 0.6, size = 2) +
+ coord_sf(xlim = c(115, 155), ylim = c(-45, -10)) +
   labs(
     title = "Weather Stations in Australia",
     x = "Longitude",
-    y = "Latitude"
+    y = "Latitude",
+    colour = "State"
   ) +
   theme_minimal()
 ```
 
-We added address column to the weather stations dataset
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
-# Adding State Column and city column
-# Reverse geocode using latitude and longitude
-stations_with_location <- weather_stations |>
-  reverse_geocode(lat = stn_lat, long = stn_lon, method = "osm")  # Uses OpenStreetMap
-```
 
-```{r eval=FALSE, include=TRUE}
-> head(stations_with_location, n = 3)
-# A tibble: 3 x 7
-#  stnid        stname              lat   lon address                                                             
-#  <chr>        <chr>             <dbl> <dbl> <chr>                                                               
-#1 941000-99999 KALUMBURU         -14.3  127. Drysdale River, Shire Of Wyndham-East Kimberley, Western Australia~
-#2 941020-99999 TROUGHTON ISLAND  -13.8  126. Troughton Island Airport, Shire Of Wyndham-East Kimberley, Western~
-```
-
-Now we want to extract state and city name from address text.
-```{r eval=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-# --- helper to extract city / state --------------------------------------
-parse_address <- function(addr) {
-  tokens <- str_split(addr, ",")[[1]]          # split at commas
-  tokens <- str_trim(tokens)                   # trim spaces
-  tokens <- tokens[!(tokens == "Australia")]   # drop country
-  tokens <- tokens[!str_detect(tokens, "^[0-9]+$")]  # drop pure numerics (postcodes)
-
-  # State  = last token remaining
-  # City   = first token remaining
-  state <- tokens[length(tokens)]
-  city  <- tokens[1]
-
-  tibble(city = city, state = state)
-}
-
-# --- apply to tibble ------------------------------------------------------
-stations_with_location <-
-  stations_with_location %>%
-  rowwise() %>%                               # operate row-by-row
-  mutate(                                       # append new columns
-    parsed = list(parse_address(address))
-  ) %>%
-  unnest(parsed) %>%                           # expand list-column
-  ungroup()           
-```
-
-```{r eval=FALSE, include=TRUE}
-> head(stations_with_location, n = 3)
-# A tibble: 3 x 7
-#  stnid        stname              lat   lon address                        city  state
-#  <chr>        <chr>             <dbl> <dbl> <chr>                          <chr> <chr>
-#1 941000-99999 KALUMBURU         -14.3  127. Drysdale River, Shire Of Wynd~ Drys~ West~
-#2 941020-99999 TROUGHTON ISLAND  -13.8  126. Troughton Island Airport, Shi~ Trou~ West~
-#3 941030-99999 BROWSE ISLAND AWS -14.1  124. Shire Of Wyndham-East Kimberl~ Shir~ West~
-```
-
-
-```{r eval=FALSE, echo=FALSE, include=TRUE}
-# save final data set
-weather_stations <- stations_with_location
-usethis::use_data(weather_stations, overwrite = TRUE)
-```
-  
-  
