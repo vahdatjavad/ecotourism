@@ -204,12 +204,14 @@ myload <- function(organism) {
 #' @param data A data frame.
 #' @param Sci_Name Unquoted column name for scientific names.
 #' @param state Unquoted column name for states or regions.
+#' @param f filter the count to greater than this number
 #'
 #' @return A pivoted data frame with counts and totals.
 #' @export
-my_count <- function(data, Sci_Name, state) {
+my_count <- function(data, Sci_Name, state, f=0) {
   data |>
     count({{ Sci_Name }}, {{ state }}) |>
+    filter(n > f ) |>
     tidyr::pivot_wider(
       names_from = {{ state }},
       values_from = n,

@@ -13,319 +13,129 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+source("vignette-utils.R")
+```
+
+
 ![Hooded Parrot](image/gouldian_finch.jpg)
 We are investigating occurrence data of [**Gouldian finch**](https://en.wikipedia.org/wiki/Gouldian_finch) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# load required packages
-library(galah)
-library(tidyverse)
-library(lubridate)
-library(geosphere)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
+```{r echo=FALSE}
+# global variables
+organism_name <- "gouldian_finch"
+organism_title <- "Gouldian finch"
+taxa     <- "Gouldian finch"
+start    <- 2014
+end      <- 2024
 ```
 
-```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-# Set up ALA Access
-galah_config(email = "vahdatjavad@gmail.com")
 
-# Define and perform the search
-finch_taxon <- search_taxa("Gouldian finch")
-occ_data <- galah_call() |> 
-  galah_identify(finch_taxon) |>  
-  galah_filter(year >= 2014, year <= 2024) |>
-  galah_select(decimalLatitude, decimalLongitude, year, eventDate, scientificName) |>
-  atlas_occurrences()
+```{r "request data ALA", eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 
-# Drop records with missing coordinates
-gouldian_finch <- occ_data |> 
-  filter(!is.na(decimalLatitude), !is.na(decimalLongitude), !is.na(eventDate)) |> 
-  mutate(
-    obs_lat = decimalLatitude,
-    obs_lon = decimalLongitude,
-    eventDate = ymd_hms(eventDate),
-    datetime = eventDate,
-    month = month(eventDate),
-    day = day(eventDate),
-    weekday = wday(eventDate, label = TRUE, abbr = FALSE),
-    dayofyear = yday(eventDate),
-    scientificName = str_remove(scientificName, "\\s*\\([^\\)]+\\)")
-  ) %>%
-  select(obs_lat, obs_lon, year, month, day, weekday, dayofyear, datetime, scientificName)
-
+organism <- obs_data(taxa, start, end) |> polished_data()
 # Save data
-usethis::use_data(gouldian_finch)
+mysave(organism_name, organism)
 ```
 
-The head of dataset:
 
+This is the head of data set:
 
-```{r echo=FALSE}
-load("../data/gouldian_finch.rda")
-head(gouldian_finch)
-```
-```{r echo=FALSE}
-gouldian_finch |> count(scientificName, sort = TRUE)
+```{r "print head of data", echo=FALSE}
+organism <- myload(organism_name)
+organism |> slice_head(n = 3) |> as_tibble() 
 ```
 
-the length of the records is `r nrow(gouldian_finch)`
+Now we want to know the number of occurrence in each state:
 
-#### Weekly Distribution of organism 
+```{r "number of occ in state", echo=FALSE}
+organism |> my_count(scientificName, obs_state, f=1) |> as_tibble() 
+```
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-gouldian_finch |> drop_na(weekday) |> 
-ggplot(aes(x = factor(weekday, levels = week_order))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Week Days Distribution of Occurrences",
-    x = "Week day", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# Clean and prepare data
+organism |> plot_map1(color_by = scientificName)
+
 ```
 
-#### Monthly Distribution of organisim
+#### Weekly Distribution of organism
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-gouldian_finch |> drop_na(month) |>
-  mutate(month = month(month, label = TRUE, abbr = FALSE)) |> 
-ggplot(aes(x = factor(month, levels = month.name))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Monthly Distribution of Occurrences",
-    x = "Month", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+organism |>  plot_bar_week()
 ```
+
+#### Monthly Distribution of organism
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+organism |> plot_bar_month()
+```
+
 #### Yearly Distribution of organism
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-gouldian_finch |> drop_na(year) |>
-ggplot(aes(x = factor(year))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Distribution of Occurrences",
-    x = "Year", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+organism |> plot_bar_year()
 ```
 
+#### Nearest Weather Station Mapping
 
-#### In this section we want to find nearest weather station for each occrurance of organism
-
-```{r, echo=FALSE}
-# load data sets
-load("../data/gouldian_finch.rda")
-load("../data/weather_stations.rda")
-```
-
-```{r eval=FALSE, include=TRUE, echo=FALSE}
-# For each occurrence, find the nearest station
-nearest_station_ids <- sapply(1:nrow(gouldian_finch), function(i) {
-  dists <- distHaversine(
-    cbind(weather_stations$stn_lon, weather_stations$stn_lat),
-    c(gouldian_finch$obs_lon[i], gouldian_finch$obs_lat[i])
-  )
-  weather_stations$stnid[which.min(dists)]
-})
-
-# Add the nearest station ID to the finch data
-gouldian_finch$weather_station_id <- nearest_station_ids
-
-# Join finch data with weather station metadata
-gouldian_finch_ws <- gouldian_finch %>%
-  left_join(weather_stations, by = c("weather_station_id" = "stnid"))
-
-# Save dataset
-usethis::use_data(gouldian_finch_ws)
+```{r, echo=FALSE, message=FALSE}
+attach_nearest_station(organism_name)
 ```
 
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
-load("../data/gouldian_finch_ws.rda")
-head(gouldian_finch_ws, n = 3)
+organism_ws <- myload_ws(organism_name)
+
+head(organism_ws, n = 2) |> as_tibble()
 ```
 
 ```{r, echo=FALSE}
-# Load data
-load("../data/gouldian_finch_ws.rda")
 
-# Calculate frequency by state
-state_freq <- table(gouldian_finch_ws$state)
+summarize_state_frequencies(organism_name)
 
-# Sort by frequency (descending order)
-state_freq <- sort(state_freq, decreasing = TRUE)
-
-# Convert to data frame for better presentation
-state_freq_df <- as.data.frame(state_freq)
-colnames(state_freq_df) <- c("State", "Frequency")
-state_freq_df
 ```
+
+
+Interpretation:
+
+-    Queensland:\
+    77 of your organism records were observed in Queensland.\
+    However, only 81 of those were linked to weather stations also located in Queensland.
+
+
+-   Western Australia:\
+    951 observations occurred there,\
+    But 989 records were linked to weather stations in Western Australia — suggesting many observations from other states were matched to Western Australia stations.
+
 
 #### Pattern Analysis
 
 ```{r echo=FALSE, fig.width=8, fig.height=6}
-# Extract month
-gouldian_finch_ws$month <- format(gouldian_finch_ws$datetime, "%B")
-gouldian_finch_ws$month_num <- as.numeric(format(gouldian_finch_ws$datetime, "%m"))
-
-# Plot monthly distribution faceted by state
-ggplot(gouldian_finch_ws, aes(x = factor(month, levels = month.name))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Monthly Distribution of Gouldian Finch Occurrences by State",
-    x = "Month", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(. ~ state, scales = "free_y") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))
+plot_monthly_occurrences_by_state(organism_name)
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-# Convert to date format
-gouldian_finch_ws$date <- as.Date(gouldian_finch_ws$datetime)
-
-# Add week and week_start columns
-gouldian_finch_ws <- gouldian_finch_ws %>%
-  mutate(week = week(date),
-         week_start = floor_date(date, "week"))
-
-# Weekly aggregation by state
-weekly_counts <- gouldian_finch_ws %>%
-  count(week_start, state)
-
-# Seasonal plot with LOESS smoothing
-ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
-  geom_line(color = "#2ca02c") +
-  geom_smooth(method = "loess", se = FALSE, color = "#d62728") +
-  facet_wrap(~state, scales = "free_y") +
-  labs(
-    title = "Weekly Occurrence Patterns of Gouldian Finch with Trend Lines",
-    x = "Week Starting", y = "Observations"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+plot_weekly_occurrences_by_state(organism_name)
 ```
 
 ```{r, echo=FALSE, fig.width=8, fig.height=6}
-# First create month column if not already present
-gouldian_finch_ws <- gouldian_finch_ws %>%
-  mutate(
-    date = as.Date(datetime),  # Ensure date format
-    month = format(date, "%B"),  # Full month name
-    month_num = as.numeric(format(date, "%m"))  # Month number
-  )
+plot_seasonal_occurrence_polar(organism_name)
+```
 
-# Monthly patterns by state
-state_monthly <- gouldian_finch_ws %>%
-  group_by(state, month) %>%
-  summarize(count = n(), .groups = "drop") %>%
-  group_by(state) %>%
-  mutate(percent = 100 * count / sum(count))
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 
-# Circular seasonality plot
-ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state)) +
-  geom_line(linewidth = 1.5) +
-  coord_polar() +
-  scale_x_discrete(limits = month.name) +
-  labs(title = "Seasonal Patterns of Gouldian Finch Occurrences by State",
-       x = NULL, y = "Percentage of Occurrences") +
-  theme_minimal()
+plot_monthly_occurrence_map(organism_name)
+
+
+```
+
+
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+
+plot_monthly_occurrence_map_by_state(organism_name)
 
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-# Clean and prepare data
-df <- gouldian_finch_ws %>%
-  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
-  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
-
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
-  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5)+
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Distribution of Gouldian Finch Sightings in Australia",
-    x = "Longitude",
-    y = "Latitude",
-    color = "State"
-  )
-
-
+plot_monthly_distribution_map(organism_name)
 ```
-
-```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
-# Clean and prepare data
-df <- gouldian_finch_ws %>%
-  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
-  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
-
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
- geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
-  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5) +
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
-  facet_wrap(~ month, ncol = 4) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Monthly Distribution of Gouldian Finch Sightings in Australia (2024)",
-    x = "Longitude",
-    y = "Latitude",
-    color = "State"
-  )
-
-
-```
-
-
-### Datasets Overview
-
-We have organized the Gouldian finch occurrence and weather station data into the following structured datasets, stored in the `data/` directory:
-
--   `gouldian_finch_2024.rda`  
-    Contains Gouldian finch occurrence records across all states in Australia.
-
--   `gouldian_finch_2024_ws.rda`  
-    An enhanced version of the occurrence data, merged with the nearest weather station information, including:
-
-    <div>
-
-    ```         
-    --Station ID (weather_station_id)
-
-    --Station name (stname)
-
-    --Geographic details (lat.y, lon.y, address, city, state)
-    ```
-
-    </div>
-
--   `gouldian_finch_top_weather.rda`  
-    Focuses on weather data from the top 3 most frequently recorded stations associated with Gouldian finch occurrences.
-
--   `weather_stations.rda`  
-    A standalone dataset of all unique weather stations in Australia, providing reference metadata for cross-referencing.
