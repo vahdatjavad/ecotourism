@@ -1,5 +1,5 @@
 ---
-title: "orchids"
+title: "Orchids"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{orchids}
@@ -14,313 +14,153 @@ knitr::opts_chunk$set(
 )
 ```
 ![Hooded Parrot](image/orchids.jpg)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+source("vignette-utils.R")
+```
+
 We are investigating occurrence data of [**orchids(Orchidaceae)**](https://en.wikipedia.org/wiki/Orchid) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# load required packages
-library(galah)
-library(tidyverse)
-library(lubridate)
-library(geosphere)
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
-```
-
-```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
-# Set up ALA Access
-galah_config(email = "vahdatjavad@gmail.com")
-
-# Define and perform the search
-orchids_taxon <- search_taxa("Orchidaceae")
-occ_data <- galah_call() |> 
-  galah_identify(orchids_taxon) |>  
-  galah_filter(year >= 2014, year <= 2024) |>
-  galah_select(decimalLatitude, decimalLongitude, year, eventDate, scientificName) |>
-  atlas_occurrences()
-  
-# Drop records with missing coordinates
-orchids <- occ_data |> 
-  filter(!is.na(decimalLatitude), !is.na(decimalLongitude), !is.na(eventDate)) |> 
-  mutate(
-    obs_lat = decimalLatitude,
-    obs_lon = decimalLongitude,
-    eventDate = ymd_hms(eventDate),
-    datetime = eventDate,
-    month = month(eventDate),
-    day = day(eventDate),
-    weekday = wday(eventDate, label = TRUE, abbr = FALSE),
-    dayofyear = yday(eventDate),
-    scientificName = str_remove(scientificName, "\\s*\\([^\\)]+\\)")
-  ) %>%
-  select(obs_lat, obs_lon, year, month, day, weekday, dayofyear, datetime, scientificName)
-
-#save data
-usethis::use_data(orchids, overwrite = TRUE)
-```
-
-The head of **Orchids** dataset:
 
 ```{r echo=FALSE}
-load("../data/orchids.rda")
-head(orchids)
+# global variables
+organism_name <- "orchids"
+organism_title <- "Orchids"
+taxa     <- "Orchidaceae"
+start    <- 2014
+end      <- 2024
 ```
-```{r echo=FALSE}
-orchids |> count(scientificName, sort = TRUE)
 
+
+```{r "request data ALA", eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+organism <- obs_data(taxa, start, end) |> polished_data()
+
+# Save data
+mysave(organism_name, organism)
 ```
 
-the length of the records is `r nrow(orchids)`
+This is the head of data set:
 
-#### Weekly Distribution of organism 
+```{r "print head of data", echo=FALSE}
+organism <- myload(organism_name)
+organism |> slice_head(n = 3) |> as_tibble() 
+```
+
+Now we want to know the number of occurrence in each state:
+
+```{r "number of occ in state", echo=FALSE}
+organism |> my_count(scientificName, obs_state, f=1) |> as_tibble() 
+```
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-orchids |> drop_na(weekday) |> 
-ggplot(aes(x = factor(weekday, levels = week_order))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Week Days Distribution of Glowworm Occurrences",
-    x = "Week day", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# selected scientificName
+# my selected species
+mss <- c("Acianthus", "Acianthus fornicatus")
+
 ```
 
-#### Monthly Distribution of Orchid Occurrences
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-orchids |> drop_na(month) |>
-  mutate(month = month(month, label = TRUE, abbr = FALSE)) |> 
-ggplot(aes(x = factor(month, levels = month.name))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Monthly Distribution of Occurrences",
-    x = "Month", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# Clean and prepare data
+organism |> filter(scientificName %in% mss) |> plot_map1()
+
+```
+
+#### Weekly Distribution of organism
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+organism |>  filter(scientificName %in% mss) |> plot_bar_week()
+```
+
+#### Monthly Distribution of organism
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+organism |> filter(scientificName %in% mss) |> plot_bar_month()
 ```
 
 #### Yearly Distribution of organism
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
-orchids |> drop_na(year) |>
-ggplot(aes(x = factor(year))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Distribution of Occurrences",
-    x = "Year", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+organism |> filter(scientificName %in% mss) |> plot_bar_year()
 ```
 
+#### Nearest Weather Station Mapping
 
-#### In this section we want to find nearest weather station for each occrurance of Orchids
-
-```{r, echo=FALSE}
-# load data sets
-load("../data/orchids.rda")
-load("../data/weather_stations.rda")
-```
-
-```{r eval=FALSE, include=TRUE, echo=FALSE}
-
-# For each occurrence, find the nearest station
-nearest_station_ids <- sapply(1:nrow(orchids), function(i) {
-  dists <- distHaversine(
-    cbind(weather_stations$stn_lon, weather_stations$stn_lat),
-    c(orchids$obs_lon[i], orchids$obs_lat[i])
-  )
-  weather_stations$stnid[which.min(dists)]
-})
-
-# Add the nearest station ID to the platypus data
-orchids$weather_station_id <- nearest_station_ids
-
-# Join orchid data with weather station metadata
-orchids_ws <- orchids %>%
-  left_join(weather_stations, by = c("weather_station_id" = "stnid"))
-
-# save dataset
-usethis::use_data(orchids_ws)
+```{r, echo=FALSE, message=FALSE}
+attach_nearest_station(organism_name)
 ```
 
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
-load("../data/orchids_ws.rda")
-head(orchids_ws, n = 3)
+organism_ws <- myload_ws(organism_name)
+
+head(organism_ws, n = 2) |> as_tibble()
 ```
+
 
 ```{r, echo=FALSE}
-# Calculate frequency by state
-state_freq <- table(orchids_ws$state)
 
-# Sort by frequency (descending order)
-state_freq <- sort(state_freq, decreasing = TRUE)
+summarize_state_frequencies(organism_name)
 
-#Convert to data frame for better presentation
-state_freq_df <- as.data.frame(state_freq)
-colnames(state_freq_df) <- c("State", "Frequency")
-state_freq_df
 ```
+
 
 #### Pattern Analysis
 
 ```{r echo=FALSE, fig.width=8, fig.height=6}
-# Extract month
-orchids_ws$month <- format(orchids_ws$datetime, "%B")
-orchids_ws$month_num <- as.numeric(format(orchids_ws$datetime, "%m"))
-
-ggplot(orchids_ws, aes(x = factor(month, levels = month.name))) +
-  geom_bar(fill = "steelblue") +
-  labs(
-    title = "Monthly Distribution of Orchid Occurrences (2024) vs each state",
-    x = "Month", y = "Number of Records"
-  ) +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
-  facet_wrap(.~state , scales = "free_y") + 
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1)))  # Add padding for labels
+plot_monthly_occurrences_by_state(organism_name, mss)
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
-# Weekly patterns
-
-# Convert to date format
-orchids_ws$date <- as.Date(orchids_ws$datetime)
-
-orchids_ws <- orchids_ws %>%
-  mutate(week = week(date),
-         week_start = floor_date(date, "week"))
-
-# Weekly aggregation
-weekly_counts <- orchids_ws %>%
-  count(week_start, state)
-
-# Seasonal plot
-ggplot(weekly_counts, aes(x = week_start, y = n, group = state)) +
-  geom_line(color = "#2ca02c") +
-  geom_smooth(method = "loess", se = FALSE, color = "#d62728") +
-  facet_wrap(~state, scales = "free_y") +
-  labs(title = "Weekly Occurrence Patterns with Trend Lines",
-       x = "Week Starting", y = "Observations") +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+plot_weekly_occurrences_by_state(organism_name, mss)
 ```
 
 ```{r, echo=FALSE, fig.width=8, fig.height=6}
-# First create month column if not already present
-orchids_ws <- orchids_ws %>%
-  mutate(
-    date = as.Date(datetime),  # Ensure date format
-    month = format(date, "%B"),  # Full month name
-    month_num = as.numeric(format(date, "%m"))  # Month number
-  )
-
-
-# Monthly patterns by state
-state_monthly <- orchids_ws %>%
-  group_by(state, month) %>%
-  summarize(count = n(), .groups = "drop") %>%
-  group_by(state) %>%
-  mutate(percent = 100 * count / sum(count))
-
-# Circular seasonality plot
-ggplot(state_monthly, aes(x = month, y = percent, color = state, group = state)) +
-  geom_line(linewidth = 1.5) +
-  coord_polar() +
-  scale_x_discrete(limits = month.name) +
-  labs(title = "Seasonal Patterns by State",
-       x = NULL, y = "Percentage of Occurrences") +
-  theme_minimal()
-
+plot_seasonal_occurrence_polar(organism_name, mss)
 ```
 
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 
-# Clean and prepare data
-df <- orchids_ws %>%
-   filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
-  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
-
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
-  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5)+
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Distribution of Orchid Sightings in Australia",
-    x = "Longitude",
-    y = "Latitude",
-    color = "State"
-  )
-
-
-```
-
-```{r echo=FALSE, fig.height=8, fig.width=10, message=FALSE, warning=FALSE}
-# Clean and prepare data
-df <- orchids_ws %>%
-  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month)) %>%
-  mutate(month = factor(month, levels = month.name))  # Ensure proper month order
-
-# Load Australia base map (sf object)
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
-
-# Create faceted map by month
-ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
- geom_point(data = df, aes(x = obs_lon, y = obs_lat, color = state), alpha = 0.6, size = 1.5) +
-  geom_point(data = df, aes(x = stn_lon, y = stn_lat), shape = 2, alpha = 0.6, size = 1.5) +
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
-  facet_wrap(~ month, ncol = 4) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    panel.grid = element_blank()
-  ) +
-  labs(
-    title = "Monthly Distribution of Orchid Sightings in Australia (2024)",
-    x = "Longitude",
-    y = "Latitude",
-    color = "State"
-  )
+plot_monthly_occurrence_map(organism_name, mss)
 
 
 ```
 
 
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 
-### Datasets Overview
+plot_monthly_occurrence_map_by_state(organism_name, mss)
 
-We have organized the orchid occurrence and weather station data into the following structured datasets, stored in the data/ directory:
+```
 
--   `orchids_2024.rda` Contains orchid occurrence records across all states in Australia.
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+plot_monthly_distribution_map(organism_name, mss)
+```
 
--   `orchids_2024_ws.rda` An enhanced version of the occurrence data, merged with the nearest weather station information, including:
 
-    <div>
+## 📦 Datasets Overview
 
-    ```         
-    --Station ID (weather_station_id)
+The occurrence and weather station data have been processed and organized into the following structured datasets, all stored in the `data/` directory:
 
-    --Station name (stname)
+### ```r paste0(organism_name, ".rda") ```
 
-    --Geographic details (lat.y, lon.y, address, city, state)
-    ```
+Contains raw occurrence records for the target organism across various regions, including key spatial and temporal fields such as latitude, longitude, observation date/time, and administrative boundaries (e.g., state or territory).
 
-    </div>
+### ```r paste0(organism_name, "_ws.rda") ```
 
--   `orchids_top_weather.rda` Focuses on weather data from the top 3 most frequently recorded stations associated with orchid occurrences.
+An enhanced version of the occurrence dataset in which each record has been spatially matched to its **nearest weather station**. This dataset includes additional metadata fields:
 
--   `weather_stations.rda` A standalone dataset of all unique weather stations in Australia, providing reference metadata for cross-referencing.
+```
+- weather_station_id  : ID of the nearest weather station  
+- stname              : Weather station name  
+- stn_lat, stn_lon    : Coordinates of the weather station  
+- stn_state, stn_city : Location details of the station  
+```
+
+### ```r paste0(organism_name, "_top_weather.rda") ```
+
+A subset of weather data extracted from the **top N most frequently linked weather stations** in ```r paste0(organism_name, "_ws.rda") ```, used to investigate environmental patterns surrounding the most common observation sites.
+
+### `weather_stations.rda`
+
+A complete reference dataset of unique weather stations, including their identifiers, names, coordinates, and associated administrative metadata. This serves as a lookup or cross-reference for station matching and environmental analysis.

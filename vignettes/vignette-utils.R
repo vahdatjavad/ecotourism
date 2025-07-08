@@ -114,7 +114,7 @@ polished_data <- function(mydata) {
 #' @export
 mysave_raw <- function(organism_name, raw_data) {
   # Create object name dynamically
-  object_name <- paste0(organism, "_raw")
+  object_name <- paste0(organism_name, "_raw")
 
   # Assign the data to the named object in the global environment
   assign(object_name, raw_data, envir = .GlobalEnv)
@@ -378,15 +378,22 @@ attach_nearest_station <- function(organism_name = "") {
 
   # Add nearest station info
   org_data$weather_station_id <- nearest_station_ids
+
   org_with_ws <- dplyr::left_join(
     org_data,
     weather_stations,
     by = c("weather_station_id" = "stnid")
   )
 
+  # Create object name dynamically
+  object_name <- paste0(organism_name, "_ws")
+
+  # Assign the data to the named object in the global environment
+  assign(object_name, org_with_ws, envir = .GlobalEnv)
+
   # Save with a new name
   save_path <- file.path("../data", paste0(organism_name, "_ws.rda"))
-  save(org_with_ws, file = save_path)
+  save(list = object_name, file = save_path)
 
   cat("Nearest weather stations attached and saved as:", basename(save_path), "\n")
   invisible(org_with_ws)
@@ -480,10 +487,13 @@ summarize_state_frequencies <- function(organism_name) {
 
 
 
-plot_monthly_occurrences_by_state <- function(organism_name) {
+plot_monthly_occurrences_by_state <- function(organism_name, mss = NULL) {
   # Load organism data using your custom loader
   data <- myload_ws(organism_name)
 
+  if (!is.null(mss)){
+    data <- myload_ws(organism_name) |> filter(scientificName %in% mss)
+  }
   # Ensure necessary columns exist
   if (!all(c("datetime", "obs_state", "scientificName") %in% names(data))) {
     stop("The dataset must contain 'datetime', 'obs_state', and 'scientificName' columns.")
@@ -513,9 +523,13 @@ plot_monthly_occurrences_by_state <- function(organism_name) {
 
 
 
-plot_weekly_occurrences_by_state <- function(organism_name) {
+plot_weekly_occurrences_by_state <- function(organism_name, mss = NULL) {
   # Load data
   data <- myload_ws(organism_name)
+
+  if (!is.null(mss)){
+    data <- myload_ws(organism_name) |> filter(scientificName %in% mss)
+  }
 
   # Check for necessary columns
   if (!all(c("datetime", "obs_state") %in% names(data))) {
@@ -548,10 +562,14 @@ plot_weekly_occurrences_by_state <- function(organism_name) {
 }
 
 
-plot_seasonal_occurrence_polar <- function(organism_name) {
+plot_seasonal_occurrence_polar <- function(organism_name, mss = NULL) {
 
   # Load the organism data
   data <- myload_ws(organism_name)
+
+  if (!is.null(mss)){
+    data <- myload_ws(organism_name) |> filter(scientificName %in% mss)
+  }
 
   # Check for necessary columns
   if (!all(c("datetime", "obs_state") %in% names(data))) {
@@ -591,10 +609,14 @@ plot_seasonal_occurrence_polar <- function(organism_name) {
 
 
 
-plot_monthly_occurrence_map <- function(organism_name) {
+plot_monthly_occurrence_map <- function(organism_name, mss = NULL) {
 
   # Load data
   data <- myload_ws(organism_name)
+
+  if (!is.null(mss)){
+    data <- myload_ws(organism_name) |> filter(scientificName %in% mss)
+  }
 
   # Check for required columns
   required_cols <- c("obs_lat", "obs_lon", "stn_lat", "stn_lon", "datetime", "scientificName")
@@ -650,10 +672,14 @@ plot_monthly_occurrence_map <- function(organism_name) {
 
 
 
-plot_monthly_occurrence_map_by_state <- function(organism_name) {
+plot_monthly_occurrence_map_by_state <- function(organism_name, mss = NULL) {
 
   # Load organism data
   data <- myload_ws(organism_name)
+
+  if (!is.null(mss)){
+    data <- myload_ws(organism_name) |> filter(scientificName %in% mss)
+  }
 
   # Check required columns
   required_cols <- c("datetime", "obs_lat", "obs_lon", "stn_lat", "stn_lon", "obs_state")
@@ -708,10 +734,14 @@ plot_monthly_occurrence_map_by_state <- function(organism_name) {
 
 
 
-plot_monthly_distribution_map <- function(organism_name) {
+plot_monthly_distribution_map <- function(organism_name, mss = NULL) {
 
   # Load data
   data <- myload_ws(organism_name)
+
+  if (!is.null(mss)){
+    data <- myload_ws(organism_name) |> filter(scientificName %in% mss)
+  }
 
   # Check for required columns
   required_cols <- c("datetime", "obs_lat", "obs_lon", "stn_lat", "stn_lon", "obs_state")

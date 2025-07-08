@@ -139,3 +139,31 @@ plot_monthly_occurrence_map_by_state(organism_name)
 ```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
 plot_monthly_distribution_map(organism_name)
 ```
+
+
+## 📦 Datasets Overview
+
+The occurrence and weather station data have been processed and organized into the following structured datasets, all stored in the `data/` directory:
+
+### ```r paste0(organism_name, ".rda") ```
+
+Contains raw occurrence records for the target organism across various regions, including key spatial and temporal fields such as latitude, longitude, observation date/time, and administrative boundaries (e.g., state or territory).
+
+### ```r paste0(organism_name, "_ws.rda") ```
+
+An enhanced version of the occurrence dataset in which each record has been spatially matched to its **nearest weather station**. This dataset includes additional metadata fields:
+
+```
+- weather_station_id  : ID of the nearest weather station  
+- stname              : Weather station name  
+- stn_lat, stn_lon    : Coordinates of the weather station  
+- stn_state, stn_city : Location details of the station  
+```
+
+### ```r paste0(organism_name, "_top_weather.rda") ```
+
+A subset of weather data extracted from the **top N most frequently linked weather stations** in ```r paste0(organism_name, "_ws.rda") ```, used to investigate environmental patterns surrounding the most common observation sites.
+
+### `weather_stations.rda`
+
+A complete reference dataset of unique weather stations, including their identifiers, names, coordinates, and associated administrative metadata. This serves as a lookup or cross-reference for station matching and environmental analysis.
