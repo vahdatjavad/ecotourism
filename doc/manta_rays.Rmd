@@ -1,0 +1,174 @@
+---
+title: "Manta Rays"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{manta_rays}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+![Manta Ray](image/manta_rays.jpg)
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+source("vignette-utils.R")
+```
+
+
+We are investigating occurrence data of [**Manta rays**](https://en.wikipedia.org/wiki/Manta_ray) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
+
+```{r echo=FALSE}
+# global variables
+organism_name <- "manta_rays"
+organism_title <- "Manta Rays"
+taxa     <- "Mobula alfredi"
+start    <- 2014
+end      <- 2024
+```
+
+```{r "request data ALA", eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+organism <- obs_data(taxa, start, end) |> polished_data() |> 
+  filter(scientificName == "Mobula alfredi")
+
+# Save data
+mysave(organism_name, organism)
+```
+
+
+This is the head of data set:
+
+```{r "print head of data", echo=FALSE}
+organism <- myload(organism_name)
+organism |> slice_head(n = 3) |> as_tibble() 
+```
+
+
+Now we want to know the number of occurrence in each state:
+
+```{r "number of occ in state", echo=FALSE}
+organism |> my_count(scientificName, obs_state, f=1) |> as_tibble() 
+```
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+# Clean and prepare data
+organism |> plot_map1(color_by = scientificName)
+
+```
+
+#### Weekly Distribution of organism
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+organism |>  plot_bar_week()
+```
+#### Monthly Distribution of organism
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+organism |> plot_bar_month()
+```
+
+#### Yearly Distribution of organism
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+organism |> plot_bar_year()
+```
+
+#### Nearest Weather Station Mapping
+
+```{r, echo=FALSE, message=FALSE}
+attach_nearest_station(organism_name)
+```
+
+```{r eval=TRUE, include=TRUE, echo=FALSE}
+organism_ws <- myload_ws(organism_name)
+
+head(organism_ws[,8:17], n = 2) |> as_tibble()
+```
+
+
+
+```{r, echo=FALSE}
+
+summarize_state_frequencies(organism_name)
+
+```
+
+Interpretation:
+
+-    Queensland:\
+    884 of your organism records were observed in Queensland.\
+    However,  888 of those were linked to weather stations also located in Queensland.
+
+
+-   Western Australia:\
+    84 observations occurred there,\
+    But 127 records were linked to weather stations in Western Australia — suggesting many observations from other states were matched to Western Australia stations.
+    
+    
+
+#### Pattern Analysis
+
+```{r echo=FALSE, fig.width=8, fig.height=6}
+plot_monthly_occurrences_by_state(organism_name)
+```
+
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+plot_weekly_occurrences_by_state(organism_name)
+```
+
+```{r, echo=FALSE, fig.width=8, fig.height=6}
+plot_seasonal_occurrence_polar(organism_name)
+```
+
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+
+plot_monthly_occurrence_map(organism_name)
+
+
+```
+
+
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+
+plot_monthly_occurrence_map_by_state(organism_name)
+
+```
+
+```{r echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+plot_monthly_distribution_map(organism_name)
+```
+
+
+## 📦 Datasets Overview
+
+The occurrence and weather station data have been processed and organized into the following structured datasets, all stored in the `data/` directory:
+
+### ```r paste0(organism_name, ".rda") ```
+
+Contains raw occurrence records for the target organism across various regions, including key spatial and temporal fields such as latitude, longitude, observation date/time, and administrative boundaries (e.g., state or territory).
+
+### ```r paste0(organism_name, "_ws.rda") ```
+
+An enhanced version of the occurrence dataset in which each record has been spatially matched to its **nearest weather station**. This dataset includes additional metadata fields:
+
+```
+- weather_station_id  : ID of the nearest weather station  
+- stname              : Weather station name  
+- stn_lat, stn_lon    : Coordinates of the weather station  
+- stn_state, stn_city : Location details of the station  
+```
+
+### ```r paste0(organism_name, "_top_weather.rda") ```
+
+A subset of weather data extracted from the **top N most frequently linked weather stations** in ```r paste0(organism_name, "_ws.rda") ```, used to investigate environmental patterns surrounding the most common observation sites.
+
+### `weather_stations.rda`
+
+A complete reference dataset of unique weather stations, including their identifiers, names, coordinates, and associated administrative metadata. This serves as a lookup or cross-reference for station matching and environmental analysis.
+

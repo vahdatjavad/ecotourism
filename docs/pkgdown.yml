@@ -1,0 +1,12 @@
+pandoc: '3.4'
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  getting-started: getting-started.html
+  glowworms: glowworms.html
+  gouldian_finch: gouldian_finch.html
+  manta_rays: manta_rays.html
+  orchids: orchids.html
+  weather_data: weather_data.html
+  weather_stations: weather_stations.html
+last_built: 2025-07-09T04:55Z
