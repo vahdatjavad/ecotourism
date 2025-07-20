@@ -32,7 +32,7 @@ ensure_packages(required_pkgs)
 #' @return A data frame of occurrence records.
 #' @export
 obs_data <- function(taxa = "", start = 2014, end = 2024,
-                     email = "vahdatjavad@gmail.com") {
+                     email = "youremail@email.com") {
   # Input validation
   if (taxa == "") stop("Please provide a valid taxon name.")
   if (!is.numeric(start) || !is.numeric(end)) stop("Start and end must be numeric.")

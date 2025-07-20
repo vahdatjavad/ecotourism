@@ -44,7 +44,7 @@ This is the head of data set:
 
 ```{r "print head of data", echo=FALSE}
 organism <- myload(organism_name)
-organism |> slice_head(n = 3) |> as_tibble() 
+organism |> slice_head(n = 3) |> as_tibble() |> glimpse()
 ```
 
 Now we want to know the number of occurrence in each state:
@@ -94,7 +94,7 @@ attach_nearest_station(organism_name)
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
 organism_ws <- myload_ws(organism_name)
 
-head(organism_ws, n = 2) |> as_tibble()
+head(organism_ws, n = 2) |> as_tibble() |> glimpse()
 ```
 
 

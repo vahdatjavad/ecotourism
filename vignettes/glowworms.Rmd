@@ -42,7 +42,7 @@ This is the head of data set:
 
 ```{r "print head of data", echo=FALSE}
 organism_raw <- myload_raw(organism_name)
-organism_raw |> slice_head(n = 3) |> as_tibble() 
+organism_raw |> slice_head(n = 3) |> as_tibble() |> glimpse()
 ```
 
 Now we want to know the number of occurrence in each state:
@@ -120,7 +120,7 @@ organism |> plot_map1(color_by = scientificName)
 ```
 
 ```{r "number of occ in state v2", echo=FALSE}
-organism |> my_count(scientificName, obs_state) |> as_tibble()
+organism |> my_count(scientificName, obs_state) |> as_tibble() 
 ```
 
 #### Weekly Distribution of organism
@@ -150,7 +150,7 @@ attach_nearest_station(organism_name)
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
 organism_ws <- myload_ws(organism_name)
 
-head(organism_ws, n = 2) |> as_tibble()
+head(organism_ws, n = 2) |> as_tibble() |> glimpse()
 ```
 
 ```{r, echo=FALSE}
