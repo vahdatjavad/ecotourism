@@ -23,7 +23,7 @@ end      <- 2024
 
 ## ----"print head of data", echo=FALSE-----------------------------------------
 organism_raw <- myload_raw(organism_name)
-organism_raw |> slice_head(n = 3) |> as_tibble() 
+organism_raw |> slice_head(n = 3) |> as_tibble() |> glimpse()
 
 ## ----"number of occ in state", echo=FALSE-------------------------------------
 organism_raw |> my_count(scientificName, obs_state) |> as_tibble() 
@@ -90,7 +90,7 @@ organism |> plot_map1(color_by = scientificName)
 
 
 ## ----"number of occ in state v2", echo=FALSE----------------------------------
-organism |> my_count(scientificName, obs_state) |> as_tibble()
+organism |> my_count(scientificName, obs_state) |> as_tibble() 
 
 ## ----echo=FALSE, fig.width=6, fig.height=4------------------------------------
 organism |>  plot_bar_week()
@@ -107,7 +107,7 @@ attach_nearest_station(organism_name)
 ## ----eval=TRUE, include=TRUE, echo=FALSE--------------------------------------
 organism_ws <- myload_ws(organism_name)
 
-head(organism_ws, n = 2) |> as_tibble()
+head(organism_ws, n = 2) |> as_tibble() |> glimpse()
 
 ## ----echo=FALSE---------------------------------------------------------------
 

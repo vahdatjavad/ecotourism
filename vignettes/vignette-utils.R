@@ -32,7 +32,7 @@ ensure_packages(required_pkgs)
 #' @return A data frame of occurrence records.
 #' @export
 obs_data <- function(taxa = "", start = 2014, end = 2024,
-                     email = "youremail@email.com") {
+                     your_email = "") {
   # Input validation
   if (taxa == "") stop("Please provide a valid taxon name.")
   if (!is.numeric(start) || !is.numeric(end)) stop("Start and end must be numeric.")
@@ -40,7 +40,7 @@ obs_data <- function(taxa = "", start = 2014, end = 2024,
 
   # Set up ALA access if email is provided
   if (!is.null(email)) {
-    galah_config(email = email)
+    galah_config(email = your_email)
   }
 
   # Search for the taxon

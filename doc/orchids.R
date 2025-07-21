@@ -24,7 +24,7 @@ end      <- 2024
 
 ## ----"print head of data", echo=FALSE-----------------------------------------
 organism <- myload(organism_name)
-organism |> slice_head(n = 3) |> as_tibble() 
+organism |> slice_head(n = 3) |> as_tibble() |> glimpse()
 
 ## ----"number of occ in state", echo=FALSE-------------------------------------
 organism |> my_count(scientificName, obs_state, f=1) |> as_tibble() 
@@ -55,7 +55,7 @@ attach_nearest_station(organism_name)
 ## ----eval=TRUE, include=TRUE, echo=FALSE--------------------------------------
 organism_ws <- myload_ws(organism_name)
 
-head(organism_ws, n = 2) |> as_tibble()
+head(organism_ws, n = 2) |> as_tibble() |> glimpse()
 
 ## ----echo=FALSE---------------------------------------------------------------
 

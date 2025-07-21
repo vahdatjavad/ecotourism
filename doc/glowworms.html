@@ -245,13 +245,18 @@ in Australia from the <strong>Atlas of Living Australia</strong>, and
 make a map showing the spatial locations of sightings from 2014 to
 2024.</p>
 <p>This is the head of data set:</p>
-<pre><code>#&gt; # A tibble: 3 × 10
-#&gt;   obs_lat obs_lon  year month   day weekday   dayofyear datetime           
-#&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;ord&gt;         &lt;dbl&gt; &lt;dttm&gt;             
-#&gt; 1   -43.5    147.  2016    11    29 Tuesday         334 2016-11-29 15:58:25
-#&gt; 2   -43.5    147.  2021    12    14 Tuesday         348 2021-12-14 22:14:23
-#&gt; 3   -43.5    147.  2015    12     9 Wednesday       343 2015-12-09 15:00:24
-#&gt; # ℹ 2 more variables: scientificName &lt;chr&gt;, obs_state &lt;chr&gt;</code></pre>
+<pre><code>#&gt; Rows: 3
+#&gt; Columns: 10
+#&gt; $ obs_lat        &lt;dbl&gt; -43.46804, -43.46398, -43.46257
+#&gt; $ obs_lon        &lt;dbl&gt; 146.9139, 146.8676, 146.8485
+#&gt; $ year           &lt;dbl&gt; 2016, 2021, 2015
+#&gt; $ month          &lt;dbl&gt; 11, 12, 12
+#&gt; $ day            &lt;dbl&gt; 29, 14, 9
+#&gt; $ weekday        &lt;ord&gt; Tuesday, Tuesday, Wednesday
+#&gt; $ dayofyear      &lt;dbl&gt; 334, 348, 343
+#&gt; $ datetime       &lt;dttm&gt; 2016-11-29 15:58:25, 2021-12-14 22:14:23, 2015-12-09 15…
+#&gt; $ scientificName &lt;chr&gt; &quot;Arachnocampa&quot;, &quot;Arachnocampa tasmaniensis&quot;, &quot;Arachnoca…
+#&gt; $ obs_state      &lt;chr&gt; &quot;Tasmania&quot;, &quot;Tasmania&quot;, &quot;Tasmania&quot;</code></pre>
 <p>Now we want to know the number of occurrence in each state:</p>
 <pre><code>#&gt; # A tibble: 10 × 7
 #&gt;    scientificName     `New South Wales` Queensland Tasmania Victoria  `NA` Total
@@ -296,14 +301,25 @@ records.</p>
 <div id="nearest-weather-station-mapping" class="section level4">
 <h4>Nearest Weather Station Mapping</h4>
 <pre><code>#&gt; Nearest weather stations attached and saved as: glowworms_ws.rda</code></pre>
-<pre><code>#&gt; # A tibble: 2 × 17
-#&gt;   obs_lat obs_lon  year month   day weekday   dayofyear datetime           
-#&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;ord&gt;         &lt;dbl&gt; &lt;dttm&gt;             
-#&gt; 1   -43.5    147.  2021    12    14 Tuesday         348 2021-12-14 22:14:23
-#&gt; 2   -43.5    147.  2015    12     9 Wednesday       343 2015-12-09 15:00:24
-#&gt; # ℹ 9 more variables: scientificName &lt;chr&gt;, obs_state &lt;chr&gt;,
-#&gt; #   weather_station_id &lt;chr&gt;, stname &lt;chr&gt;, stn_lat &lt;dbl&gt;, stn_lon &lt;dbl&gt;,
-#&gt; #   address &lt;chr&gt;, stn_city &lt;chr&gt;, stn_state &lt;chr&gt;</code></pre>
+<pre><code>#&gt; Rows: 2
+#&gt; Columns: 17
+#&gt; $ obs_lat            &lt;dbl&gt; -43.46398, -43.46257
+#&gt; $ obs_lon            &lt;dbl&gt; 146.8676, 146.8485
+#&gt; $ year               &lt;dbl&gt; 2021, 2015
+#&gt; $ month              &lt;dbl&gt; 12, 12
+#&gt; $ day                &lt;dbl&gt; 14, 9
+#&gt; $ weekday            &lt;ord&gt; Tuesday, Wednesday
+#&gt; $ dayofyear          &lt;dbl&gt; 348, 343
+#&gt; $ datetime           &lt;dttm&gt; 2021-12-14 22:14:23, 2015-12-09 15:00:24
+#&gt; $ scientificName     &lt;chr&gt; &quot;Arachnocampa tasmaniensis&quot;, &quot;Arachnocampa tasmanie…
+#&gt; $ obs_state          &lt;chr&gt; &quot;Tasmania&quot;, &quot;Tasmania&quot;
+#&gt; $ weather_station_id &lt;chr&gt; &quot;949610-99999&quot;, &quot;949610-99999&quot;
+#&gt; $ stname             &lt;chr&gt; &quot;DOVER&quot;, &quot;DOVER&quot;
+#&gt; $ stn_lat            &lt;dbl&gt; -43.317, -43.317
+#&gt; $ stn_lon            &lt;dbl&gt; 147.017, 147.017
+#&gt; $ address            &lt;chr&gt; &quot;Bay View Road, Dover, Huon Valley, Tasmania, 7117,…
+#&gt; $ stn_city           &lt;chr&gt; &quot;Bay View Road&quot;, &quot;Bay View Road&quot;
+#&gt; $ stn_state          &lt;chr&gt; &quot;Tasmania&quot;, &quot;Tasmania&quot;</code></pre>
 <pre><code>#&gt;             State Observed WeatherStation
 #&gt; 2      Queensland       61             17
 #&gt; 3        Tasmania       40             40

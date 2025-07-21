@@ -248,13 +248,18 @@ in Australia from the <strong>Atlas of Living Australia</strong>, and
 make a map showing the spatial locations of sightings from 2014 to
 2024.</p>
 <p>This is the head of data set:</p>
-<pre><code># # A tibble: 3 × 10
-#   obs_lat obs_lon  year month   day weekday dayofyear datetime           
-#     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;ord&gt;       &lt;dbl&gt; &lt;dttm&gt;             
-# 1   -61.5    6.75  2018     7     3 Tuesday       184 2018-07-03 00:00:00
-# 2   -61.5    6.75  2018     7     3 Tuesday       184 2018-07-03 00:00:00
-# 3   -54.7  159.    2017    11    26 Sunday        330 2017-11-26 00:00:00
-# # ℹ 2 more variables: scientificName &lt;chr&gt;, obs_state &lt;chr&gt;</code></pre>
+<pre><code># Rows: 3
+# Columns: 10
+# $ obs_lat        &lt;dbl&gt; -61.48500, -61.48500, -54.65171
+# $ obs_lon        &lt;dbl&gt; 6.753611, 6.753611, 158.879884
+# $ year           &lt;dbl&gt; 2018, 2018, 2017
+# $ month          &lt;dbl&gt; 7, 7, 11
+# $ day            &lt;dbl&gt; 3, 3, 26
+# $ weekday        &lt;ord&gt; Tuesday, Tuesday, Sunday
+# $ dayofyear      &lt;dbl&gt; 184, 184, 330
+# $ datetime       &lt;dttm&gt; 2018-07-03, 2018-07-03, 2017-11-26
+# $ scientificName &lt;chr&gt; &quot;Dactylorhiza&quot;, &quot;Dactylorhiza&quot;, &quot;Corybas sulcatus&quot;
+# $ obs_state      &lt;chr&gt; NA, NA, &quot;Tasmania&quot;</code></pre>
 <p>Now we want to know the number of occurrence in each state:</p>
 <pre><code># # A tibble: 1,482 × 29
 #    scientificName       Australian Capital Territ…¹ `New South Wales` Queensland
@@ -292,14 +297,25 @@ make a map showing the spatial locations of sightings from 2014 to
 <div id="nearest-weather-station-mapping" class="section level4">
 <h4>Nearest Weather Station Mapping</h4>
 <pre><code># Nearest weather stations attached and saved as: orchids_ws.rda</code></pre>
-<pre><code># # A tibble: 2 × 17
-#   obs_lat obs_lon  year month   day weekday dayofyear datetime           
-#     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;ord&gt;       &lt;dbl&gt; &lt;dttm&gt;             
-# 1   -61.5    6.75  2018     7     3 Tuesday       184 2018-07-03 00:00:00
-# 2   -61.5    6.75  2018     7     3 Tuesday       184 2018-07-03 00:00:00
-# # ℹ 9 more variables: scientificName &lt;chr&gt;, obs_state &lt;chr&gt;,
-# #   weather_station_id &lt;chr&gt;, stname &lt;chr&gt;, stn_lat &lt;dbl&gt;, stn_lon &lt;dbl&gt;,
-# #   address &lt;chr&gt;, stn_city &lt;chr&gt;, stn_state &lt;chr&gt;</code></pre>
+<pre><code># Rows: 2
+# Columns: 17
+# $ obs_lat            &lt;dbl&gt; -61.485, -61.485
+# $ obs_lon            &lt;dbl&gt; 6.753611, 6.753611
+# $ year               &lt;dbl&gt; 2018, 2018
+# $ month              &lt;dbl&gt; 7, 7
+# $ day                &lt;dbl&gt; 3, 3
+# $ weekday            &lt;ord&gt; Tuesday, Tuesday
+# $ dayofyear          &lt;dbl&gt; 184, 184
+# $ datetime           &lt;dttm&gt; 2018-07-03, 2018-07-03
+# $ scientificName     &lt;chr&gt; &quot;Dactylorhiza&quot;, &quot;Dactylorhiza&quot;
+# $ obs_state          &lt;chr&gt; NA, NA
+# $ weather_station_id &lt;chr&gt; &quot;946400-99999&quot;, &quot;946400-99999&quot;
+# $ stname             &lt;chr&gt; &quot;WINDY HARBOUR&quot;, &quot;WINDY HARBOUR&quot;
+# $ stn_lat            &lt;dbl&gt; -34.833, -34.833
+# $ stn_lon            &lt;dbl&gt; 116.033, 116.033
+# $ address            &lt;chr&gt; &quot;Windy Harbour Road, Windy Harbour, Boorara Brook, …
+# $ stn_city           &lt;chr&gt; &quot;Windy Harbour Road&quot;, &quot;Windy Harbour Road&quot;
+# $ stn_state          &lt;chr&gt; &quot;Western Australia&quot;, &quot;Western Australia&quot;</code></pre>
 <pre><code>#                                  State Observed WeatherStation
 # 29                            Victoria    93614          94014
 # 11                     New South Wales    88901          90117

@@ -248,13 +248,18 @@ rays</strong></a> in Australia from the <strong>Atlas of Living
 Australia</strong>, and make a map showing the spatial locations of
 sightings from 2014 to 2024.</p>
 <p>This is the head of data set:</p>
-<pre><code>#&gt; # A tibble: 3 × 10
-#&gt;   obs_lat obs_lon  year month   day weekday  dayofyear datetime           
-#&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;ord&gt;        &lt;dbl&gt; &lt;dttm&gt;             
-#&gt; 1   -33.9    151.  2014     1     4 Saturday         4 2014-01-04 00:00:00
-#&gt; 2   -33.9    151.  2015     7    28 Tuesday        209 2015-07-28 00:00:00
-#&gt; 3   -33.9    151.  2014     8     7 Thursday       219 2014-08-07 00:00:00
-#&gt; # ℹ 2 more variables: scientificName &lt;chr&gt;, obs_state &lt;chr&gt;</code></pre>
+<pre><code>#&gt; Rows: 3
+#&gt; Columns: 10
+#&gt; $ obs_lat        &lt;dbl&gt; -33.93, -33.93, -33.93
+#&gt; $ obs_lon        &lt;dbl&gt; 151.35, 151.35, 151.35
+#&gt; $ year           &lt;dbl&gt; 2014, 2015, 2014
+#&gt; $ month          &lt;dbl&gt; 1, 7, 8
+#&gt; $ day            &lt;dbl&gt; 4, 28, 7
+#&gt; $ weekday        &lt;ord&gt; Saturday, Tuesday, Thursday
+#&gt; $ dayofyear      &lt;dbl&gt; 4, 209, 219
+#&gt; $ datetime       &lt;dttm&gt; 2014-01-04, 2015-07-28, 2014-08-07
+#&gt; $ scientificName &lt;chr&gt; &quot;Mobula alfredi&quot;, &quot;Mobula alfredi&quot;, &quot;Mobula alfredi&quot;
+#&gt; $ obs_state      &lt;chr&gt; NA, NA, NA</code></pre>
 <p>Now we want to know the number of occurrence in each state:</p>
 <pre><code>#&gt; # A tibble: 2 × 6
 #&gt;   scientificName `New South Wales` Queensland `Western Australia`  `NA` Total
@@ -275,13 +280,18 @@ sightings from 2014 to 2024.</p>
 <div id="nearest-weather-station-mapping" class="section level4">
 <h4>Nearest Weather Station Mapping</h4>
 <pre><code>#&gt; Nearest weather stations attached and saved as: manta_rays_ws.rda</code></pre>
-<pre><code>#&gt; # A tibble: 2 × 10
-#&gt;   datetime            scientificName obs_state weather_station_id stname stn_lat
-#&gt;   &lt;dttm&gt;              &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;    &lt;dbl&gt;
-#&gt; 1 2014-01-04 00:00:00 Mobula alfredi &lt;NA&gt;      947800-99999       LITTL…   -34.0
-#&gt; 2 2015-07-28 00:00:00 Mobula alfredi &lt;NA&gt;      947800-99999       LITTL…   -34.0
-#&gt; # ℹ 4 more variables: stn_lon &lt;dbl&gt;, address &lt;chr&gt;, stn_city &lt;chr&gt;,
-#&gt; #   stn_state &lt;chr&gt;</code></pre>
+<pre><code>#&gt; Rows: 2
+#&gt; Columns: 10
+#&gt; $ datetime           &lt;dttm&gt; 2014-01-04, 2015-07-28
+#&gt; $ scientificName     &lt;chr&gt; &quot;Mobula alfredi&quot;, &quot;Mobula alfredi&quot;
+#&gt; $ obs_state          &lt;chr&gt; NA, NA
+#&gt; $ weather_station_id &lt;chr&gt; &quot;947800-99999&quot;, &quot;947800-99999&quot;
+#&gt; $ stname             &lt;chr&gt; &quot;LITTLE BAY (THE COAST GOLF CLUB)&quot;, &quot;LITTLE BAY (T…
+#&gt; $ stn_lat            &lt;dbl&gt; -33.983, -33.983
+#&gt; $ stn_lon            &lt;dbl&gt; 151.25, 151.25
+#&gt; $ address            &lt;chr&gt; &quot;The Coast Golf Club, 1, Coast Hospital Road, Littl…
+#&gt; $ stn_city           &lt;chr&gt; &quot;The Coast Golf Club&quot;, &quot;The Coast Golf Club&quot;
+#&gt; $ stn_state          &lt;chr&gt; &quot;New South Wales&quot;, &quot;New South Wales&quot;</code></pre>
 <pre><code>#&gt;                         State Observed WeatherStation
 #&gt; 3                  Queensland      884            888
 #&gt; 4           Western Australia       84            127
