@@ -27,7 +27,7 @@ stations_all <- get_inventory()
 # Data Wrangling
 weather_stations <- stations_all |>
   filter(CTRY == "AS") |> select(STNID, NAME, LAT, LON) |> 
-  rename(stn_lat = LAT, stn_lon = LON, stnid = STNID, stname = NAME) |> 
+  rename(stn_lat = LAT, stn_lon = LON, weather_station_id = STNID, stname = NAME) |> 
   distinct(stn_lat, stn_lon, .keep_all = TRUE) |> 
   filter(stn_lat>=-44, stn_lat <= -8, stn_lon>= 110, stn_lon<= 160) |> 
   # add address for each lat lon weather station

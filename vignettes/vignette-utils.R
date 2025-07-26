@@ -87,16 +87,18 @@ polished_data <- function(mydata) {
     mutate(
       obs_lat = decimalLatitude,
       obs_lon = decimalLongitude,
-      datetime = eventDate,
-      weekday = lubridate::wday(eventDate, label = TRUE, abbr = FALSE),
+      date = date(eventDate),
+      time = format(eventDate, "%H:%M:%S"),
+      hour = hour(eventDate),
+      weekday = lubridate::wday(eventDate, label = TRUE, abbr = FALSE,
+                                week_start = getOption("lubridate.week.start", 1)),
       dayofyear = lubridate::yday(eventDate),
       scientificName = stringr::str_remove(scientificName, "\\s*\\([^\\)]+\\)"),
       obs_state = stateProvince
     ) %>%
     select(
-      obs_lat, obs_lon, year, month, day,
-      weekday, dayofyear, datetime,
-      scientificName, obs_state
+      obs_lat, obs_lon, date, time, year, month, day, hour,
+      weekday, dayofyear, scientificName, obs_state
     )
 }
 
