@@ -1,8 +1,8 @@
 ---
-title: "weather_data2"
+title: "weather data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{weather_data2}
+  %\VignetteIndexEntry{weather_data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -52,6 +52,8 @@ top_stations <- bind_rows(all_top_stations)
 save(top_stations, file = "../data/top_stations.rda")
 
 ```
+
+Top 3 Stations for Each Organism: 
 
 ```{r, echo=FALSE, eval=TRUE}
 load("../data/weather_stations.rda")
@@ -114,4 +116,12 @@ assign(obj_name, top_weather)
 
 save(list = obj_name, file = file_path)
 
+```
+
+The weather data for all top station and one decade (2014-2024) saved in `data/` with name `weather_data.rda`.
+
+```{r, echo=FALSE}
+
+load("../data/weather_data.rda")
+weather_data |> glimpse()
 ```

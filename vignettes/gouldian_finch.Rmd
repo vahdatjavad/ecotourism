@@ -1,6 +1,11 @@
 ---
 title: "Gouldian finch"
-output: rmarkdown::html_vignette
+output: 
+  html_document:
+    toc: true             
+    toc_depth: 2          
+    number_sections: true  
+    toc_float: true 
 vignette: >
   %\VignetteIndexEntry{gouldian_finch}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,44 +19,83 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+<div style="text-align: center;">
+  <img src="image/gouldian_finch.jpg" alt="gouldian_finch" width="300"/>
+</div>
+
+# Data Reproducibility
+
+In this document you gonna learn how to reproduce data of Gouldian finch and make your changes to get final and polished data set.
+
+
+first you need to load required packages and function all together in one file `vignette-utils.R` and import them with `source()` in R. In order to make change in functions you can access this utile file in this address: `ecotourism/vignettes/vignette-utils.R`
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
 source("vignette-utils.R")
 ```
 
-
-![Hooded Parrot](image/gouldian_finch.jpg)
 We are investigating occurrence data of [**Gouldian finch**](https://en.wikipedia.org/wiki/Gouldian_finch) in Australia from the **Atlas of Living Australia**, and make a map showing the spatial locations of sightings from 2014 to 2024.
 
-```{r echo=FALSE}
+```{r echo=TRUE, eval=TRUE}
 # global variables
 organism_name <- "gouldian_finch"
 organism_title <- "Gouldian finch"
 taxa     <- "Gouldian finch"
 start    <- 2014
 end      <- 2024
+
+email = "vahdatjavad@gmail.com"
 ```
 
+With the function of `obs_data` you can connect to occurrence data from ALA for a given taxon and time range and also you need to sign up with your email address in ALA website first. We are passing Retrieved data to `polished_data()` function in order to change some column name and also filter `NA` and missing data. Because it is a general function (that means you can change just taxa name and receive new dataset.) so that we use general name for assigning data but in the next section you can see that this dataset will be saved with `organism_name` in `/data` folder.
 
-```{r "request data ALA", eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+organism <- obs_data(taxa, start, end, your_email=email) |> polished_data()
+```
 
-organism <- obs_data(taxa, start, end) |> polished_data()
-# Save data
+After receiving data from ALA we want to save it in R data format `rda` because it is compressed format and good to save our dataset in R data format. function of `mysave()` written by myself to automatically save `organism` dataset with `organism_name` in `/data` format. 
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
 mysave(organism_name, organism)
 ```
+
+Now we want to add nearest `weather station` to each occurance of data. With `attach_nearest_station()` function we adding new column with name `weather_station_id` to data set and then save it again. 
+
+```{r, echo=TRUE, message=FALSE, eval=FALSE}
+attach_nearest_station(organism_name)
+```
+
+Because providing 10 years daily weather data for all stations are very hug and heavy data set, so we just chose top 3 station for each organism and then retrieved weather data just for those 3 station. 
+
+So your final data looks like this:
+
+```{r, echo=TRUE}
+load("../data/gouldian_finch.rda")
+glimpse(gouldian_finch)
+```
+
+# Data Analysis 
+
+You learned how to find your data and request to download from galah api. here is more detail for ```r organism_title```. Below we are going to be more detailed in our organism.  
 
 
 This is the head of data set:
 
 ```{r "print head of data", echo=FALSE}
 organism <- myload(organism_name)
-organism |> slice_head(n = 3) |> as_tibble() |> glimpse()
+organism |> glimpse()
 ```
+
 
 Now we want to know the number of occurrence in each state:
 
 ```{r "number of occ in state", echo=FALSE}
 organism |> my_count(scientificName, obs_state, f=1) |> as_tibble() 
 ```
+
+
+## Visualization 
+After changeing and assigning new species then we can save final version and plot it like below: 
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
 # Clean and prepare data
@@ -63,13 +107,14 @@ organism |> plot_map1(color_by = scientificName)
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
 organism |>  plot_bar_week()
+organism |>  plot_bar_week_100()
 ```
-
 #### Monthly Distribution of organism
 
 ```{r echo=FALSE, fig.width=6, fig.height=4}
 organism |> plot_bar_month()
 ```
+
 
 #### Yearly Distribution of organism
 
@@ -77,17 +122,19 @@ organism |> plot_bar_month()
 organism |> plot_bar_year()
 ```
 
-#### Nearest Weather Station Mapping
+## Nearest Weather Station Mapping
 
 ```{r, echo=FALSE, message=FALSE}
 attach_nearest_station(organism_name)
 ```
 
 ```{r eval=TRUE, include=TRUE, echo=FALSE}
-organism_ws <- myload_ws(organism_name)
+organism <- myload(organism_name)
 
-head(organism_ws, n = 2) |> as_tibble() |> glimpse()
+organism |> glimpse()
 ```
+
+
 
 ```{r, echo=FALSE}
 
@@ -108,7 +155,9 @@ Interpretation:
     But 989 records were linked to weather stations in Western Australia — suggesting many observations from other states were matched to Western Australia stations.
 
 
-#### Pattern Analysis
+    
+
+## Pattern Analysis
 
 ```{r echo=FALSE, fig.width=8, fig.height=6}
 plot_monthly_occurrences_by_state(organism_name)
@@ -141,29 +190,4 @@ plot_monthly_distribution_map(organism_name)
 ```
 
 
-## 📦 Datasets Overview
 
-The occurrence and weather station data have been processed and organized into the following structured datasets, all stored in the `data/` directory:
-
-### ```r paste0(organism_name, ".rda") ```
-
-Contains raw occurrence records for the target organism across various regions, including key spatial and temporal fields such as latitude, longitude, observation date/time, and administrative boundaries (e.g., state or territory).
-
-### ```r paste0(organism_name, "_ws.rda") ```
-
-An enhanced version of the occurrence dataset in which each record has been spatially matched to its **nearest weather station**. This dataset includes additional metadata fields:
-
-```
-- weather_station_id  : ID of the nearest weather station  
-- stname              : Weather station name  
-- stn_lat, stn_lon    : Coordinates of the weather station  
-- stn_state, stn_city : Location details of the station  
-```
-
-### ```r paste0(organism_name, "_top_weather.rda") ```
-
-A subset of weather data extracted from the **top N most frequently linked weather stations** in ```r paste0(organism_name, "_ws.rda") ```, used to investigate environmental patterns surrounding the most common observation sites.
-
-### `weather_stations.rda`
-
-A complete reference dataset of unique weather stations, including their identifiers, names, coordinates, and associated administrative metadata. This serves as a lookup or cross-reference for station matching and environmental analysis.

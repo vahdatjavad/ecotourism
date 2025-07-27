@@ -1,6 +1,11 @@
 ---
-title: "getting-started"
-output: rmarkdown::html_vignette
+title: "Getting Started with the Ecotourism Package"
+output: 
+  html_document:
+    toc: false             
+    toc_depth: 2          
+    number_sections: true  
+    toc_float: true 
 vignette: >
   %\VignetteIndexEntry{getting-started}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,6 +19,40 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(ecotourism)
-```
+👋 Welcome The **ecotourism** package provides tools to analyze ecological observation data alongside weather conditions. This guide helps you get started with the package and links to detailed vignettes for different organisms and workflows.
+
+**🧭 What You Can Do -- 🐾 Analyze observation records for various species**
+
+-    📍 Identify top observation sites
+
+-    🌦️ Integrate environmental data from nearby weather stations
+
+-   🗺️ Visualize spatiotemporal patterns
+
+**🧪 Organism-Specific Workflows**
+
+Explore vignettes dedicated to individual species:
+
+-   🔦 Glowworms Observations [➡️ Go to the vignette](../docs/articles/glowworms.html) 
+
+-   🐦 Gouldian Finch Observations [➡️ Go to the vignette](../docs/articles/gouldian_finch.html)
+
+-   🐠 Manta Rays Observations [➡️ Go to the vignette](../docs/articles/manta_rays.html)
+
+-   🌸 Orchids Observations [➡️ Go to the vignette](../docs/articles/orchids.html)
+
+Each includes:
+
+-   Data cleaning and wrangling
+
+-   Mapping and temporal summaries
+
+-   Top station selection
+
+**Merging with weather data**
+
+🌤️ Weather Integration Combine ecological records with weather information:
+
+-   📊 Weather Data Workflow: Join observations with weather from nearby stations.
+
+-   🗺️ Weather Station Metadata: See available station coordinates and IDs.
