@@ -1,0 +1,28 @@
+"0","# Download and Return weather station Data"
+"0","stations_all <- get_inventory()"
+"0",""
+"0","# Data Wrangling"
+"0","weather_stations <- stations_all |>"
+"0","  filter(CTRY == ""AS"") |> select(STNID, NAME, LAT, LON) |> "
+"0","  rename(stn_lat = LAT, stn_lon = LON, weather_station_id = STNID, stname = NAME) |> "
+"0","  distinct(stn_lat, stn_lon, .keep_all = TRUE) |> "
+"0","  filter(stn_lat>=-44, stn_lat <= -8, stn_lon>= 110, stn_lon<= 160) |> "
+"0","  # add address for each lat lon weather station"
+"0","  reverse_geocode(lat = stn_lat, long = stn_lon, method = ""osm"")  # Uses OpenStreetMap"
+"2","G1;H1;Error during wrapuph: not that many frames on the stack
+Error: no more error handlers available (recursive errors?); invoking 'abort' restart
+g"
+"0","# --- apply to tibble ------------------------------------------------------"
+"0","# extract city name and state name from address"
+"0","weather_stations <- weather_stations %>%"
+"0","  rowwise() %>%                               # operate row-by-row"
+"0","  mutate(                                       # append new columns"
+"0","    parsed = list(parse_address(address))"
+"0","  ) %>% "
+"0","  unnest(parsed) %>%                           # expand list-column"
+"0","  ungroup()      "
+"2","G1;H1;Errorh in unnest(., parsed) : unused argument (parsed)
+Error during wrapup: not that many frames on the stack
+Error: no more error handlers available (recursive errors?); invoking 'abort' restart
+g"
+"0","  "

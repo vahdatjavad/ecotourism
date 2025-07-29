@@ -1,0 +1,3 @@
+"0","organism_ws <- myload_ws(organism_name)"
+"0",""
+"0","head(organism_ws[,8:17], n = 2) |> as_tibble()"

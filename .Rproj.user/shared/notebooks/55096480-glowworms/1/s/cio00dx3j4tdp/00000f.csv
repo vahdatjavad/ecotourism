@@ -1,0 +1,6 @@
+"0","organism <- obs_data(taxa, start, end, your_email) |> polished_data()"
+"2","G1;H1;Errorh in obs_data(taxa, start, end, your_email) : 
+  object 'email' not found
+Error during wrapup: not that many frames on the stack
+Error: no more error handlers available (recursive errors?); invoking 'abort' restart
+g"
