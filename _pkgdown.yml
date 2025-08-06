@@ -1,4 +1,21 @@
 url: ~
 template:
   bootstrap: 5
+  bootswatch: flatly  # Clean & modern look
 
+navbar:
+  title: "ecotourism"
+  type: default
+  left:
+    - text: "Reference"
+      href: reference/index.html
+    - text: "Articles"
+      href: articles/index.html
+    - text: "GitHub"
+      href: https://github.com/vahdatjavad/ecotourism
+
+home:
+  title: "Ecotourism Package"
+  links:
+    - text: "Get Started"
+      href: articles/getting_started.html

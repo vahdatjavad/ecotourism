@@ -1,0 +1,71 @@
+---
+title: "Getting Started with the Ecotourism Package"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    toc-location: left
+    fig-cap-location: top
+    code-fold: false
+    code-tools: true
+    theme: flatly
+    page-layout: full
+editor: visual
+---
+
+---
+vignette: >
+  %\VignetteIndexEntry{Getting Started with the Ecotourism Package}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+## 👋 Welcome
+
+The **ecotourism** package provides tools to analyze ecological observation data alongside weather conditions. This guide will help you get started with the package and direct you to detailed vignettes for specific organisms and workflows.
+
+------------------------------------------------------------------------
+
+## 🧭 What You Can Do
+
+Analyze observation records for various species with tools to:
+
+-   📍 Identify top observation sites\
+-   🌦️ Integrate environmental data from nearby weather stations\
+-   🗺️ Visualize spatiotemporal patterns
+
+------------------------------------------------------------------------
+
+## 🧪 Organism-Specific Workflows
+
+Explore vignettes dedicated to individual species:
+
+-   🔦 [Glowworms Observations](glowworms.html)\
+-   🐦 [Gouldian Finch Observations](gouldian_finch.html)\
+-   🐠 [Manta Rays Observations](manta_rays.html)\
+-   🌸 [Orchids Observations](orchids.html)
+
+Each vignette covers:
+
+-   Data cleaning and wrangling\
+-   Mapping and temporal summaries\
+-   Top station selection
+
+------------------------------------------------------------------------
+
+## 🌤️ Weather Integration
+
+Combine ecological observations with environmental data:
+
+-   📊 [**Weather Data Workflow**](weather_data.html)\
+    Join species data with daily weather from nearby stations.
+
+-   🗺️ [**Weather Station Metadata**](weather_stations.html)\
+    View coordinates and metadata for weather stations used in analysis.
+
+------------------------------------------------------------------------
+
+## 🚀 Get Started
+
+To begin, choose an organism above or dive into the weather data tools to enrich your analyses. The `ecotourism` package makes it easy to explore interactions between biodiversity and climate in Australia.

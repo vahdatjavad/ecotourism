@@ -51,7 +51,7 @@ obs_data <- function(taxa = "", start = 2014, end = 2024, your_email) {
     galah_filter(year >= start, year <= end) |>
     galah_select(
       decimalLatitude, decimalLongitude,
-      year, month, day, eventDate, scientificName,
+      year, month, day, eventDate, basisOfRecord,scientificName,
       stateProvince
     ) |>
     atlas_occurrences()
@@ -69,7 +69,7 @@ obs_data <- function(taxa = "", start = 2014, end = 2024, your_email) {
 #' @export
 polished_data <- function(mydata) {
   required_cols <- c("decimalLatitude", "decimalLongitude", "eventDate",
-                     "year", "month", "day", "scientificName", "stateProvince")
+                     "year", "month", "day", "basisOfRecord","scientificName", "stateProvince")
 
   # Check if all required columns exist
   missing_cols <- setdiff(required_cols, names(mydata))
@@ -93,11 +93,12 @@ polished_data <- function(mydata) {
                                 week_start = getOption("lubridate.week.start", 1)),
       dayofyear = lubridate::yday(eventDate),
       scientificName = stringr::str_remove(scientificName, "\\s*\\([^\\)]+\\)"),
+      record_type = basisOfRecord,
       obs_state = stateProvince
     ) %>%
     select(
       obs_lat, obs_lon, date, time, year, month, day, hour,
-      weekday, dayofyear, scientificName, obs_state
+      weekday, dayofyear, scientificName, record_type, obs_state
     )
 }
 
@@ -395,11 +396,11 @@ attach_nearest_station <- function(organism_name = "") {
       cbind(weather_stations$stn_lon, weather_stations$stn_lat),
       c(org_data$obs_lon[i], org_data$obs_lat[i])
     )
-    weather_stations$weather_station_id[which.min(dists)]
+    weather_stations$ws_id[which.min(dists)]
   })
 
   # Add nearest station info
-  org_data$weather_station_id <- nearest_station_ids
+  org_data$ws_id <- nearest_station_ids
 
   # Create object name dynamically
   object_name <- paste0(organism_name)
@@ -472,7 +473,7 @@ summarize_state_frequencies <- function(organism_name) {
 
   data <- temp_env[[loaded_names[1]]]
   load("../data/weather_stations.rda")
-  data <- left_join(data, weather_stations, by = "weather_station_id")
+  data <- left_join(data, weather_stations, by = "ws_id")
   # Check that both state columns exist
   if (!all(c("obs_state", "stn_state") %in% names(data))) {
     stop("Required columns 'obs_state' and/or 'stn_state' are missing.")
@@ -512,7 +513,7 @@ plot_monthly_occurrences_by_state <- function(organism_name, mss = NULL) {
     data <- myload(organism_name) |> filter(scientificName %in% mss)
   }
   # Ensure necessary columns exist
-  if (!all(c("datetime", "obs_state", "scientificName") %in% names(data))) {
+  if (!all(c("date", "obs_state", "scientificName") %in% names(data))) {
     stop("The dataset must contain 'datetime', 'obs_state', and 'scientificName' columns.")
   }
 
@@ -549,14 +550,14 @@ plot_weekly_occurrences_by_state <- function(organism_name, mss = NULL) {
   }
 
   # Check for necessary columns
-  if (!all(c("datetime", "obs_state") %in% names(data))) {
+  if (!all(c("date", "obs_state") %in% names(data))) {
     stop("The dataset must contain 'datetime' and 'obs_state' columns.")
   }
 
   # Prepare weekly data
   data <- data %>%
     mutate(
-      date = as.Date(datetime),
+      date = as.Date(date),
       week_start = floor_date(date, "week")
     )
 
@@ -589,14 +590,14 @@ plot_seasonal_occurrence_polar <- function(organism_name, mss = NULL) {
   }
 
   # Check for necessary columns
-  if (!all(c("datetime", "obs_state") %in% names(data))) {
+  if (!all(c("date", "obs_state") %in% names(data))) {
     stop("The dataset must contain 'datetime' and 'obs_state' columns.")
   }
 
   # Add date, month name, and numeric month
   data <- data %>%
     mutate(
-      date = as.Date(datetime),
+      date = as.Date(date),
       month = format(date, "%B"),
       month_num = as.numeric(format(date, "%m")),
       month = factor(month, levels = month.name)  # Ensure correct month order
@@ -636,10 +637,10 @@ plot_monthly_occurrence_map <- function(organism_name, mss = NULL) {
   }
 
   load("../data/weather_stations.rda")
-  data <- left_join(data, weather_stations, by = "weather_station_id")
+  data <- left_join(data, weather_stations, by = "ws_id")
 
   # Check for required columns
-  required_cols <- c("obs_lat", "obs_lon", "stn_lat", "stn_lon", "datetime", "scientificName")
+  required_cols <- c("obs_lat", "obs_lon", "stn_lat", "stn_lon", "date", "scientificName")
   missing_cols <- setdiff(required_cols, names(data))
   if (length(missing_cols) > 0) {
     stop("Missing required columns: ", paste(missing_cols, collapse = ", "))
@@ -648,7 +649,7 @@ plot_monthly_occurrence_map <- function(organism_name, mss = NULL) {
   # Prepare data
   data <- data %>%
     mutate(
-      date = as.Date(datetime),
+      date = as.Date(date),
       month = format(date, "%B"),
       month = factor(month, levels = month.name)
     ) %>%
@@ -697,13 +698,15 @@ plot_monthly_occurrence_map_by_state <- function(organism_name, mss = NULL) {
   # Load organism data
   data <- myload(organism_name)
   load("../data/weather_stations.rda")
-  data <- left_join(data, weather_stations, by = "weather_station_id")
+  data <- left_join(data, weather_stations, by = "ws_id")
   if (!is.null(mss)){
     data <- myload(organism_name) |> filter(scientificName %in% mss)
+    load("../data/weather_stations.rda")
+    data <- left_join(data, weather_stations, by = "ws_id")
   }
 
   # Check required columns
-  required_cols <- c("datetime", "obs_lat", "obs_lon", "stn_lat", "stn_lon", "obs_state")
+  required_cols <- c("date", "obs_lat", "obs_lon", "stn_lat", "stn_lon", "obs_state")
   missing_cols <- setdiff(required_cols, names(data))
   if (length(missing_cols) > 0) {
     stop("Missing required columns: ", paste(missing_cols, collapse = ", "))
@@ -712,7 +715,7 @@ plot_monthly_occurrence_map_by_state <- function(organism_name, mss = NULL) {
   # Prepare data
   data <- data %>%
     mutate(
-      date = as.Date(datetime),
+      date = as.Date(date),
       month = format(date, "%B"),
       month = factor(month, levels = month.name)
     ) %>%
@@ -765,10 +768,10 @@ plot_monthly_distribution_map <- function(organism_name, mss = NULL) {
   }
 
   load("../data/weather_stations.rda")
-  data <- left_join(data, weather_stations, by = "weather_station_id")
+  data <- left_join(data, weather_stations, by = "ws_id")
 
   # Check for required columns
-  required_cols <- c("datetime", "obs_lat", "obs_lon", "stn_lat", "stn_lon", "obs_state")
+  required_cols <- c("date", "obs_lat", "obs_lon", "stn_lat", "stn_lon", "obs_state")
   missing_cols <- setdiff(required_cols, names(data))
   if (length(missing_cols) > 0) {
     stop("Missing required columns: ", paste(missing_cols, collapse = ", "))
@@ -777,7 +780,7 @@ plot_monthly_distribution_map <- function(organism_name, mss = NULL) {
   # Prepare data
   data <- data %>%
     mutate(
-      date = as.Date(datetime),
+      date = as.Date(date),
       month = format(date, "%B"),
       month = factor(month, levels = month.name)
     ) %>%

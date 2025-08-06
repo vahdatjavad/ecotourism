@@ -1,2 +1,0 @@
-"0","# save data"
-"0","usethis::use_data(weather_stations, overwrite = TRUE)"
