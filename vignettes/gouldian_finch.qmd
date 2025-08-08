@@ -1,0 +1,206 @@
+---
+title: "Gouldian Finch"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    toc-location: left
+    fig-cap-location: top
+    code-fold: false
+    code-tools: true
+    theme: flatly
+    page-layout: full
+editor: visual
+---
+
+---
+vignette: >
+  %\VignetteIndexEntry{Gouldian Finch}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+<center><img src="image/gouldian_finch.jpg" alt="Gouldian Finch" width="300"/></center>
+
+## Introduction
+
+This vignette guides you through the process of reproducing and analyzing occurrence data for the **Gouldian Finch** in Australia. The data is sourced from the [Atlas of Living Australia (ALA)](https://www.ala.org.au/), cleaned, enriched with weather information, and visualized.
+
+------------------------------------------------------------------------
+
+## Load Required Packages and Utilities
+
+Required functions are included in `vignette-utils.R`, which you can load using:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+source("vignette-utils.R")
+```
+
+You can modify this script here:\
+`ecotourism/vignettes/vignette-utils.R`
+
+------------------------------------------------------------------------
+
+## Define Global Parameters
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+organism_name <- "gouldian_finch"
+organism_title <- "Gouldian Finch"
+taxa <- "Gouldian finch"
+start <- 2014
+end <- 2024
+email <- "your_email@email.com"
+```
+
+------------------------------------------------------------------------
+
+## Step 1: Download and Prepare Data
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+organism <- obs_data(taxa, start, end, your_email=email) |> 
+  polished_data()
+```
+
+------------------------------------------------------------------------
+
+## Step 2: Save Cleaned Dataset
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+mysave(organism_name, organism)
+```
+
+------------------------------------------------------------------------
+
+## Step 3: Attach Nearest Weather Station
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+attach_nearest_station(organism_name)
+```
+
+This enriches the dataset by adding weather station id as `ws_id`.
+
+------------------------------------------------------------------------
+
+## Step 4: Load and Preview Final Dataset
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+load("../data/gouldian_finch.rda")
+glimpse(gouldian_finch)
+```
+
+------------------------------------------------------------------------
+
+## Data Analysis
+
+We now explore the cleaned dataset in more detail.
+
+### Preview Dataset
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+organism <- myload(organism_name)
+organism |> glimpse()
+```
+
+### Occurrence by State
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+organism |> my_count(scientificName, obs_state, f=1) |> as_tibble()
+```
+
+------------------------------------------------------------------------
+
+## Visualization
+
+### Spatial Distribution Map
+
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+organism |> plot_map1(color_by = scientificName)
+```
+
+### Weekly Trends
+
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+organism |> plot_bar_week()
+organism |> plot_bar_week_100()
+```
+
+### Monthly Trends
+
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+organism |> plot_bar_month()
+```
+
+### Yearly Trends
+
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+organism |> plot_bar_year()
+```
+
+------------------------------------------------------------------------
+
+## Weather Station Mapping
+
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+attach_nearest_station(organism_name)
+organism <- myload(organism_name)
+organism |> glimpse()
+```
+
+------------------------------------------------------------------------
+
+### State-wise Weather Matching Summary
+
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+summarize_state_frequencies(organism_name)
+```
+
+**Interpretation:**
+
+-   **Queensland**:\
+    77 observations; 81 matched with QLD stations.
+
+-   **Western Australia**:\
+    951 observations; 989 matched with WA stations (some from other states).
+
+------------------------------------------------------------------------
+
+## Pattern Analysis
+
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+plot_monthly_occurrences_by_state(organism_name)
+plot_weekly_occurrences_by_state(organism_name)
+plot_seasonal_occurrence_polar(organism_name)
+plot_monthly_occurrence_map(organism_name)
+plot_monthly_occurrence_map_by_state(organism_name)
+plot_monthly_distribution_map(organism_name)
+```
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+You now know how to:
+
+-   Access and clean Gouldian Finch occurrence data from ALA
+-   Attach weather metadata
+-   Analyze and visualize patterns by time and location
+
+This reproducible approach supports ecological exploration and data-driven insights for ecotourism.
+
+## Final Output
+
+This is the glimps of your final data :
+
+```{r, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+load("../data/gouldian_finch.rda")
+gouldian_finch |> glimpse()
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ecotourism)
+data("gouldian_finch")
+gouldian_finch |> glimpse()
+```

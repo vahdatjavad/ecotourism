@@ -17,22 +17,14 @@ Description: This is a collection of data files for
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+LazyDataCompression: xz
 Suggests: 
     knitr,
     rmarkdown,
+    quarto,
     tidyverse,
-    dplyr,
-    tidyr,
-    ggplot2,
-    sf,
-    lubridate,
-    rnaturalearth,
-    rnaturalearthdata,
-    tidygeocoder,
-    galah,
-    GSODR,
     testthat (>= 3.0.0)
-VignetteBuilder: knitr
+VignetteBuilder: quarto
 Depends: 
     R (>= 3.5)
 URL: https://github.com/vahdatjavad/ecotourism

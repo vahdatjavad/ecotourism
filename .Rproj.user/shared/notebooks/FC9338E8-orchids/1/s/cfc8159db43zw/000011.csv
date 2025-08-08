@@ -1,2 +1,0 @@
-"0","organism <- myload(organism_name)"
-"0","organism |> slice_head(n = 3) |> as_tibble() "

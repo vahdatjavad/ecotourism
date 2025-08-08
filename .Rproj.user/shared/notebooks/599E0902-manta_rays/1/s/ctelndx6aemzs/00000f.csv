@@ -1,6 +1,0 @@
-"0",""
-"0","organism <- obs_data(taxa, start, end) |> polished_data() |> "
-"0","  filter(scientificName == ""Mobula alfredi"")"
-"1","-"
-"0","# Save data"
-"0","mysave(organism_name, organism)"

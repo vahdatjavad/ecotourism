@@ -1,0 +1,125 @@
+---
+title: "Australia Weather Station"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    toc-location: left
+    fig-cap-location: top
+    code-fold: false
+    code-tools: true
+    theme: flatly
+    page-layout: full
+editor: visual
+---
+
+---
+vignette: >
+  %\VignetteIndexEntry{Australia Weather Station}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+This vignette demonstrates how to download, process, and visualize the locations of weather stations across **Australia** using the `GSODR` package. These stations are key to understanding long-term climate patterns in ecotourism studies.
+
+------------------------------------------------------------------------
+
+## Load Utilities
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+source("vignette-utils.R")
+```
+
+------------------------------------------------------------------------
+
+## Step 1: Download and Clean Weather Station Data
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+# Download and filter weather stations for Australia
+stations_all <- get_inventory()
+
+weather_stations <- stations_all |>
+  filter(CTRY == "AS") |>
+  select(STNID, NAME, LAT, LON) |> 
+  rename(stn_lat = LAT, stn_lon = LON, ws_id = STNID, stname = NAME) |> 
+  distinct(stn_lat, stn_lon, .keep_all = TRUE) |> 
+  filter(stn_lat >= -44, stn_lat <= -8, stn_lon >= 110, stn_lon <= 160) |> 
+  reverse_geocode(lat = stn_lat, long = stn_lon, method = "osm")
+```
+
+------------------------------------------------------------------------
+
+## Step 2: Extract State Information from Addresses
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+weather_stations <- weather_stations %>%
+  rowwise() %>%
+  mutate(parsed = list(parse_address(address))) %>%
+  unnest(parsed) %>%
+  ungroup()
+```
+
+------------------------------------------------------------------------
+
+## Step 3: Save Data for Later Use
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+usethis::use_data(weather_stations, overwrite = TRUE)
+```
+
+------------------------------------------------------------------------
+
+## Weather Station Distribution by State
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+load("../data/weather_stations.rda")
+weather_stations |> count(stn_state, sort = TRUE) |> kable()
+```
+
+------------------------------------------------------------------------
+
+## Preview of Weather Station Data
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+load("../data/weather_stations.rda")
+weather_stations |> glimpse()
+```
+
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ecotourism)
+data("weather_stations")
+weather_stations |> glimpse()
+```
+
+------------------------------------------------------------------------
+
+## Visualization: Map of Weather Stations
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+aus_map <- ne_states(country = "Australia", returnclass = "sf")
+
+ggplot() +
+  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
+  geom_point(data = weather_stations, 
+             aes(x = stn_lon, y = stn_lat, colour = stn_state),
+             alpha = 0.6, size = 2) +
+  coord_sf(xlim = c(115, 155), ylim = c(-45, -10)) +
+  labs(
+    title = "Weather Stations in Australia",
+    x = "Longitude",
+    y = "Latitude",
+    colour = "State"
+  ) +
+  theme_minimal()
+```
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+You now have a cleaned, geocoded, and mapped dataset of weather stations across Australia. This can be used to join with ecological data to analyze regional weather trends in biodiversity and tourism patterns.
