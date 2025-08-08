@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/.Rbuildignore="01305C69"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/.gitignore="F35CC719"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/DESCRIPTION="6FDAE52C"
@@ -21,3 +22,5 @@
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/vignette-utils.R="F8B1480F"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/weather_data.qmd="2B1A26BD"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/weather_stations.qmd="5E0A0F89"
+=======
+>>>>>>> 8a37082b953b39883098ee0e9184d3b9222da253
