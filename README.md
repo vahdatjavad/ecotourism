@@ -11,6 +11,10 @@ The goal of ecotourism is to provide data to use for example analyses.
 It has data on wild life (cuttlefish) occurrences, tourism counts by
 region and weather matching the locations.
 
+## Website
+
+[ecotourism](https://vahdatjavad.github.io/ecotourism/)
+
 ## Installation
 
 You can install the development version of ecotourism from
