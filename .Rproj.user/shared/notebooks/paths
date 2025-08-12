@@ -1,4 +1,5 @@
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/.Rbuildignore="01305C69"
+/Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/.Rhistory="ED42A5D6"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/.gitignore="F35CC719"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/DESCRIPTION="6FDAE52C"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/LICENSE="94E95E52"
@@ -18,6 +19,7 @@
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/gouldian_finch.qmd="EFBFBBB9"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/manta_rays.qmd="F60BABB1"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/orchids.qmd="70C04F97"
+/Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/tourism.qmd="B25BB13F"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/vignette-utils.R="F8B1480F"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/weather_data.qmd="2B1A26BD"
 /Users/jvah0003/Documents/r-pkg/GSoC(ecotourism)/ecotourism/vignettes/weather_stations.qmd="5E0A0F89"

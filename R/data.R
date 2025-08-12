@@ -256,3 +256,88 @@
 #' data(weather_stations)
 #' head(weather_stations)
 "weather_stations"
+
+
+
+#### tourism_region ---------------------------------------
+
+#' Tourism Regions and Nearest Weather Stations
+#'
+#' A dataset containing the locations of Australian tourism regions,
+#' their geographic coordinates, and the nearest Bureau of Meteorology
+#' weather station. Each region is assigned a unique identifier for
+#' linking to other tourism datasets.
+#'
+#' @format A data frame with `r nrow(tourism_region)` rows and 5 variables:
+#' * **region**: Name of the tourism region. Tourism regions are defined by
+#'   Tourism Research Australia and generally formed through the aggregation of
+#'   Statistical Local Areas (SLAs) or other ABS-defined geographies.
+#' * **lon**: Longitude of the tourism region representative point (WGS84).
+#' * **lat**: Latitude of the tourism region representative point (WGS84).
+#' * **region_id**: Unique integer identifier for the tourism region. Useful
+#'   for joining with other tourism-related datasets.
+#' * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station
+#'   to the tourism region.
+#'
+#' @details
+#' Coordinates for each tourism region are intended to represent a
+#' central location within the region (e.g., polygon centroid). The
+#' nearest weather station is determined using great-circle distance
+#' calculations based on the Bureau of Meteorology's official station list.
+#'
+#' @references
+#' Tourism Research Australia: \url{https://www.tra.gov.au}
+#' Australian Bureau of Meteorology: \url{http://www.bom.gov.au}
+#'
+#' @docType data
+#' @name tourism_region
+#' @usage tourism_region
+#' @examples
+#' data(tourism_region)
+#' head(tourism_region)
+"tourism_region"
+
+
+
+#### tourism_quarterly ------------------------------------
+
+
+#' Quarterly Tourism Trips by Region and Purpose
+#'
+#' A dataset containing quarterly estimates of overnight tourism trips
+#' in Australia, broken down by trip purpose and tourism region.
+#'
+#' @format A data frame with `r nrow(tourism_quarterly)` rows and 4 variables:
+#' * **quarter**: Quarter label in the format `"Month YYYY nn"`, where
+#'   `nn` is the month number for the start of the quarter (e.g.,
+#'   `"December 1998 01"`).
+#' * **purpose**: Purpose of visit category:
+#'   - `"Holiday"`
+#'   - `"Visiting"` (visiting friends and relatives)
+#'   - `"Business"`
+#'   - `"Other"`
+#'   - `"Total"` (all purposes combined)
+#' * **trips**: Number of overnight trips (in thousands).
+#' * **region_id**: Unique integer identifier linking to the
+#'   \code{\link{tourism_region}} dataset.
+#'
+#' @details
+#' Tourism regions are formed through the aggregation of Statistical
+#' Local Areas (SLAs) or similar ABS-defined geographies, as determined
+#' by state and territory tourism authorities. This dataset is designed
+#' for analysis of seasonal tourism patterns and can be joined to
+#' \code{\link{tourism_region}} for spatial analysis.
+#'
+#' @references
+#' Tourism Research Australia: \url{https://www.tra.gov.au}
+#'
+#' @docType data
+#' @name tourism_quarterly
+#' @usage tourism_quarterly
+#' @examples
+#' data(tourism_quarterly)
+#' head(tourism_quarterly)
+"tourism_quarterly"
+
+
+

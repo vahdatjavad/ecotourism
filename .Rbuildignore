@@ -9,3 +9,5 @@
 ^docs$
 ^pkgdown$
 ^run-javad.R
+^.Rhistory
+^vignettes/.quarto
