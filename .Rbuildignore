@@ -11,3 +11,4 @@
 ^run-javad.R
 ^.Rhistory
 ^vignettes/.quarto
+^\.github$

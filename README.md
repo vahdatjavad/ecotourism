@@ -1,34 +1,98 @@
-# ecotourism <img src="man/figures/logo.png" align="right" width="120" />
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# ecotourism <img src="man/figures/logo.png" alt="ecotourism hex logo" align="right" width="120" />
+
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/vahdatjavad/ecotourism/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/vahdatjavad/ecotourism/actions/workflows/R-CMD-check.yaml)
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
 
-The goal of ecotourism is to provide data to use for example analyses.
-It has data on wild life (cuttlefish) occurrences, tourism counts by
-region and weather matching the locations.
+The goal of **ecotourism** is to provide clean, ready-to-use datasets
+for example analyses in teaching, demos, and reproducible workflows.  
+It currently includes wildlife (e.g., cuttlefish) occurrence records,
+tourism counts by region, and local weather for matching locations.
 
 ## Website
 
-[ecotourism](https://vahdatjavad.github.io/ecotourism/)
+👉 Documentation site: **<https://vahdatjavad.github.io/ecotourism/>**
 
 ## Installation
 
-You can install the development version of ecotourism from
-[GitHub](https://github.com/) with:
+Install the development version from GitHub:
 
 ``` r
 # install.packages("pak")
 pak::pak("vahdatjavad/ecotourism")
 ```
 
+If you prefer `remotes`:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("vahdatjavad/ecotourism")
+```
+
+## What’s inside?
+
+List all available datasets and their short titles:
+
+| Object           | Title                                           |
+|:-----------------|:------------------------------------------------|
+| glowworms        | Glowworms Occurrence Data (2014–2024)           |
+| gouldian_finch   | Gouldian Finch Occurrence Data (2014–2024)      |
+| manta_rays       | Manta Ray Occurrence Data (2014–2024)           |
+| orchids          | Orchid Occurrence Data (2014–2024)              |
+| top_stations     | Top Weather Stations for Each Organism          |
+| weather_data     | Daily Weather Data for Top Stations (2014–2024) |
+| weather_stations | Australian Weather Station Metadata             |
+
+To see documentation for any dataset, use:
+
+``` r
+?ecotourism::DATASET_NAME
+```
+
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a minimal usage sketch. Replace `DATASET_NAME` with one from the
+table above.
 
 ``` r
 library(ecotourism)
-## basic example code
+
+# List datasets included in the package
+utils::data(package = "ecotourism")
+
+# Example workflow (replace DATASET_NAME with a real object from the list)
+# data("DATASET_NAME", package = "ecotourism")
+# head(DATASET_NAME)
+# str(DATASET_NAME)
+
+# Tip: quick summaries if dplyr is available:
+# if (requireNamespace("dplyr", quietly = TRUE)) {
+#   dplyr::glimpse(DATASET_NAME)
+# }
+```
+
+## Getting help
+
+- Open an issue with a minimal reproducible example:
+  <https://github.com/vahdatjavad/ecotourism/issues>
+- Check the function/dataset help pages (e.g.,
+  `?ecotourism::DATASET_NAME`).
+
+## Contributing
+
+Pull requests are welcome! If you’re unsure where to start, open an
+issue first to discuss changes.
+
+## Citation
+
+If you use **ecotourism** in teaching, demos, or research, please cite
+it:
+
+``` r
+citation("ecotourism")
 ```
