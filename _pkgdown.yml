@@ -2,6 +2,7 @@ url: ~
 template:
   bootstrap: 5
   bootswatch: flatly  # Clean & modern look
+  logo: man/figures/logo.png
 
 navbar:
   title: "ecotourism"
@@ -19,3 +20,5 @@ home:
   links:
     - text: "Get Started"
       href: articles/getting_started.html
+      logo: man/figures/logo.png
+
