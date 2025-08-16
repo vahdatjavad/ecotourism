@@ -63,6 +63,25 @@ organism <- obs_data(taxa, start, end, your_email=email) |> polished_data()
 
 ------------------------------------------------------------------------
 
+```{r echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+orchids_subset <- read_csv("../data-raw/orchids_subset.csv")
+organism <- organism %>%
+  mutate(
+    genus   = word(scientificName, 1),
+    epithet = word(scientificName, 2),
+    # species-level if it has two words and the 2nd isn't a vague token
+    is_species = !is.na(epithet) &
+      !str_detect(epithet, "^(sp|spp|cf|aff|x|×)\\.?$"),
+    binomial = if_else(is_species, paste(genus, epithet), NA_character_)
+  )
+
+organism <- organism |>
+  filter(is_species==TRUE, 
+         scientificName %in% orchids_subset$scientificName,
+         obs_state == "Western Australia") |> 
+  select(1:13)
+```
+
 ## Step 2: Save Cleaned Dataset
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
@@ -109,62 +128,40 @@ organism |> my_count(scientificName, obs_state, f=1) |> as_tibble()
 
 We'll focus on selected species for visualization:
 
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-mss <- c("Acianthus", "Acianthus fornicatus")
-```
-
 ### Spatial Distribution Map
 
 ```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism |> filter(scientificName %in% mss) |> plot_map1()
+organism |> plot_map1() +  theme(legend.position = "none")
 ```
 
 ### Weekly Trends
 
 ```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism |> filter(scientificName %in% mss) |> plot_bar_week()
+organism  |> plot_bar_week() + theme(legend.position = "none")
 ```
 
 ### Monthly Trends
 
 ```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism |> filter(scientificName %in% mss) |> plot_bar_month()
+organism |> plot_bar_month() + theme(legend.position = "none")
 ```
 
 ### Yearly Trends
 
 ```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism |> filter(scientificName %in% mss) |> plot_bar_year()
+organism |> plot_bar_year() + theme(legend.position = "none")
 ```
-
-------------------------------------------------------------------------
-
-## Weather Station Mapping
-
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism <- myload(organism_name)
-organism |> glimpse()
-```
-
-------------------------------------------------------------------------
-
-### State-wise Weather Matching Summary
-
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-summarize_state_frequencies(organism_name)
-```
-
-------------------------------------------------------------------------
 
 ## Pattern Analysis
 
 ```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-plot_monthly_occurrences_by_state(organism_name, mss)
-plot_weekly_occurrences_by_state(organism_name, mss)
-plot_seasonal_occurrence_polar(organism_name, mss)
-plot_monthly_occurrence_map(organism_name, mss)
-plot_monthly_occurrence_map_by_state(organism_name, mss)
-plot_monthly_distribution_map(organism_name, mss)
+mss = c()
+plot_monthly_occurrences_by_state(organism_name, mss) + theme(legend.position = "none")
+plot_weekly_occurrences_by_state(organism_name, mss) + theme(legend.position = "none")
+plot_seasonal_occurrence_polar(organism_name, mss) + theme(legend.position = "none")
+plot_monthly_occurrence_map(organism_name, mss) + theme(legend.position = "none")
+plot_monthly_occurrence_map_by_state(organism_name, mss) + theme(legend.position = "none")
+plot_monthly_distribution_map(organism_name, mss) + theme(legend.position = "none")
 ```
 
 ------------------------------------------------------------------------
@@ -195,4 +192,3 @@ library(ecotourism)
 data("orchids")
 orchids |> glimpse()
 ```
-
