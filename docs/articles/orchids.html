@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Orchids • ecotourism</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="orchids_files/libs/quarto-html/popper.min.js"></script><script src="orchids_files/libs/quarto-html/tippy.umd.min.js"></script><link href="orchids_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="orchids_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Orchids">
+<meta property="og:image" content="/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -48,8 +54,7 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Orchids</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Orchids</h1>
 
 
 
@@ -98,25 +103,45 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">organism</span> <span class="op">&lt;-</span> <span class="fu">obs_data</span><span class="op">(</span><span class="va">taxa</span>, <span class="va">start</span>, <span class="va">end</span>, your_email<span class="op">=</span><span class="va">email</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">polished_data</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<hr></section><section class="level2" data-number="5"><h2 data-number="5" id="step-2-save-cleaned-dataset">
+<hr>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">orchids_subset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"../data-raw/orchids_subset.csv"</span><span class="op">)</span></span>
+<span><span class="va">organism</span> <span class="op">&lt;-</span> <span class="va">organism</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    genus   <span class="op">=</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/word.html" class="external-link">word</a></span><span class="op">(</span><span class="va">scientificName</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>    epithet <span class="op">=</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/word.html" class="external-link">word</a></span><span class="op">(</span><span class="va">scientificName</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    <span class="co"># species-level if it has two words and the 2nd isn't a vague token</span></span>
+<span>    is_species <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">epithet</span><span class="op">)</span> <span class="op">&amp;</span></span>
+<span>      <span class="op">!</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect</a></span><span class="op">(</span><span class="va">epithet</span>, <span class="st">"^(sp|spp|cf|aff|x|×)\\.?$"</span><span class="op">)</span>,</span>
+<span>    binomial <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">is_species</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">genus</span>, <span class="va">epithet</span><span class="op">)</span>, <span class="cn">NA_character_</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="va">organism</span> <span class="op">&lt;-</span> <span class="va">organism</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">is_species</span><span class="op">==</span><span class="cn">TRUE</span>, </span>
+<span>         <span class="va">scientificName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">orchids_subset</span><span class="op">$</span><span class="va">scientificName</span>,</span>
+<span>         <span class="va">obs_state</span> <span class="op">==</span> <span class="st">"Western Australia"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">13</span><span class="op">)</span></span></code></pre></div>
+</div>
+</section><section class="level2" data-number="5"><h2 data-number="5" id="step-2-save-cleaned-dataset">
 <span class="header-section-number">5</span> Step 2: Save Cleaned Dataset<a class="anchor" aria-label="anchor" href="#step-2-save-cleaned-dataset"></a>
 </h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">mysave</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">organism</span><span class="op">)</span></span></code></pre></div>
 </div>
 <hr></section><section class="level2" data-number="6"><h2 data-number="6" id="step-3-attach-nearest-weather-station">
 <span class="header-section-number">6</span> Step 3: Attach Nearest Weather Station<a class="anchor" aria-label="anchor" href="#step-3-attach-nearest-weather-station"></a>
 </h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">attach_nearest_station</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span></code></pre></div>
 </div>
 <hr></section><section class="level2" data-number="7"><h2 data-number="7" id="step-4-load-and-preview-final-dataset">
 <span class="header-section-number">7</span> Step 4: Load and Preview Final Dataset<a class="anchor" aria-label="anchor" href="#step-4-load-and-preview-final-dataset"></a>
 </h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"../data/orchids.rda"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">orchids</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -127,7 +152,7 @@
 <span class="header-section-number">8.1</span> Preview Dataset<a class="anchor" aria-label="anchor" href="#preview-dataset"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">organism</span> <span class="op">&lt;-</span> <span class="fu">myload</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
 <span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -135,75 +160,56 @@
 <span class="header-section-number">8.2</span> Occurrence by State<a class="anchor" aria-label="anchor" href="#occurrence-by-state"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">my_count</span><span class="op">(</span><span class="va">scientificName</span>, <span class="va">obs_state</span>, f<span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <hr></section></section><section class="level2" data-number="9"><h2 data-number="9" id="visualization">
 <span class="header-section-number">9</span> Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
 </h2>
 <p>We’ll focus on selected species for visualization:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Acianthus"</span>, <span class="st">"Acianthus fornicatus"</span><span class="op">)</span></span></code></pre></div>
-</div>
 <section class="level3" data-number="9.1"><h3 data-number="9.1" id="spatial-distribution-map">
 <span class="header-section-number">9.1</span> Spatial Distribution Map<a class="anchor" aria-label="anchor" href="#spatial-distribution-map"></a>
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">scientificName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">mss</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">plot_map1</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">plot_map1</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level3" data-number="9.2"><h3 data-number="9.2" id="weekly-trends">
 <span class="header-section-number">9.2</span> Weekly Trends<a class="anchor" aria-label="anchor" href="#weekly-trends"></a>
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">scientificName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">mss</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_week</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">organism</span>  <span class="op">|&gt;</span> <span class="fu">plot_bar_week</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level3" data-number="9.3"><h3 data-number="9.3" id="monthly-trends">
 <span class="header-section-number">9.3</span> Monthly Trends<a class="anchor" aria-label="anchor" href="#monthly-trends"></a>
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">scientificName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">mss</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_month</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_month</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level3" data-number="9.4"><h3 data-number="9.4" id="yearly-trends">
 <span class="header-section-number">9.4</span> Yearly Trends<a class="anchor" aria-label="anchor" href="#yearly-trends"></a>
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">scientificName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">mss</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_year</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_year</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<hr></section></section><section class="level2" data-number="10"><h2 data-number="10" id="weather-station-mapping">
-<span class="header-section-number">10</span> Weather Station Mapping<a class="anchor" aria-label="anchor" href="#weather-station-mapping"></a>
+</section></section><section class="level2" data-number="10"><h2 data-number="10" id="pattern-analysis">
+<span class="header-section-number">10</span> Pattern Analysis<a class="anchor" aria-label="anchor" href="#pattern-analysis"></a>
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">&lt;-</span> <span class="fu">myload</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">mss</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">plot_monthly_occurrences_by_state</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="fu">plot_weekly_occurrences_by_state</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="fu">plot_seasonal_occurrence_polar</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="fu">plot_monthly_occurrence_map</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="fu">plot_monthly_occurrence_map_by_state</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="fu">plot_monthly_distribution_map</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<hr>
-<section class="level3" data-number="10.1"><h3 data-number="10.1" id="state-wise-weather-matching-summary">
-<span class="header-section-number">10.1</span> State-wise Weather Matching Summary<a class="anchor" aria-label="anchor" href="#state-wise-weather-matching-summary"></a>
-</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">summarize_state_frequencies</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section></section><section class="level2" data-number="11"><h2 data-number="11" id="pattern-analysis">
-<span class="header-section-number">11</span> Pattern Analysis<a class="anchor" aria-label="anchor" href="#pattern-analysis"></a>
-</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_monthly_occurrences_by_state</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span></span>
-<span><span class="fu">plot_weekly_occurrences_by_state</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span></span>
-<span><span class="fu">plot_seasonal_occurrence_polar</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span></span>
-<span><span class="fu">plot_monthly_occurrence_map</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span></span>
-<span><span class="fu">plot_monthly_occurrence_map_by_state</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span></span>
-<span><span class="fu">plot_monthly_distribution_map</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">mss</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section><section class="level2" data-number="12"><h2 data-number="12" id="conclusion">
-<span class="header-section-number">12</span> Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
+<hr></section><section class="level2" data-number="11"><h2 data-number="11" id="conclusion">
+<span class="header-section-number">11</span> Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
 </h2>
 <p>You’ve now learned how to:</p>
 <ul>
@@ -212,12 +218,12 @@
 <li>Analyze trends for specific genera or species</li>
 </ul>
 <p>This reproducible workflow can support deeper studies into Orchid ecology and conservation through ecotourism data.</p>
-</section><section class="level2" data-number="13"><h2 data-number="13" id="final-output">
-<span class="header-section-number">13</span> Final Output<a class="anchor" aria-label="anchor" href="#final-output"></a>
+</section><section class="level2" data-number="12"><h2 data-number="12" id="final-output">
+<span class="header-section-number">12</span> Final Output<a class="anchor" aria-label="anchor" href="#final-output"></a>
 </h2>
 <p>This is the glimps of your final data :</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"../data/orchids.rda"</span><span class="op">)</span></span>
 <span><span class="va">orchids</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>

@@ -8,6 +8,7 @@
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/articles/manta_rays.html</loc></url>
 <url><loc>/articles/orchids.html</loc></url>
+<url><loc>/articles/tourism.html</loc></url>
 <url><loc>/articles/weather_data.html</loc></url>
 <url><loc>/articles/weather_stations.html</loc></url>
 <url><loc>/authors.html</loc></url>
@@ -18,6 +19,8 @@
 <url><loc>/reference/manta_rays.html</loc></url>
 <url><loc>/reference/orchids.html</loc></url>
 <url><loc>/reference/top_stations.html</loc></url>
+<url><loc>/reference/tourism_quarterly.html</loc></url>
+<url><loc>/reference/tourism_region.html</loc></url>
 <url><loc>/reference/weather_data.html</loc></url>
 <url><loc>/reference/weather_stations.html</loc></url>
 </urlset>

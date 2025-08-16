@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Ecotourism Package • ecotourism</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Ecotourism Package">
 <meta name="description" content="This is a collection of data files for exploring sightings of wild things, relative to weather and tourism patterns in Australia.">
 <meta property="og:description" content="This is a collection of data files for exploring sightings of wild things, relative to weather and tourism patterns in Australia.">
+<meta property="og:image" content="/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -48,18 +54,26 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="ecotourism">ecotourism<a class="anchor" aria-label="anchor" href="#ecotourism"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="ecotourism-">ecotourism <a class="anchor" aria-label="anchor" href="#ecotourism-"></a>
+</h1>
+</div>
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
 <!-- badges: end -->
 <p>The goal of ecotourism is to provide data to use for example analyses. It has data on wild life (cuttlefish) occurrences, tourism counts by region and weather matching the locations.</p>
+<div class="section level2">
+<h2 id="website">Website<a class="anchor" aria-label="anchor" href="#website"></a>
+</h2>
+<p><a href="https://vahdatjavad.github.io/ecotourism/" class="external-link">ecotourism</a></p>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>You can install the development version of ecotourism from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pak</span><span class="op">(</span><span class="st">"vahdatjavad/ecotourism"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"vahdatjavad/ecotourism"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
@@ -99,8 +113,8 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Dianne Cook <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-3813-7155" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li>Lyn Cook <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0000-0000-0000" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li>Javad Vahdat Atashgah <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0009-0004-5845-2584" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Lyn Cook <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-3172-4920" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Javad Vahdat <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0009-0004-5845-2584" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 </ul>
 </div>
 
@@ -111,7 +125,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Dianne Cook, Lyn Cook, Javad Vahdat Atashgah.</p>
+  <p>Developed by Dianne Cook, Lyn Cook, Javad Vahdat.</p>
 </div>
 
 <div class="pkgdown-footer-right">
