@@ -20,6 +20,17 @@ vignette: >
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Ensure the temporary library from R CMD check is visible (esp. on Windows)
+libdir <- Sys.getenv("R_LIBS")
+if (nzchar(libdir)) {
+  parts <- strsplit(libdir, .Platform$path.sep, fixed = TRUE)[[1]]
+  .libPaths(unique(c(parts, .libPaths())))
+}
+
+# now load your package
+suppressPackageStartupMessages(library(ecotourism))
+```
 
 ## Introduction
 
@@ -90,7 +101,7 @@ weather_stations |> glimpse()
 ```
 
 ```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 library(ecotourism)
 data("weather_stations")
 weather_stations |> glimpse()

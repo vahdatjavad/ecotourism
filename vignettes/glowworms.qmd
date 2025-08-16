@@ -23,6 +23,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Ensure the temporary library from R CMD check is visible (esp. on Windows)
+libdir <- Sys.getenv("R_LIBS")
+if (nzchar(libdir)) {
+  parts <- strsplit(libdir, .Platform$path.sep, fixed = TRUE)[[1]]
+  .libPaths(unique(c(parts, .libPaths())))
+}
+
+# now load your package
+suppressPackageStartupMessages(library(ecotourism))
+```
+
 <center><img src="image/glowworm.jpg" alt="Glowworm" width="300"/></center>
 
 ## Introduction
@@ -228,14 +240,15 @@ All helper functions used here are defined in:\
 ## Final Output
 
 This is the glimps of your final data :
+
 ```{r, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 load("../data/glowworms.rda")
 glowworms |> glimpse()
 ```
 
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 library(ecotourism)
 data("glowworms")
 glowworms |> glimpse()

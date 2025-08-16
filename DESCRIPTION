@@ -23,6 +23,7 @@ Suggests:
     rmarkdown,
     quarto,
     tidyverse,
+    dplyr,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto, knitr
 Depends: 

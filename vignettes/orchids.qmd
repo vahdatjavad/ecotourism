@@ -21,6 +21,19 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Ensure the temporary library from R CMD check is visible (esp. on Windows)
+libdir <- Sys.getenv("R_LIBS")
+if (nzchar(libdir)) {
+  parts <- strsplit(libdir, .Platform$path.sep, fixed = TRUE)[[1]]
+  .libPaths(unique(c(parts, .libPaths())))
+}
+
+# now load your package
+suppressPackageStartupMessages(library(ecotourism))
+```
+
+
 <center><img src="image/orchids.jpg" alt="Orchids" width="300"/></center>
 
 ## Introduction
@@ -181,13 +194,13 @@ This reproducible workflow can support deeper studies into Orchid ecology and co
 This is the glimps of your final data :
 
 ```{r, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 load("../data/orchids.rda")
 orchids |> glimpse()
 ```
 
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 library(ecotourism)
 data("orchids")
 orchids |> glimpse()

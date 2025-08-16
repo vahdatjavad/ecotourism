@@ -21,6 +21,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Ensure the temporary library from R CMD check is visible (esp. on Windows)
+libdir <- Sys.getenv("R_LIBS")
+if (nzchar(libdir)) {
+  parts <- strsplit(libdir, .Platform$path.sep, fixed = TRUE)[[1]]
+  .libPaths(unique(c(parts, .libPaths())))
+}
+
+# now load your package
+suppressPackageStartupMessages(library(ecotourism))
+```
+
 <center><img src="image/manta_rays.jpg" alt="Manta Rays" width="300"/></center>
 
 ## Introduction
@@ -189,13 +201,13 @@ This reproducible workflow can be adapted for other marine species or ecotourism
 This is the glimps of your final data :
 
 ```{r, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 load("../data/manta_rays.rda")
 manta_rays |> glimpse()
 ```
 
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 library(ecotourism)
 data("manta_rays")
 manta_rays |> glimpse()

@@ -21,6 +21,19 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Ensure the temporary library from R CMD check is visible (esp. on Windows)
+libdir <- Sys.getenv("R_LIBS")
+if (nzchar(libdir)) {
+  parts <- strsplit(libdir, .Platform$path.sep, fixed = TRUE)[[1]]
+  .libPaths(unique(c(parts, .libPaths())))
+}
+
+# now load your package
+suppressPackageStartupMessages(library(ecotourism))
+```
+
+
 <center><img src="image/gouldian_finch.jpg" alt="Gouldian Finch" width="300"/></center>
 
 ## Introduction
@@ -193,13 +206,13 @@ This reproducible approach supports ecological exploration and data-driven insig
 This is the glimps of your final data :
 
 ```{r, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 load("../data/gouldian_finch.rda")
 gouldian_finch |> glimpse()
 ```
 
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-library(tidyverse)
+library(dplyr)
 library(ecotourism)
 data("gouldian_finch")
 gouldian_finch |> glimpse()

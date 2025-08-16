@@ -21,6 +21,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Ensure the temporary library from R CMD check is visible (esp. on Windows)
+libdir <- Sys.getenv("R_LIBS")
+if (nzchar(libdir)) {
+  parts <- strsplit(libdir, .Platform$path.sep, fixed = TRUE)[[1]]
+  .libPaths(unique(c(parts, .libPaths())))
+}
+
+# now load your package
+suppressPackageStartupMessages(library(ecotourism))
+```
+
 ::: callout-note
 ### What this vignette shows
 
@@ -47,7 +59,6 @@ library(rnaturalearth)
 library(ecotourism)
 ```
 
-
 ## Data overview
 
 List included objects and short descriptions:
@@ -57,8 +68,8 @@ List included objects and short descriptions:
 #| message: true
 #| warning: false
 #| include: true
-load("../data/tourism_quarterly.rda")
-load("../data/tourism_region.rda")
+load(here::here("data/tourism_quarterly.rda"))
+load(here::here("data/tourism_region.rda"))
 ```
 
 Quick peeks at the two tourism datasets used here:
@@ -104,7 +115,6 @@ If your quarterly table contains a `ws_id`, you can join station attributes:
   tourism <- tourism |>
     dplyr::left_join(ecotourism::weather_stations, by = "ws_id")
 ```
-
 
 ## A quick map
 
@@ -181,4 +191,3 @@ if (all(c("region","quarter","trips") %in% names(tourism))) {
     theme_minimal()
 }
 ```
-

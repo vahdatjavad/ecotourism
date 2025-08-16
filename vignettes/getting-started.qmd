@@ -21,6 +21,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Ensure the temporary library from R CMD check is visible (esp. on Windows)
+libdir <- Sys.getenv("R_LIBS")
+if (nzchar(libdir)) {
+  parts <- strsplit(libdir, .Platform$path.sep, fixed = TRUE)[[1]]
+  .libPaths(unique(c(parts, .libPaths())))
+}
+
+# now load your package
+suppressPackageStartupMessages(library(ecotourism))
+```
+
 ## 👋 Welcome
 
 The **ecotourism** package provides tools to analyze ecological observation data alongside weather conditions. This guide will help you get started with the package and direct you to detailed vignettes for specific organisms and workflows.
@@ -66,6 +78,11 @@ Combine ecological observations with environmental data:
 
 ------------------------------------------------------------------------
 
+## ️ Tourism Data
+
+-   📊 [**Tourism Data**](tourism.html)\
+
+------------------------------------------------------------------------
 ## 🚀 Get Started
 
 To begin, choose an organism above or dive into the weather data tools to enrich your analyses. The `ecotourism` package makes it easy to explore interactions between biodiversity and climate in Australia.
