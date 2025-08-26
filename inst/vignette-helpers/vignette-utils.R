@@ -1,22 +1,31 @@
-# Function to ensure required packages are installed and loaded
-# ensure_packages <- function(pkgs) {
-#   for (pkg in pkgs) {
-#     if (!requireNamespace(pkg, quietly = TRUE)) {
-#       install.packages(pkg)
-#     }
-#     library(pkg, character.only = TRUE)
-#   }
-# }
+#Function to ensure required packages are installed and loaded
+ensure_packages <- function(pkgs) {
+  for (pkg in pkgs) {
+    if (!requireNamespace(pkg, quietly = TRUE)) {
+      install.packages(pkg)
+    }
+    library(pkg, character.only = TRUE)
+  }
+}
 
 required_pkgs <- c(
   "dplyr", "tidyr", "ggplot2", "lubridate", "sf",
-  "rnaturalearth", "rnaturalearthdata","rnaturalearthhires", "knitr"
+  "rnaturalearth", "rnaturalearthdata", "knitr"
 )
 
-# Install and load all packages
-for (i in required_pkgs){
-  library(i, character.only = TRUE)
-}
+ensure_packages(required_pkgs)
+
+
+if(!requireNamespace("rnaturalearthhires", quietly = TRUE)){
+  install.packages(
+    "rnaturalearthhires",
+    repos = "https://ropensci.r-universe.dev",
+    type = "source"
+  )}
+# # Install and load all packages
+# for (i in required_pkgs){
+#   library(i, character.only = TRUE)
+# }
 
 
 
