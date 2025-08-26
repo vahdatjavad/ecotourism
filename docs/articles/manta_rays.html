@@ -68,9 +68,12 @@
 
 
 
-    <center>
-<img src="image/manta_rays.jpg" alt="Manta Rays" width="300">
-</center>
+    <div class="quarto-figure quarto-figure-center">
+<figure><figcaption>Manta Rays at Dharavandhoo Thila (Black Pearl).<br>
+Image credit: Shiyam ElkCloner – Own work. Licence: <a href="https://creativecommons.org/licenses/by-sa/3.0/" class="external-link">CC BY-SA 3.0</a>.<br>
+File: Dharavandhoo Thila - Manata Black Pearl.JPG. Created: 27 May 2012. Uploaded: 27 May 2012.</figcaption><p><img src="image/manta_rays.jpg" width="300"></p>
+</figure>
+</div>
 <section class="level2" data-number="1"><h2 data-number="1" id="introduction">
 <span class="header-section-number">1</span> Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
@@ -81,176 +84,227 @@
 <p>All helper functions are stored in <code>vignette-utils.R</code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="st">"vignette-utils.R"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">organism_name</span> <span class="op">=</span> <span class="st">"manta_rays"</span></span>
+<span><span class="va">organism_title</span> <span class="op">=</span> <span class="st">"Manta Rays"</span></span></code></pre></div>
 </div>
-<p>You can edit this file at:<br><code>ecotourism/vignettes/vignette-utils.R</code></p>
-<hr></section><section class="level2" data-number="3"><h2 data-number="3" id="define-global-parameters">
-<span class="header-section-number">3</span> Define Global Parameters<a class="anchor" aria-label="anchor" href="#define-global-parameters"></a>
+<hr></section><section class="level2" data-number="3"><h2 data-number="3" id="data-analysis">
+<span class="header-section-number">3</span> Data Analysis<a class="anchor" aria-label="anchor" href="#data-analysis"></a>
 </h2>
+<section class="level3" data-number="3.1"><h3 data-number="3.1" id="preview-dataset">
+<span class="header-section-number">3.1</span> Preview Dataset<a class="anchor" aria-label="anchor" href="#preview-dataset"></a>
+</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism_name</span> <span class="op">&lt;-</span> <span class="st">"manta_rays"</span></span>
-<span><span class="va">organism_title</span> <span class="op">&lt;-</span> <span class="st">"Manta Rays"</span></span>
-<span><span class="va">taxa</span> <span class="op">&lt;-</span> <span class="st">"Mobula alfredi"</span></span>
-<span><span class="va">start</span> <span class="op">&lt;-</span> <span class="fl">2014</span></span>
-<span><span class="va">end</span> <span class="op">&lt;-</span> <span class="fl">2024</span></span>
-<span><span class="va">email</span> <span class="op">&lt;-</span> <span class="st">"your_email@gmail.com"</span></span></code></pre></div>
-</div>
-<hr></section><section class="level2" data-number="4"><h2 data-number="4" id="step-1-download-and-prepare-data">
-<span class="header-section-number">4</span> Step 1: Download and Prepare Data<a class="anchor" aria-label="anchor" href="#step-1-download-and-prepare-data"></a>
-</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">&lt;-</span> <span class="fu">obs_data</span><span class="op">(</span><span class="va">taxa</span>, <span class="va">start</span>, <span class="va">end</span>, your_email<span class="op">=</span><span class="va">email</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">polished_data</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">scientificName</span> <span class="op">==</span> <span class="st">"Mobula alfredi"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section><section class="level2" data-number="5"><h2 data-number="5" id="step-2-save-cleaned-dataset">
-<span class="header-section-number">5</span> Step 2: Save Cleaned Dataset<a class="anchor" aria-label="anchor" href="#step-2-save-cleaned-dataset"></a>
-</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">mysave</span><span class="op">(</span><span class="va">organism_name</span>, <span class="va">organism</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section><section class="level2" data-number="6"><h2 data-number="6" id="step-3-attach-nearest-weather-station">
-<span class="header-section-number">6</span> Step 3: Attach Nearest Weather Station<a class="anchor" aria-label="anchor" href="#step-3-attach-nearest-weather-station"></a>
-</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">attach_nearest_station</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section><section class="level2" data-number="7"><h2 data-number="7" id="step-4-load-and-preview-final-dataset">
-<span class="header-section-number">7</span> Step 4: Load and Preview Final Dataset<a class="anchor" aria-label="anchor" href="#step-4-load-and-preview-final-dataset"></a>
-</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"../data/manta_rays.rda"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">manta_rays</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section><section class="level2" data-number="8"><h2 data-number="8" id="data-analysis">
-<span class="header-section-number">8</span> Data Analysis<a class="anchor" aria-label="anchor" href="#data-analysis"></a>
-</h2>
-<section class="level3" data-number="8.1"><h3 data-number="8.1" id="preview-dataset">
-<span class="header-section-number">8.1</span> Preview Dataset<a class="anchor" aria-label="anchor" href="#preview-dataset"></a>
-</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">&lt;-</span> <span class="fu">myload</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_head</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level3" data-number="8.2"><h3 data-number="8.2" id="occurrence-by-state">
-<span class="header-section-number">8.2</span> Occurrence by State<a class="anchor" aria-label="anchor" href="#occurrence-by-state"></a>
-</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">my_count</span><span class="op">(</span><span class="va">scientificName</span>, <span class="va">obs_state</span>, f<span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section></section><section class="level2" data-number="9"><h2 data-number="9" id="visualization">
-<span class="header-section-number">9</span> Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
-</h2>
-<section class="level3" data-number="9.1"><h3 data-number="9.1" id="spatial-distribution-map">
-<span class="header-section-number">9.1</span> Spatial Distribution Map<a class="anchor" aria-label="anchor" href="#spatial-distribution-map"></a>
-</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">plot_map1</span><span class="op">(</span>color_by <span class="op">=</span> <span class="va">scientificName</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level3" data-number="9.2"><h3 data-number="9.2" id="weekly-trends">
-<span class="header-section-number">9.2</span> Weekly Trends<a class="anchor" aria-label="anchor" href="#weekly-trends"></a>
-</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_week</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level3" data-number="9.3"><h3 data-number="9.3" id="monthly-trends">
-<span class="header-section-number">9.3</span> Monthly Trends<a class="anchor" aria-label="anchor" href="#monthly-trends"></a>
-</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_month</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level3" data-number="9.4"><h3 data-number="9.4" id="yearly-trends">
-<span class="header-section-number">9.4</span> Yearly Trends<a class="anchor" aria-label="anchor" href="#yearly-trends"></a>
-</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_year</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section></section><section class="level2" data-number="10"><h2 data-number="10" id="weather-station-mapping">
-<span class="header-section-number">10</span> Weather Station Mapping<a class="anchor" aria-label="anchor" href="#weather-station-mapping"></a>
-</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">attach_nearest_station</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="va">organism</span> <span class="op">&lt;-</span> <span class="fu">myload</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="va">organism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr>
-<section class="level3" data-number="10.1"><h3 data-number="10.1" id="state-wise-weather-matching-summary">
-<span class="header-section-number">10.1</span> State-wise Weather Matching Summary<a class="anchor" aria-label="anchor" href="#state-wise-weather-matching-summary"></a>
-</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">summarize_state_frequencies</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p><strong>Interpretation:</strong></p>
-<ul>
-<li><p><strong>Queensland</strong>:<br>
-884 observations; 888 matched with QLD weather stations.</p></li>
-<li><p><strong>Western Australia</strong>:<br>
-84 observations; 127 matched with WA stations — implying cross-state assignment.</p></li>
-</ul>
-<hr></section></section><section class="level2" data-number="11"><h2 data-number="11" id="pattern-analysis">
-<span class="header-section-number">11</span> Pattern Analysis<a class="anchor" aria-label="anchor" href="#pattern-analysis"></a>
-</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">plot_monthly_occurrences_by_state</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="fu">plot_weekly_occurrences_by_state</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="fu">plot_seasonal_occurrence_polar</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="fu">plot_monthly_occurrence_map</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="fu">plot_monthly_occurrence_map_by_state</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span>
-<span><span class="fu">plot_monthly_distribution_map</span><span class="op">(</span><span class="va">organism_name</span><span class="op">)</span></span></code></pre></div>
-</div>
-<hr></section><section class="level2" data-number="12"><h2 data-number="12" id="conclusion">
-<span class="header-section-number">12</span> Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
-</h2>
-<p>You now know how to:</p>
-<ul>
-<li>Retrieve and clean occurrence data for Manta Rays</li>
-<li>Attach nearest weather station metadata</li>
-<li>Explore distribution patterns in space and time</li>
-</ul>
-<p>This reproducible workflow can be adapted for other marine species or ecotourism-relevant taxa in Australia.</p>
-</section><section class="level2" data-number="13"><h2 data-number="13" id="final-output">
-<span class="header-section-number">13</span> Final Output<a class="anchor" aria-label="anchor" href="#final-output"></a>
-</h2>
-<p>This is the glimps of your final data :</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="st">"../data/manta_rays.rda"</span><span class="op">)</span></span>
-<span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="cell">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"manta_rays"</span><span class="op">)</span></span>
+<span><span class="va">manta_rays</span> <span class="op">|&gt;</span>  <span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 1,088
 Columns: 14
-$ obs_lat        &lt;dbl&gt; -33.93000, -33.93000, -33.93000, -33.80058, -33.80012, …
-$ obs_lon        &lt;dbl&gt; 151.3500, 151.3500, 151.3500, 151.2955, 151.2969, 151.2…
-$ date           &lt;date&gt; 2014-01-04, 2015-07-28, 2014-08-07, 2024-12-22, 2024-1…
-$ time           &lt;chr&gt; "00:00:00", "00:00:00", "00:00:00", "11:44:00", "12:50:…
-$ year           &lt;dbl&gt; 2014, 2015, 2014, 2024, 2024, 2024, 2014, 2017, 2017, 2…
-$ month          &lt;dbl&gt; 1, 7, 8, 12, 12, 12, 4, 3, 2, 2, 2, 3, 2, 2, 11, 3, 3, …
-$ day            &lt;dbl&gt; 4, 28, 7, 22, 22, 22, 25, 4, 27, 27, 26, 3, 26, 22, 29,…
-$ hour           &lt;int&gt; 0, 0, 0, 11, 12, 8, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
-$ weekday        &lt;ord&gt; Saturday, Tuesday, Thursday, Sunday, Sunday, Sunday, Fr…
-$ dayofyear      &lt;dbl&gt; 4, 209, 219, 357, 357, 357, 115, 63, 58, 58, 57, 62, 57…
-$ scientificName &lt;chr&gt; "Mobula alfredi", "Mobula alfredi", "Mobula alfredi", "…
-$ record_type    &lt;chr&gt; "MACHINE_OBSERVATION", "MACHINE_OBSERVATION", "MACHINE_…
-$ obs_state      &lt;chr&gt; NA, NA, NA, "New South Wales", "New South Wales", "New …
-$ ws_id          &lt;chr&gt; "947800-99999", "947800-99999", "947800-99999", "957680…</code></pre>
+$ obs_lat     &lt;dbl&gt; -33.93000, -33.93000, -33.93000, -33.80058, -33.80012, -33…
+$ obs_lon     &lt;dbl&gt; 151.3500, 151.3500, 151.3500, 151.2955, 151.2969, 151.2948…
+$ date        &lt;date&gt; 2014-01-04, 2015-07-28, 2014-08-07, 2024-12-22, 2024-12-2…
+$ time        &lt;chr&gt; "00:00:00", "00:00:00", "00:00:00", "11:44:00", "12:50:25"…
+$ year        &lt;dbl&gt; 2014, 2015, 2014, 2024, 2024, 2024, 2014, 2017, 2017, 2017…
+$ month       &lt;dbl&gt; 1, 7, 8, 12, 12, 12, 4, 3, 2, 3, 2, 3, 3, 3, 3, 3, 2, 3, 1…
+$ day         &lt;dbl&gt; 4, 28, 7, 22, 22, 22, 25, 4, 27, 5, 26, 3, 1, 2, 9, 3, 27,…
+$ hour        &lt;int&gt; 0, 0, 0, 11, 12, 8, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,…
+$ weekday     &lt;ord&gt; Saturday, Tuesday, Thursday, Sunday, Sunday, Sunday, Frida…
+$ dayofyear   &lt;dbl&gt; 4, 209, 219, 357, 357, 357, 115, 63, 58, 64, 57, 62, 60, 6…
+$ sci_name    &lt;chr&gt; "Mobula alfredi", "Mobula alfredi", "Mobula alfredi", "Mob…
+$ record_type &lt;chr&gt; "MACHINE_OBSERVATION", "MACHINE_OBSERVATION", "MACHINE_OBS…
+$ obs_state   &lt;chr&gt; NA, NA, NA, "New South Wales", "New South Wales", "New Sou…
+$ ws_id       &lt;chr&gt; "947800-99999", "947800-99999", "947800-99999", "957680-99…</code></pre>
 </div>
+</div>
+</section><section class="level3" data-number="3.2"><h3 data-number="3.2" id="occurrence-by-state">
+<span class="header-section-number">3.2</span> Occurrence by State<a class="anchor" aria-label="anchor" href="#occurrence-by-state"></a>
+</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">sci_name</span>, <span class="va">obs_state</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 3
+  sci_name       obs_state                       n
+  &lt;chr&gt;          &lt;chr&gt;                       &lt;int&gt;
+1 Mobula alfredi Ashmore and Cartier Islands     1
+2 Mobula alfredi New South Wales                51
+3 Mobula alfredi Queensland                    888
+4 Mobula alfredi Western Australia              85
+5 Mobula alfredi &lt;NA&gt;                           63</code></pre>
+</div>
+</div>
+<hr></section></section><section class="level2" data-number="4"><h2 data-number="4" id="visualization">
+<span class="header-section-number">4</span> Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
+</h2>
+<section class="level3" data-number="4.1"><h3 data-number="4.1" id="spatial-distribution-map">
+<span class="header-section-number">4.1</span> Spatial Distribution Map<a class="anchor" aria-label="anchor" href="#spatial-distribution-map"></a>
+</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_map1</span><span class="op">(</span>legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-5-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section class="level3" data-number="4.2"><h3 data-number="4.2" id="weekly-trends">
+<span class="header-section-number">4.2</span> Weekly Trends<a class="anchor" aria-label="anchor" href="#weekly-trends"></a>
+</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_week</span><span class="op">(</span>legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-6-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section class="level3" data-number="4.3"><h3 data-number="4.3" id="monthly-trends">
+<span class="header-section-number">4.3</span> Monthly Trends<a class="anchor" aria-label="anchor" href="#monthly-trends"></a>
+</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_month</span><span class="op">(</span>legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-7-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section class="level3" data-number="4.4"><h3 data-number="4.4" id="yearly-trends">
+<span class="header-section-number">4.4</span> Yearly Trends<a class="anchor" aria-label="anchor" href="#yearly-trends"></a>
+</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_bar_year</span><span class="op">(</span>legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-8-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr></section></section><section class="level2" data-number="5"><h2 data-number="5" id="pattern-analysis">
+<span class="header-section-number">5</span> Pattern Analysis<a class="anchor" aria-label="anchor" href="#pattern-analysis"></a>
+</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_monthly_occurrences_by_state</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-9-1.png" width="576"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_weekly_occurrences_by_state</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'
+`geom_line()`: Each group consists of only one observation.
+ℹ Do you need to adjust the group aesthetic?</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-9-2.png" width="576"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_seasonal_occurrence_polar</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-9-3.png" width="576"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_monthly_occurrence_map</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-9-4.png" width="576"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_monthly_occurrence_map_by_state</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-9-5.png" width="576"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">manta_rays</span> <span class="op">|&gt;</span> <span class="fu">plot_monthly_distribution_map</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="manta_rays_files/figure-html/unnamed-chunk-9-6.png" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+<p>Work with Tourism dataset:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># make full tourism dataset</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"tourism_region"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"tourism_quarterly"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tourism</span> <span class="op">&lt;-</span> <span class="va">tourism_quarterly</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">tourism_region</span>, by <span class="op">=</span> <span class="st">"region_id"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu">ecotourism</span><span class="fu">::</span><span class="va"><a href="../reference/weather_stations.html">weather_stations</a></span>, by <span class="op">=</span> <span class="st">"ws_id"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># load top station for organism</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"top_stations"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">top_stations_manta_rays</span> <span class="op">&lt;-</span> <span class="va">top_stations</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">organism</span> <span class="op">==</span> <span class="st">"manta_rays"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>No we can find related tourism spots</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tourism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ws_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">top_stations_manta_rays</span><span class="op">$</span><span class="va">ws_id</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13 × 14
+   quarter    purpose  trips region_id region     lon   lat ws_id stname stn_lat
+   &lt;date&gt;     &lt;chr&gt;    &lt;dbl&gt;     &lt;int&gt; &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;
+ 1 2016-12-01 Business 2.91        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+ 2 2018-12-01 Business 6.02        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+ 3 2021-12-01 Holiday  1.60        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+ 4 2015-06-01 Business 6.56        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+ 5 2016-03-01 Business 1.90        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+ 6 2017-03-01 Holiday  0.396       520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+ 7 2019-03-01 Business 0.974       520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+ 8 2021-03-01 Holiday  0.994       520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+ 9 2014-09-01 Business 5.26        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+10 2017-09-01 Business 2.00        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+11 2019-09-01 Business 2.07        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+12 2021-09-01 Business 2.30        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+13 2021-09-01 Holiday  2.87        520 Cocos (…  96.8 -12.1 9430… LEARM…   -22.2
+# ℹ 4 more variables: stn_lon &lt;dbl&gt;, address &lt;chr&gt;, stn_city &lt;chr&gt;,
+#   stn_state &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>If you want to match quarter data use this code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># 1. Aggregate manta observations to quarter</span></span>
+<span><span class="va">manta_quarter</span> <span class="op">&lt;-</span> <span class="va">manta_rays</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>quarter <span class="op">=</span> <span class="fu">floor_date</span><span class="op">(</span><span class="va">date</span>, <span class="st">"quarter"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">quarter</span>, name <span class="op">=</span> <span class="st">"manta_sightings"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 2. Make sure tourism$quarter is also floor_date</span></span>
+<span><span class="va">tourism_clean</span> <span class="op">&lt;-</span> <span class="va">tourism</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>quarter <span class="op">=</span> <span class="fu">floor_date</span><span class="op">(</span><span class="va">quarter</span>, <span class="st">"quarter"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 3. Left join: keep all manta quarters, match tourism by quarter</span></span>
+<span><span class="va">manta_tourism</span> <span class="op">&lt;-</span> <span class="va">manta_quarter</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">tourism_clean</span>, by <span class="op">=</span> <span class="st">"quarter"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

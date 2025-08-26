@@ -1,0 +1,115 @@
+---
+title: "glowworms_data_reproduce"
+format: html
+---
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+source(here::here("data-raw/data_reproduce_utiles.R"))
+```
+
+# Define Global Parameters
+
+We define basic variables used throughout the vignette:
+
+```{r echo=TRUE, eval=TRUE}
+# global variables
+email <- "your_email@email.com"
+organism_name <- "glowworms"
+organism_title <- "Glowworms"
+taxa     <- "Arachnocampa"
+start    <- 2014
+end      <- 2024
+```
+
+## Step 1: Download and Prepare Occurrence Data
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+organism <- obs_data(taxa, start, end, your_email=email) |> polished_data()
+```
+
+> This downloads ALA data and performs standard cleaning: renaming columns and removing `NA`s.
+
+## Step 2: Save Cleaned Dataset
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+mysave(organism_name, organism)
+```
+
+This saves the object to the `/data` folder with the name `"glowworms.rda"`.
+
+## Step 3: Attach Nearest Weather Station
+
+```{r, echo=TRUE, message=FALSE, eval=FALSE}
+attach_nearest_station(organism_name)
+```
+
+> Weather data is restricted to the top 3 stations to keep it lightweight.
+
+## Step 4: Load and Explore the Data
+
+```{r, echo=TRUE, eval=FALSE}
+load("../data/glowworms.rda")
+glimpse(glowworms)
+```
+
+## Step 5: Save Raw Version for Further Analysis
+
+```{r "request data ALA", eval=FALSE, message=FALSE, warning=FALSE}
+organism_raw <- obs_data(taxa, start, end, your_email=email) |> polished_data()
+
+mysave_raw(organism_name, organism_raw)
+```
+
+To load it:
+
+```{r , echo=TRUE, eval=FALSE}
+organism_raw <- myload_raw(organism_name)
+```
+
+```{r , echo=TRUE, eval=FALSE}
+organism_raw |> slice_head(n = 3) |> as_tibble() |> glimpse()
+```
+
+## Step 6: Count Occurrences by State
+
+```{r "number of occ in state", echo=TRUE, eval=FALSE}
+organism_raw |> count(sci_name, obs_state)
+```
+
+## Step 7: Clean Taxonomic Ambiguity
+
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=FALSE}
+radius_threshold <- 250000
+
+unknowns <- organism_raw |> filter(sci_name == "Arachnocampa")
+references <- organism_raw |> filter(sci_name == "Arachnocampa flava")
+
+assign_if_close_to_flava <- function(lat, lon, flava_data, radius) {
+  dists <- distHaversine(
+    matrix(c(lon, lat), ncol = 2),
+    matrix(c(flava_data$obs_lon, flava_data$obs_lat), ncol = 2)
+  )
+  if (any(dists <= radius)) "Arachnocampa flava" else "Arachnocampa"
+}
+
+unknowns_updated <- unknowns |> 
+  rowwise() |> 
+  mutate(scientificName = assign_if_close_to_flava(obs_lat, obs_lon, references, radius_threshold)) |> 
+  ungroup()
+
+organism <- organism_raw |> 
+  filter(sci_name != "Arachnocampa") |> 
+  bind_rows(unknowns_updated) |> 
+  filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month),
+         scientificName %in% c("Arachnocampa flava", "Arachnocampa tasmaniensis"))
+
+mysave(organism_name, organism)
+```
+
+## Weather Station attach
+
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=FALSE}
+attach_nearest_station(organism_name)
+load("../data/glowworms.rda")
+glimpse(head(glowworms, 2))
+```

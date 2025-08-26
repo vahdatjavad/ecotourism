@@ -17,7 +17,7 @@ A tibble with 1,088 rows and 14 variables:
   \item{hour}{Hour extracted from the time (0–23)}
   \item{weekday}{Day of the week (as ordered factor)}
   \item{dayofyear}{Day of the year (1–366)}
-  \item{scientificName}{Scientific name — all observations are \emph{Mobula alfredi}}
+  \item{sci_name}{Scientific name — all observations are \emph{Mobula alfredi}}
   \item{record_type}{Type of observation (e.g., MACHINE_OBSERVATION)}
   \item{obs_state}{Australian state where the observation occurred (may be missing)}
   \item{ws_id}{Nearest weather station ID (e.g., "947800-99999")}

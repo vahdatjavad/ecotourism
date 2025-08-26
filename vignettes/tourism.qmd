@@ -41,22 +41,12 @@ A quick tour of the **ecotourism** package's tourism datasets, how to join regio
 
 ## Setup
 
-```{r}
-#| eval: false
-#| message: true
-#| warning: false
-#| include: true
-# Core tidy tools
-library(dplyr)
-library(ggplot2)
-
-# Spatial & basemap (suggests)
-# If these aren't installed, install with: pak::pak(c("sf","rnaturalearth","rnaturalearthdata"))
-library(sf)
-library(rnaturalearth)
-
-# Package data
-library(ecotourism)
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+#source(here::here("inst/vignette-helpers/vignette-utils.R"))
+utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
+if (file.exists(utils_path)) {
+  source(utils_path, encoding = "UTF-8")
+}
 ```
 
 ## Data overview
@@ -64,18 +54,13 @@ library(ecotourism)
 List included objects and short descriptions:
 
 ```{r}
-#| eval: false
-#| message: true
-#| warning: false
-#| include: true
-load(here::here("data/tourism_quarterly.rda"))
-load(here::here("data/tourism_region.rda"))
+data("tourism_region")
+data("tourism_quarterly")
 ```
 
 Quick peeks at the two tourism datasets used here:
 
 ```{r}
-#| eval: false
 #| message: true
 #| warning: false
 #| include: true
@@ -88,7 +73,6 @@ dplyr::glimpse(tourism_quarterly)
 We keep only rows with a valid region name after the join.
 
 ```{r}
-#| eval: false
 #| message: true
 #| warning: false
 #| include: true
@@ -108,7 +92,6 @@ If you only need a subset of columns, select them first to keep memory small, fo
 If your quarterly table contains a `ws_id`, you can join station attributes:
 
 ```{r}
-#| eval: false
 #| message: false
 #| warning: false
 #| include: true
@@ -121,7 +104,6 @@ If your quarterly table contains a `ws_id`, you can join station attributes:
 We’ll plot tourism site coordinates and, when available, their weather stations.
 
 ```{r}
-#| eval: false
 #| message: true
 #| warning: false
 #| include: true
@@ -147,7 +129,6 @@ ggplot() +
 If station coordinates `stn_lon` and `stn_lat` are present, overlay them too:
 
 ```{r}
-#| eval: false
 #| message: true
 #| warning: false
 #| include: true
@@ -171,7 +152,6 @@ if (all(c("stn_lon","stn_lat") %in% names(tourism))) {
 Plot quarterly visitors for one example region (pick the first with data).
 
 ```{r}
-#| eval: false
 #| message: true
 #| warning: false
 #| include: true

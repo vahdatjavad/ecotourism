@@ -1,0 +1,35 @@
+---
+title: "weather_stations_data_reproduce"
+format: html
+---
+
+## Step 1: Download and Clean Weather Station Data
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+# Download and filter weather stations for Australia
+stations_all <- get_inventory()
+
+weather_stations <- stations_all |>
+  filter(CTRY == "AS") |>
+  select(STNID, NAME, LAT, LON) |> 
+  rename(stn_lat = LAT, stn_lon = LON, ws_id = STNID, stname = NAME) |> 
+  distinct(stn_lat, stn_lon, .keep_all = TRUE) |> 
+  filter(stn_lat >= -44, stn_lat <= -8, stn_lon >= 110, stn_lon <= 160) |> 
+  reverse_geocode(lat = stn_lat, long = stn_lon, method = "osm")
+```
+
+## Step 2: Extract State Information from Addresses
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+weather_stations <- weather_stations %>%
+  rowwise() %>%
+  mutate(parsed = list(parse_address(address))) %>%
+  unnest(parsed) %>%
+  ungroup()
+```
+
+## Step 3: Save Data for Later Use
+
+```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+usethis::use_data(weather_stations, overwrite = TRUE)
+```

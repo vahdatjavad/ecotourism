@@ -1,0 +1,47 @@
+---
+title: "gouldian_finch_data_reproduce"
+format: html
+---
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+source(here::here("data-raw/data_reproduce_utiles.R"))
+```
+
+## Define Global Parameters
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+organism_name <- "gouldian_finch"
+organism_title <- "Gouldian Finch"
+taxa <- "Gouldian finch"
+start <- 2014
+end <- 2024
+email <- "your_email@email.com"
+```
+
+## Step 1: Download and Prepare Data
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+organism <- obs_data(taxa, start, end, your_email=email) |> 
+  polished_data()
+```
+
+## Step 2: Save Cleaned Dataset
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+mysave(organism_name, organism)
+```
+
+## Step 3: Attach Nearest Weather Station
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+attach_nearest_station(organism_name)
+```
+
+This enriches the dataset by adding weather station id as `ws_id`.
+
+## Step 4: Load and Preview Final Dataset
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+load("../data/gouldian_finch.rda")
+glimpse(gouldian_finch)
+```

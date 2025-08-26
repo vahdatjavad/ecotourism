@@ -8,7 +8,7 @@ Authors@R:
            comment = c(ORCID = "0000-0002-3813-7155")),
     person("Lyn", "Cook", email="l.cook@uq.edu.au", role = c("aut"),
            comment = c(ORCID = "0000-0002-3172-4920")),           
-    person("Javad", "Vahdat", email="vahdatjavad@gmail.com", role = c("aut", "cre"),
+    person("Javad", "Vahdat Atashgah", email="vahdatjavad@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0004-5845-2584"))           
     )
 Description: This is a collection of data files for 
@@ -22,8 +22,17 @@ Suggests:
     knitr,
     rmarkdown,
     quarto,
-    tidyverse,
+    ggplot2,
     dplyr,
+    tidyr,
+    here,
+    lubridate,
+    tibble,
+    sf,
+    readr,
+    rnaturalearth,
+    rnaturalearthdata,
+    rnaturalearthhires,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto, knitr
 Depends: 

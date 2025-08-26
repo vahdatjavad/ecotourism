@@ -80,7 +80,7 @@ It includes spatial, temporal, taxonomic, and weather station metadata.</p>
   <dt>dayofyear</dt>
 <dd><p>Day of the year (1–366)</p></dd>
 
-  <dt>scientificName</dt>
+  <dt>sci_name</dt>
 <dd><p>Scientific name of the observed species</p></dd>
 
   <dt>record_type</dt>
@@ -109,17 +109,17 @@ weather station using geospatial methods.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">glowworms</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">glowworms</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 14</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 15</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   obs_lat obs_lon date       time      year month   day  hour weekday  dayofyear</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;ord&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>   -<span style="color: #BB0000;">43.5</span>    147. 2021-12-14 22:14:23  <span style="text-decoration: underline;">2</span>021    12    14    22 Tuesday        348</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>   -<span style="color: #BB0000;">43.5</span>    147. 2015-12-09 15:00:24  <span style="text-decoration: underline;">2</span>015    12     9    15 Wednesd…       343</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>   -<span style="color: #BB0000;">43.5</span>    147. 2017-04-17 13:31:00  <span style="text-decoration: underline;">2</span>017     4    17    13 Monday         107</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>   -<span style="color: #BB0000;">43.5</span>    147. 2023-12-21 14:18:00  <span style="text-decoration: underline;">2</span>023    12    21    14 Thursday       355</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>   -<span style="color: #BB0000;">43.5</span>    147. 2022-12-26 18:42:12  <span style="text-decoration: underline;">2</span>022    12    26    18 Monday         360</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>   -<span style="color: #BB0000;">42.8</span>    147. 2024-12-05 11:36:00  <span style="text-decoration: underline;">2</span>024    12     5    11 Thursday       340</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 4 more variables: scientificName &lt;chr&gt;, record_type &lt;chr&gt;, obs_state &lt;chr&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   ws_id &lt;chr&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>   -<span style="color: #BB0000;">30.5</span>    153. 2020-01-25 20:11:18  <span style="text-decoration: underline;">2</span>020     1    25    20 Saturday        25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>   -<span style="color: #BB0000;">30.4</span>    153. 2019-11-27 00:00:00  <span style="text-decoration: underline;">2</span>019    11    27     0 Wednesd…       331</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>   -<span style="color: #BB0000;">30.3</span>    153. 2023-11-26 09:57:00  <span style="text-decoration: underline;">2</span>023    11    26     9 Sunday         330</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>   -<span style="color: #BB0000;">30.3</span>    153. 2023-11-26 09:56:00  <span style="text-decoration: underline;">2</span>023    11    26     9 Sunday         330</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>   -<span style="color: #BB0000;">30.3</span>    153. 2023-01-28 22:00:00  <span style="text-decoration: underline;">2</span>023     1    28    22 Saturday        28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span>   -<span style="color: #BB0000;">30.2</span>    153. 2024-09-23 22:45:00  <span style="text-decoration: underline;">2</span>024     9    23    22 Monday         267</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 5 more variables: sci_name &lt;chr&gt;, record_type &lt;chr&gt;, obs_state &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   scientificName &lt;chr&gt;, ws_id &lt;chr&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

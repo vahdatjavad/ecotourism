@@ -17,7 +17,7 @@ A tibble with 302,123 rows and 14 variables:
   \item{hour}{Hour extracted from the time (0–23)}
   \item{weekday}{Day of the week (as ordered factor)}
   \item{dayofyear}{Day of the year (1–366)}
-  \item{scientificName}{Scientific name of the observed orchid species}
+  \item{sci_name}{Scientific name of the observed orchid species}
   \item{record_type}{Type of observation (e.g., HUMAN_OBSERVATION, PRESERVED_SPECIMEN)}
   \item{obs_state}{Australian state where the observation occurred (may be missing)}
   \item{ws_id}{Nearest weather station ID linked to the observation}

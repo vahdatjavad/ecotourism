@@ -1,0 +1,155 @@
+---
+title: "tourism_data_reproduce"
+format: html
+---
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+source(here::here("data-raw/data_reproduce_utiles.R"))
+```
+
+Lets suppose that you have downloaded a tourism data set like this:
+
+```{r}
+load("../data-raw/tourism.rda")
+tourism |> glimpse()
+```
+
+We divide tourism data set to two data set like this:
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+tourism_region <- tourism %>%
+  select(Region) %>%
+  distinct() %>% 
+  rename(region = Region) |> 
+  arrange(region) %>%
+  mutate(region_id = row_number())
+
+tourism_region |> glimpse()
+format(object.size(tourism_region), units = "KB")
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+tourism_quarterly <- tourism %>%
+  left_join(tourism_region, by = c("Region" = "region")) %>%
+  transmute(
+    quarter = Quarter,
+    purpose = Purpose,
+    trips   = round(Trips, digits = 4),
+    region_id
+  ) %>%
+  arrange(quarter, region_id, purpose)
+
+# filter purpose to just holiday and business:
+tourism_quarterly <- tourism_quarterly |>
+  filter(purpose %in% c("Business", "Holiday"), trips > 0)
+
+tourism_quarterly |> glimpse()
+format(object.size(tourism_quarterly), units = "KB")
+
+```
+
+```{r}
+tourism_quarterly_filtered <- tourism_quarterly %>%
+  mutate(
+    # remove the trailing " 01" etc.
+    quarter_clean = sub(" \\d{2}$", "", quarter),
+    # parse "December 1998" → proper date
+    quarter_date = my(quarter_clean),
+    year = year(quarter_date)
+  ) %>%
+  filter(year >= 2014, year <= 2024)
+tourism_quarterly <- tourism_quarterly_filtered |>
+    select(quarter_date, purpose, trips, region_id) |> 
+  rename(quarter = quarter_date)
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+usethis::use_data(tourism_quarterly, overwrite = T)
+usethis::use_data(tourism_region, overwrite = T)
+```
+
+How to find region coordinates:
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+# install.packages(c("sf","dplyr","stringr","fuzzyjoin","absmapsdata"))
+library(sf); library(dplyr); library(stringr); library(fuzzyjoin); library(absmapsdata)
+# pak::pkg_install("wfmackey/absmapsdata")
+
+# 1) Load an authoritative layer (pick the one that matches your region type)
+sa2 <- absmapsdata::sa22021 %>% 
+  select(sa2_code_2021, sa2_name_2021, state_name_2021, geometry)
+
+# 2) Normalise names on both sides (handles dashes, case, spaces)
+norm <- \(x) x |>
+  str_replace_all("[–—-]", "-") |>
+  str_squish() |>
+  str_to_title()
+
+tourism_region2 <- tourism_region %>% mutate(region_id = region_id,
+                                             region_norm = norm(region))
+sa2_names <- sa2 %>% mutate(sa2_name_norm = norm(sa2_name_2021))
+
+# 3) Fuzzy name match (adjust max_dist as needed)
+matches <- stringdist_inner_join(
+  tourism_region2, sa2_names,
+  by = c("region_norm" = "sa2_name_norm"),
+  max_dist = 2 # try 1–3 depending on how messy names are
+) 
+
+# 4) For ambiguous matches, pick the closest string distance
+# matches <- matches %>%
+#   group_by(region_id) %>% slice_min(.distance, n = 1, with_ties = FALSE) %>% ungroup()
+
+# 5) Compute a point within each polygon (always inside)
+sa2_pts <- sa2 %>%
+  mutate(cent = st_point_on_surface(geometry),
+         lon = st_coordinates(cent)[,1],
+         lat = st_coordinates(cent)[,2]) %>%
+  st_drop_geometry() %>%
+  select(sa2_code_2021, lon, lat)
+
+# 6) Attach clean lon/lat to your region table
+tourism_region <- matches %>%
+  select(region_id, region, sa2_code_2021) %>%
+  left_join(sa2_pts, by = "sa2_code_2021") %>%
+  right_join(tourism_region2 %>% 
+  select(region_id, region, region_id), by = "region_id") %>%
+  arrange(region_id) %>%
+  select(region.x, lon, lat, region_id) |> 
+  rename(region = region.x) |> 
+  filter(!is.na(lon), !is.na(lat))
+
+# 7) Any still-NA? Review them:
+#still_na <- tourism_region_fixed %>% filter(is.na(lon) | is.na(lat))
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+usethis::use_data(tourism_quarterly, overwrite = T)
+usethis::use_data(tourism_region, overwrite = T)
+```
+
+-   Now we add weather stations id "ws_id"
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=T}
+library(dplyr)
+library(geosphere)
+
+# 1) Keep valid coords
+spots  <- tourism_region %>% filter(!is.na(lon), !is.na(lat))
+wstns  <- weather_stations %>% filter(!is.na(stn_lon), !is.na(stn_lat))
+
+
+nearest_station_ids <- sapply(1:nrow(spots), function(i) {
+    dists <- geosphere::distHaversine(
+      cbind(weather_stations$stn_lon, weather_stations$stn_lat),
+      c(spots$lon[i], spots$lat[i])
+    )
+    weather_stations$ws_id[which.min(dists)]
+  })
+
+  # Add nearest station info
+  spots$ws_id <- nearest_station_ids
+
+tourism_region <- spots
+usethis::use_data(tourism_region, overwrite = T)
+```

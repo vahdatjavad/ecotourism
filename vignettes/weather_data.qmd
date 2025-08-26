@@ -33,7 +33,6 @@ if (nzchar(libdir)) {
 suppressPackageStartupMessages(library(ecotourism))
 ```
 
-
 ## Introduction
 
 This vignette explains how to retrieve and organize **weather data** for ecotourism analysis in Australia.\
@@ -43,46 +42,23 @@ We identify the top 3 weather stations associated with each focal organism and o
 
 ## Load Utilities
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-source("vignette-utils.R")
-```
-
-------------------------------------------------------------------------
-
-## Step 1: Identify Top 3 Weather Stations per Organism
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-organism_names <- c("orchids", "gouldian_finch", "manta_rays", "glowworms")
-load("../data/weather_stations.rda")
-all_top_stations <- list()
-
-for (org in organism_names) {
-  load(paste0("../data/", org, ".rda"))
-  org_data <- get(org)
-
-  top_stations <- org_data %>%
-    count(ws_id, sort = TRUE) %>%
-    slice_max(n, n = 3) %>%
-    left_join(weather_stations, by = c("ws_id")) %>%
-    mutate(organism = org) %>%
-    select(organism, ws_id)
-
-  all_top_stations[[org]] <- top_stations
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+#source(here::here("inst/vignette-helpers/vignette-utils.R"))
+utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
+if (file.exists(utils_path)) {
+  source(utils_path, encoding = "UTF-8")
 }
-
-top_stations <- bind_rows(all_top_stations)
-save(top_stations, file = "../data/top_stations.rda")
 ```
 
 ------------------------------------------------------------------------
 
 ## Top 3 Stations for Each Organism
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-load("../data/weather_stations.rda")
-load("../data/top_stations.rda")
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
+data("top_stations")
+data("weather_stations")
 df <- left_join(top_stations, weather_stations, by = "ws_id")
-df
+df |> glimpse()
 ```
 
 ------------------------------------------------------------------------
@@ -100,74 +76,9 @@ ggplot() +
 
 ------------------------------------------------------------------------
 
-## Optional: Download Weather Data from GSOD
+## Final Weather Data-set
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-# Download and prepare data (optional)
-weather_data_list <- lapply(top_stations$ws_id, function(stn) {
-  get_GSOD(years = 2014:2024, station = stn)
-})
-
-top_weather <- bind_rows(weather_data_list) |> 
-  transmute(
-    ws_id = STNID,
-    stn_lat = LATITUDE,
-    stn_lon = LONGITUDE,
-    date = YEARMODA,
-    year = YEAR,
-    month = MONTH,
-    day = DAY,
-    weekday = lubridate::wday(date, label = TRUE, abbr = FALSE,
-                               week_start = getOption("lubridate.week.start", 1)),
-    dayofyear = YDAY,
-    temp = TEMP,
-    min = MIN,
-    max = MAX,
-    dewp = DEWP,
-    rh = RH,
-    prcp = PRCP,
-    rainy = ifelse(PRCP > 5, 1, 0),
-    wind_speed = WDSP,
-    max_speed = MXSPD
-  )
-
-# Save to data folder
-assign("weather_data", top_weather)
-save(weather_data, file = "../data/weather_data.rda")
-```
-
-------------------------------------------------------------------------
-
-## Preview of Final Weather Dataset
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-load("../data/weather_data.rda")
-weather_data |> glimpse()
-```
-
-------------------------------------------------------------------------
-
-## Conclusion
-
-You now have a decade of daily weather observations for the most relevant weather stations associated with each organism in the ecotourism package. This can be used to study climate impacts, seasonal patterns, or ecological correlations with biodiversity data.
-
-## Final Output
-
-This is the glimps of your final data :
-
-```{r, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE}
-library(dplyr)
-load("../data/weather_data.rda")
-load("../data/top_stations.rda")
-top_stations
-weather_data |> glimpse()
-```
-
-```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-library(dplyr)
-library(ecotourism)
-data("top_stations")
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
 data("weather_data")
-top_stations
 weather_data |> glimpse()
 ```

@@ -17,7 +17,7 @@ A tibble with 124 rows and 14 variables:
   \item{hour}{Hour of the day (0–23)}
   \item{weekday}{Day of the week (ordered factor)}
   \item{dayofyear}{Day of the year (1–366)}
-  \item{scientificName}{Scientific name of the observed species}
+  \item{sci_name}{Scientific name of the observed species}
   \item{record_type}{Type of observation (e.g., HUMAN_OBSERVATION)}
   \item{obs_state}{Australian state where the observation occurred}
   \item{ws_id}{ID of the nearest weather station (e.g., "949610-99999")}

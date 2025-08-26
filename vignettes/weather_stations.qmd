@@ -20,6 +20,7 @@ vignette: >
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Ensure the temporary library from R CMD check is visible (esp. on Windows)
 libdir <- Sys.getenv("R_LIBS")
@@ -40,67 +41,29 @@ This vignette demonstrates how to download, process, and visualize the locations
 
 ## Load Utilities
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-source("vignette-utils.R")
-```
-
-------------------------------------------------------------------------
-
-## Step 1: Download and Clean Weather Station Data
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-# Download and filter weather stations for Australia
-stations_all <- get_inventory()
-
-weather_stations <- stations_all |>
-  filter(CTRY == "AS") |>
-  select(STNID, NAME, LAT, LON) |> 
-  rename(stn_lat = LAT, stn_lon = LON, ws_id = STNID, stname = NAME) |> 
-  distinct(stn_lat, stn_lon, .keep_all = TRUE) |> 
-  filter(stn_lat >= -44, stn_lat <= -8, stn_lon >= 110, stn_lon <= 160) |> 
-  reverse_geocode(lat = stn_lat, long = stn_lon, method = "osm")
-```
-
-------------------------------------------------------------------------
-
-## Step 2: Extract State Information from Addresses
-
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
-weather_stations <- weather_stations %>%
-  rowwise() %>%
-  mutate(parsed = list(parse_address(address))) %>%
-  unnest(parsed) %>%
-  ungroup()
-```
-
-------------------------------------------------------------------------
-
-## Step 3: Save Data for Later Use
-
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
-usethis::use_data(weather_stations, overwrite = TRUE)
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+#source(here::here("inst/vignette-helpers/vignette-utils.R"))
+utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
+if (file.exists(utils_path)) {
+  source(utils_path, encoding = "UTF-8")
+}
 ```
 
 ------------------------------------------------------------------------
 
 ## Weather Station Distribution by State
 
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
-load("../data/weather_stations.rda")
-weather_stations |> count(stn_state, sort = TRUE) |> kable()
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
+library(ecotourism)
+data("weather_stations")
+weather_stations |> count(stn_state, sort = TRUE) 
 ```
 
 ------------------------------------------------------------------------
 
 ## Preview of Weather Station Data
 
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
-library(tidyverse)
-load("../data/weather_stations.rda")
-weather_stations |> glimpse()
-```
-
-```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(ecotourism)
 data("weather_stations")
@@ -111,7 +74,7 @@ weather_stations |> glimpse()
 
 ## Visualization: Map of Weather Stations
 
-```{r eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
 aus_map <- ne_states(country = "Australia", returnclass = "sf")
 
 ggplot() +

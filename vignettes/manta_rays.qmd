@@ -33,7 +33,9 @@ if (nzchar(libdir)) {
 suppressPackageStartupMessages(library(ecotourism))
 ```
 
-<center><img src="image/manta_rays.jpg" alt="Manta Rays" width="300"/></center>
+![Manta Rays at Dharavandhoo Thila (Black Pearl).\
+Image credit: Shiyam ElkCloner – Own work. Licence: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).\
+File: Dharavandhoo Thila - Manata Black Pearl.JPG. Created: 27 May 2012. Uploaded: 27 May 2012.](image/manta_rays.jpg){fig-align="center" width="300"}
 
 ## Introduction
 
@@ -45,59 +47,17 @@ This vignette walks you through the process of downloading, cleaning, and analyz
 
 All helper functions are stored in `vignette-utils.R`:
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-source("vignette-utils.R")
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+#source(here::here("inst/vignette-helpers/vignette-utils.R"))
+utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
+if (file.exists(utils_path)) {
+  source(utils_path, encoding = "UTF-8")
+}
 ```
 
-You can edit this file at:\
-`ecotourism/vignettes/vignette-utils.R`
-
-------------------------------------------------------------------------
-
-## Define Global Parameters
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-organism_name <- "manta_rays"
-organism_title <- "Manta Rays"
-taxa <- "Mobula alfredi"
-start <- 2014
-end <- 2024
-email <- "your_email@gmail.com"
-```
-
-------------------------------------------------------------------------
-
-## Step 1: Download and Prepare Data
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-organism <- obs_data(taxa, start, end, your_email=email) |> 
-  polished_data() |> 
-  filter(scientificName == "Mobula alfredi")
-```
-
-------------------------------------------------------------------------
-
-## Step 2: Save Cleaned Dataset
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-mysave(organism_name, organism)
-```
-
-------------------------------------------------------------------------
-
-## Step 3: Attach Nearest Weather Station
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-attach_nearest_station(organism_name)
-```
-
-------------------------------------------------------------------------
-
-## Step 4: Load and Preview Final Dataset
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-load("../data/manta_rays.rda")
-glimpse(manta_rays)
+```{r}
+organism_name = "manta_rays"
+organism_title = "Manta Rays"
 ```
 
 ------------------------------------------------------------------------
@@ -106,15 +66,15 @@ glimpse(manta_rays)
 
 ### Preview Dataset
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-organism <- myload(organism_name)
-organism |> slice_head(n = 3) |> as_tibble() |> glimpse()
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
+data("manta_rays")
+manta_rays |>  glimpse()
 ```
 
 ### Occurrence by State
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
-organism |> my_count(scientificName, obs_state, f=1) |> as_tibble()
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
+manta_rays |> count(sci_name, obs_state)
 ```
 
 ------------------------------------------------------------------------
@@ -123,92 +83,81 @@ organism |> my_count(scientificName, obs_state, f=1) |> as_tibble()
 
 ### Spatial Distribution Map
 
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism |> plot_map1(color_by = scientificName)
+```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
+manta_rays |> plot_map1(legend = FALSE)
 ```
 
 ### Weekly Trends
 
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism |> plot_bar_week()
+```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
+manta_rays |> plot_bar_week(legend = FALSE)
 ```
 
 ### Monthly Trends
 
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism |> plot_bar_month()
+```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
+manta_rays |> plot_bar_month(legend = FALSE)
 ```
 
 ### Yearly Trends
 
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-organism |> plot_bar_year()
+```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
+manta_rays |> plot_bar_year(legend = FALSE)
 ```
-
-------------------------------------------------------------------------
-
-## Weather Station Mapping
-
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-attach_nearest_station(organism_name)
-organism <- myload(organism_name)
-organism |> glimpse()
-```
-
-------------------------------------------------------------------------
-
-### State-wise Weather Matching Summary
-
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-summarize_state_frequencies(organism_name)
-```
-
-**Interpretation:**
-
--   **Queensland**:\
-    884 observations; 888 matched with QLD weather stations.
-
--   **Western Australia**:\
-    84 observations; 127 matched with WA stations — implying cross-state assignment.
 
 ------------------------------------------------------------------------
 
 ## Pattern Analysis
 
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-plot_monthly_occurrences_by_state(organism_name)
-plot_weekly_occurrences_by_state(organism_name)
-plot_seasonal_occurrence_polar(organism_name)
-plot_monthly_occurrence_map(organism_name)
-plot_monthly_occurrence_map_by_state(organism_name)
-plot_monthly_distribution_map(organism_name)
+```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
+manta_rays |> plot_monthly_occurrences_by_state()
+manta_rays |> plot_weekly_occurrences_by_state()
+manta_rays |> plot_seasonal_occurrence_polar()
+manta_rays |> plot_monthly_occurrence_map()
+manta_rays |> plot_monthly_occurrence_map_by_state()
+manta_rays |> plot_monthly_distribution_map()
 ```
 
 ------------------------------------------------------------------------
 
-## Conclusion
+Work with Tourism dataset:
 
-You now know how to:
+```{r, warning=FALSE, message=FALSE}
+# make full tourism dataset
+data("tourism_region")
+data("tourism_quarterly")
 
--   Retrieve and clean occurrence data for Manta Rays
--   Attach nearest weather station metadata
--   Explore distribution patterns in space and time
-
-This reproducible workflow can be adapted for other marine species or ecotourism-relevant taxa in Australia.
-
-## Final Output
-
-This is the glimps of your final data :
-
-```{r, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE}
-library(dplyr)
-load("../data/manta_rays.rda")
-manta_rays |> glimpse()
+tourism <- tourism_quarterly |>
+  dplyr::left_join(tourism_region, by = "region_id") |> 
+  dplyr::left_join(ecotourism::weather_stations, by = "ws_id")
 ```
 
-```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-library(dplyr)
-library(ecotourism)
-data("manta_rays")
-manta_rays |> glimpse()
+```{r}
+# load top station for organism
+data("top_stations")
+
+top_stations_manta_rays <- top_stations |> filter(organism == "manta_rays")
+```
+
+No we can find related tourism spots
+
+```{r}
+tourism |> filter(ws_id %in% top_stations_manta_rays$ws_id)
+```
+
+If you want to match quarter data use this code:
+
+```{r}
+# 1. Aggregate manta observations to quarter
+manta_quarter <- manta_rays %>%
+  mutate(quarter = floor_date(date, "quarter")) %>%
+  count(quarter, name = "manta_sightings")
+
+# 2. Make sure tourism$quarter is also floor_date
+tourism_clean <- tourism %>%
+  mutate(quarter = floor_date(quarter, "quarter"))
+
+# 3. Left join: keep all manta quarters, match tourism by quarter
+manta_tourism <- manta_quarter %>%
+  left_join(tourism_clean, by = "quarter")
 ```
