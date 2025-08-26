@@ -119,7 +119,7 @@ $ ws_id          &lt;chr&gt; "947890-99999", "947890-99999", "947890-99999", "94
 </h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">glowworms</span> <span class="op">|&gt;</span> <span class="fu">count</span><span class="op">(</span><span class="va">sci_name</span>, <span class="va">obs_state</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">glowworms</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">sci_name</span>, <span class="va">obs_state</span><span class="op">)</span> </span></code></pre></div>
 </div>
 <hr></section></section><section class="level2" data-number="4"><h2 data-number="4" id="weekly-monthly-and-yearly-trends">
 <span class="header-section-number">4</span> Weekly, Monthly, and Yearly Trends<a class="anchor" aria-label="anchor" href="#weekly-monthly-and-yearly-trends"></a>
@@ -163,12 +163,12 @@ $ ws_id          &lt;chr&gt; "947890-99999", "947890-99999", "947890-99999", "94
 <code class="sourceCode R"><span><span class="co"># load top station for organism</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"top_stations"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">top_stations_manta_rays</span> <span class="op">&lt;-</span> <span class="va">top_stations</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">organism</span> <span class="op">==</span> <span class="st">"manta_rays"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">top_stations_manta_rays</span> <span class="op">&lt;-</span> <span class="va">top_stations</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">organism</span> <span class="op">==</span> <span class="st">"manta_rays"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>No we can find related tourism spots</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tourism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ws_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">top_stations_manta_rays</span><span class="op">$</span><span class="va">ws_id</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">tourism</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ws_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">top_stations_manta_rays</span><span class="op">$</span><span class="va">ws_id</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 13 × 14
    quarter    purpose  trips region_id region     lon   lat ws_id stname stn_lat
@@ -194,17 +194,17 @@ $ ws_id          &lt;chr&gt; "947890-99999", "947890-99999", "947890-99999", "94
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 1. Aggregate manta observations to quarter</span></span>
-<span><span class="va">manta_quarter</span> <span class="op">&lt;-</span> <span class="va">manta_rays</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>quarter <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/round_date.html" class="external-link">floor_date</a></span><span class="op">(</span><span class="va">date</span>, <span class="st">"quarter"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">count</span><span class="op">(</span><span class="va">quarter</span>, name <span class="op">=</span> <span class="st">"manta_sightings"</span><span class="op">)</span></span>
+<span><span class="va">manta_quarter</span> <span class="op">&lt;-</span> <span class="va">manta_rays</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>quarter <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/round_date.html" class="external-link">floor_date</a></span><span class="op">(</span><span class="va">date</span>, <span class="st">"quarter"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">quarter</span>, name <span class="op">=</span> <span class="st">"manta_sightings"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 2. Make sure tourism$quarter is also floor_date</span></span>
-<span><span class="va">tourism_clean</span> <span class="op">&lt;-</span> <span class="va">tourism</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>quarter <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/round_date.html" class="external-link">floor_date</a></span><span class="op">(</span><span class="va">quarter</span>, <span class="st">"quarter"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">tourism_clean</span> <span class="op">&lt;-</span> <span class="va">tourism</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>quarter <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/round_date.html" class="external-link">floor_date</a></span><span class="op">(</span><span class="va">quarter</span>, <span class="st">"quarter"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># 3. Left join: keep all manta quarters, match tourism by quarter</span></span>
-<span><span class="va">manta_tourism</span> <span class="op">&lt;-</span> <span class="va">manta_quarter</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">left_join</span><span class="op">(</span><span class="va">tourism_clean</span>, by <span class="op">=</span> <span class="st">"quarter"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">manta_tourism</span> <span class="op">&lt;-</span> <span class="va">manta_quarter</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">tourism_clean</span>, by <span class="op">=</span> <span class="st">"quarter"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

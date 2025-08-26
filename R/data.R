@@ -341,3 +341,18 @@
 
 
 
+#### oz_lga ---------------------------------------
+
+#' oz_lga
+#'
+#' LGA polygons for Australia
+#'
+#' @name oz_lga
+#' @docType data
+#' @format A spatial polygon object
+#' @keywords datasets
+#' @examples
+#'
+#' head(oz_lga)
+"oz_lga"
+

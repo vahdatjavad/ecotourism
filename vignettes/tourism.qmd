@@ -110,16 +110,13 @@ We’ll plot tourism site coordinates and, when available, their weather station
 # Keep rows with geographic coordinates
 spots <- tourism |> dplyr::filter(!is.na(lon), !is.na(lat))
 
-# Convert to sf (WGS84)
-spots_sf <- sf::st_as_sf(spots, coords = c("lon","lat"), crs = 4326, remove = FALSE)
-
-# Australia basemap
-aus <- rnaturalearth::ne_states(country = "australia", returnclass = "sf")
+aus <- oz_lga
 
 # Plot
 ggplot() +
   geom_sf(data = aus, fill = "grey95", color = "grey60", linewidth = 0.3) +
-  geom_sf(data = spots_sf, color = "#2C7FB8", alpha = 0.8, size = 1.6) +
+  geom_point(data = spots, aes(x = lon, y = lat),
+               alpha = 0.8, size = 2) +
   coord_sf(xlim = c(110, 155), ylim = c(-45, -10), expand = FALSE) +
   labs(title = "Tourism Locations in Australia", x = NULL, y = NULL) +
   theme_minimal(base_size = 12) +
@@ -136,9 +133,9 @@ if (all(c("stn_lon","stn_lat") %in% names(tourism))) {
   ggplot() +
     geom_sf(data = aus, fill = "grey95", color = "grey60", linewidth = 0.3) +
     geom_point(data = tourism, aes(x = lon, y = lat),
-               alpha = 0.8, size = 2) +
+               alpha = 0.5, size = 2, color = "blue") +
     geom_point(data = tourism, aes(x = stn_lon, y = stn_lat),
-               shape = 17, size = 1.5) +
+               shape = 17, size = 1.5, alpha = 0.5, color = "red") +
     coord_sf(xlim = c(110, 155), ylim = c(-45, -10), expand = FALSE) +
     labs(title = "Tourism Locations and Weather Stations",
          x = NULL, y = NULL) +

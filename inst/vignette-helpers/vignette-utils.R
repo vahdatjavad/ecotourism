@@ -1,35 +1,32 @@
 #Function to ensure required packages are installed and loaded
-ensure_packages <- function(pkgs) {
-  for (pkg in pkgs) {
-    if (!requireNamespace(pkg, quietly = TRUE)) {
-      install.packages(pkg)
-    }
-    library(pkg, character.only = TRUE)
-  }
-}
-
-required_pkgs <- c(
-  "dplyr", "tidyr", "ggplot2", "lubridate", "sf",
-  "rnaturalearth", "rnaturalearthdata", "knitr"
-)
-
-ensure_packages(required_pkgs)
-
-
-if(!requireNamespace("rnaturalearthhires", quietly = TRUE)){
-  install.packages(
-    "rnaturalearthhires",
-    repos = "https://ropensci.r-universe.dev",
-    type = "source"
-  )}
-# # Install and load all packages
-# for (i in required_pkgs){
-#   library(i, character.only = TRUE)
+# ensure_packages <- function(pkgs) {
+#   for (pkg in pkgs) {
+#     if (!requireNamespace(pkg, quietly = TRUE)) {
+#       install.packages(pkg)
+#     }
+#     library(pkg, character.only = TRUE)
+#   }
 # }
 
+required_pkgs <- c(
+  "dplyr", "tidyr", "ggplot2", "lubridate", "sf", "knitr")
+
+for (i in required_pkgs){
+  library(i, character.only = TRUE)
+}
+
+#
+# if(!requireNamespace("rnaturalearthhires", quietly = TRUE)){
+#   install.packages(
+#     "rnaturalearthhires",
+#     repos = "https://ropensci.r-universe.dev",
+#     type = "source"
+#   )}
 
 
 
+data("oz_lga")
+aus_map <- oz_lga
 
 #' Plot faceted map of observations in Australia
 #'
@@ -44,11 +41,7 @@ plot_map1 <- function(data, color_by = "sci_name", facet_by = NULL,
                      stn = FALSE, stn_data = NULL,
                      legend = TRUE) {
 
-
-  # Australia basemap
-  aus_map <- rnaturalearth::ne_states(country = "Australia", returnclass = "sf")
-
-  p <- ggplot2::ggplot() +
+  p <-ggplot() +
     geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
     geom_point(data = data,
                aes(x = obs_lon, y = obs_lat, color = color_by),
@@ -237,7 +230,7 @@ plot_monthly_occurrences_by_state <- function(data, legend = NULL) {
 
   # Ensure necessary columns exist
   if (!all(c("date", "obs_state", "sci_name") %in% names(data))) {
-    stop("The dataset must contain 'datetime', 'obs_state', and 'sci_name' columns.")
+    stop("The dataset must contain 'date', 'obs_state', and 'sci_name' columns.")
   }
 
   # Add month columns
@@ -271,7 +264,7 @@ plot_weekly_occurrences_by_state <- function(data, legend = NULL) {
 
   # Check for necessary columns
   if (!all(c("date", "obs_state") %in% names(data))) {
-    stop("The dataset must contain 'datetime' and 'obs_state' columns.")
+    stop("The dataset must contain 'date' and 'obs_state' columns.")
   }
 
   # Prepare weekly data
@@ -307,7 +300,7 @@ plot_seasonal_occurrence_polar <- function(data, legend = NULL) {
 
   # Check for necessary columns
   if (!all(c("date", "obs_state") %in% names(data))) {
-    stop("The dataset must contain 'datetime' and 'obs_state' columns.")
+    stop("The dataset must contain 'date' and 'obs_state' columns.")
   }
 
   # Add date, month name, and numeric month
@@ -366,9 +359,6 @@ plot_monthly_occurrence_map <- function(data, legend = NULL) {
       month = factor(month, levels = month.name)
     ) %>%
     filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month))
-
-  # Load Australia shapefile
-  aus_map <- ne_states(country = "Australia", returnclass = "sf")
 
   # Plot
   p <- ggplot() +
@@ -429,8 +419,6 @@ plot_monthly_occurrence_map_by_state <- function(data, legend = NULL) {
     ) %>%
     filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month))
 
-  # Load base map for Australia
-  aus_map <- ne_states(country = "Australia", returnclass = "sf")
 
   # Create faceted map
   p <- ggplot() +
@@ -490,8 +478,6 @@ plot_monthly_distribution_map <- function(data, legend = NULL) {
     ) %>%
     filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month))
 
-  # Load Australia base map
-  aus_map <- ne_states(country = "Australia", returnclass = "sf")
 
   # Create the faceted map
   p <- ggplot() +

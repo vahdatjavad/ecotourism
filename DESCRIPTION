@@ -30,9 +30,6 @@ Suggests:
     tibble,
     sf,
     readr,
-    rnaturalearth,
-    rnaturalearthdata,
-    rnaturalearthhires,
     testthat (>= 3.0.0)
 VignetteBuilder: quarto, knitr
 Depends: 

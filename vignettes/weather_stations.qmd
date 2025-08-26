@@ -75,7 +75,8 @@ weather_stations |> glimpse()
 ## Visualization: Map of Weather Stations
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
+data(oz_lga)
+aus_map <- oz_lga
 
 ggplot() +
   geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
