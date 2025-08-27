@@ -9,7 +9,7 @@
 # }
 
 required_pkgs <- c(
-  "dplyr", "tidyr", "ggplot2", "lubridate", "sf", "knitr")
+  "dplyr", "tidyr", "ggplot2", "lubridate", "sf", "knitr", "ecotourism")
 
 for (i in required_pkgs){
   library(i, character.only = TRUE)
