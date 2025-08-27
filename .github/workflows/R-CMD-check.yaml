@@ -23,28 +23,35 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+
     steps:
       - uses: actions/checkout@v4
       - uses: r-lib/actions/setup-pandoc@v2
 
-      # Install Quarto (adds `quarto` to PATH on all OSes)
-      - uses: quarto-dev/quarto-actions/setup@v2
-        with:
-          version: release
-      - run: quarto --version
-
+      # Set up R first (Windows can modify PATH here)
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # Install Quarto *after* R so PATH is correct for the build
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: release
+      - run: |
+          quarto --version
+          quarto check
+
+      # Install deps, including the R package 'quarto' (engine for VignetteBuilder)
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           needs: check
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            any::quarto
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual")'   # HTML vignettes only; no PDF manual
+          build_args: 'c("--no-manual")'   # HTML vignettes only

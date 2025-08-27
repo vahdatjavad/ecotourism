@@ -9,19 +9,11 @@
 # }
 
 required_pkgs <- c(
-  "dplyr", "tidyr", "ggplot2", "lubridate", "sf", "knitr", "ecotourism")
+  "dplyr", "tidyr", "ggplot2", "lubridate", "sf", "knitr")
 
 for (i in required_pkgs){
   library(i, character.only = TRUE)
 }
-
-#
-# if(!requireNamespace("rnaturalearthhires", quietly = TRUE)){
-#   install.packages(
-#     "rnaturalearthhires",
-#     repos = "https://ropensci.r-universe.dev",
-#     type = "source"
-#   )}
 
 
 
