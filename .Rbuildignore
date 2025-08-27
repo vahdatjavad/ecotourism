@@ -12,3 +12,4 @@
 ^.Rhistory
 ^vignettes/.quarto
 ^\.github$
+^README\.html$

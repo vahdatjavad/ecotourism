@@ -1,44 +1,32 @@
----
-output: github_document
----
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
-
-# ecotourism <img src="man/figures/logo.png" alt="ecotourism hex logo" align="right" width="120" />
+# ecotourism <img src="man/figures/logo.png" alt="ecotourism hex logo" align="right" width="120"/>
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/vahdatjavad/ecotourism/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/vahdatjavad/ecotourism/actions/workflows/R-CMD-check.yaml)
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+
+[![R-CMD-check](https://github.com/vahdatjavad/ecotourism/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/vahdatjavad/ecotourism/actions/workflows/R-CMD-check.yaml) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+
 <!-- badges: end -->
 
-The goal of **ecotourism** is to provide clean, ready-to-use datasets for example analyses in teaching, demos, and reproducible workflows.  
+The goal of **ecotourism** is to provide clean, ready-to-use datasets for example analyses in teaching, demos, and reproducible workflows.\
 It currently includes wildlife (e.g., cuttlefish) occurrence records, tourism counts by region, and local weather for matching locations.
 
 ## Website
 
-👉 Documentation site: **<https://vahdatjavad.github.io/ecotourism/>**
+👉 Documentation site: [**https://vahdatjavad.github.io/ecotourism/**](https://vahdatjavad.github.io/ecotourism/){.uri}
 
 ## Installation
 
 Install the development version from GitHub:
 
-```r
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
 # install.packages("pak")
 pak::pak("vahdatjavad/ecotourism")
 ```
 
 If you prefer `remotes`:
 
-```r
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
 # install.packages("remotes")
 remotes::install_github("vahdatjavad/ecotourism")
 ```
@@ -47,21 +35,21 @@ remotes::install_github("vahdatjavad/ecotourism")
 
 List all available datasets and their short titles:
 
-```{r datasets, echo=FALSE}
-# Show a friendly table if the package is available
-try({
-  pk <- as.data.frame(utils::data(package = "ecotourism")$results)[, c("Item","Title")]
-  if (nrow(pk)) {
-    knitr::kable(pk, col.names = c("Object", "Title"))
-  } else {
-    cat("*(No datasets found yet — build and install the package, or run `devtools::load_all()`.)*")
-  }
-}, silent = TRUE)
-```
+| Object            | Title                                           |
+|:------------------|:------------------------------------------------|
+| glowworms         | Glowworms Occurrence Data (2014–2024)           |
+| gouldian_finch    | Gouldian Finch Occurrence Data (2014–2024)      |
+| manta_rays        | Manta Ray Occurrence Data (2014–2024)           |
+| orchids           | Orchid Occurrence Data (2014–2024)              |
+| top_stations      | Top Weather Stations for Each Organism          |
+| weather_data      | Daily Weather Data for Top Stations (2014–2024) |
+| weather_stations  | Australian Weather Station Metadata             |
+| tourism_quarterly | Australian tourism spots quarterly counts       |
+| tourism_region    | Australian tourism regions with lat and lon.    |
 
 To see documentation for any dataset, use:
 
-```r
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
 ?ecotourism::DATASET_NAME
 ```
 
@@ -69,7 +57,7 @@ To see documentation for any dataset, use:
 
 This is a minimal usage sketch. Replace `DATASET_NAME` with one from the table above.
 
-```{r example}
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
 library(ecotourism)
 
 # List datasets included in the package
@@ -88,8 +76,8 @@ utils::data(package = "ecotourism")
 
 ## Getting help
 
-- Open an issue with a minimal reproducible example: <https://github.com/vahdatjavad/ecotourism/issues>
-- Check the function/dataset help pages (e.g., `?ecotourism::DATASET_NAME`).
+-   Open an issue with a minimal reproducible example: <https://github.com/vahdatjavad/ecotourism/issues>
+-   Check the function/dataset help pages (e.g., `?ecotourism::DATASET_NAME`).
 
 ## Contributing
 
@@ -99,7 +87,6 @@ Pull requests are welcome! If you’re unsure where to start, open an issue firs
 
 If you use **ecotourism** in teaching, demos, or research, please cite it:
 
-```r
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
 citation("ecotourism")
 ```
-

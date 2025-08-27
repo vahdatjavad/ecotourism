@@ -40,25 +40,19 @@ We identify the top 3 weather stations associated with each focal organism and o
 
 ------------------------------------------------------------------------
 
-## Load Utilities
+This is the glimpse of your data :
 
-```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
-#source(here::here("inst/vignette-helpers/vignette-utils.R"))
-utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
-if (file.exists(utils_path)) {
-  source(utils_path, encoding = "UTF-8")
-}
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(ecotourism)
+
+data("top_stations")
+top_stations |> glimpse()
 ```
 
-------------------------------------------------------------------------
-
-## Top 3 Stations for Each Organism
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
-data("top_stations")
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 data("weather_stations")
-df <- left_join(top_stations, weather_stations, by = "ws_id")
-df |> glimpse()
+weather_stations |> glimpse()
 ```
 
 ------------------------------------------------------------------------
@@ -66,11 +60,11 @@ df |> glimpse()
 ## Map of Top Weather Stations
 
 ```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
-aus_map <- ne_states(country = "Australia", returnclass = "sf")
+
+top_stations |> left_join(weather_stations) |> 
 ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
-  geom_point(data = df, aes(x = stn_lon, y = stn_lat, color = organism), shape = 2, alpha = 0.8, size = 3) +
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10)) +
+  geom_sf(data = oz_lga) +
+  geom_point(aes(x = stn_lon, y = stn_lat, color = organism), shape = 17, size = 3)
   theme_minimal()
 ```
 

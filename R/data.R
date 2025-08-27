@@ -313,10 +313,7 @@
 #'   `"December 1998 01"`).
 #' * **purpose**: Purpose of visit category:
 #'   - `"Holiday"`
-#'   - `"Visiting"` (visiting friends and relatives)
 #'   - `"Business"`
-#'   - `"Other"`
-#'   - `"Total"` (all purposes combined)
 #' * **trips**: Number of overnight trips (in thousands).
 #' * **region_id**: Unique integer identifier linking to the
 #'   \code{\link{tourism_region}} dataset.

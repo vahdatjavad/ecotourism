@@ -21,13 +21,11 @@ LazyDataCompression: xz
 Suggests: 
     dplyr,
     ggplot2,
+    sf,
     knitr,
     lubridate,
     quarto,
-    readr,
-    sf,
     testthat (>= 3.0.0),
-    tibble,
     tidyr
 VignetteBuilder: quarto
 SystemRequirements: Quarto

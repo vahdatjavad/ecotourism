@@ -26,6 +26,11 @@ organism <- obs_data(taxa, start, end, your_email=email) |>
   filter(sci_name == "Mobula alfredi")
 ```
 
+```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+organism <- organism |> filter(between(obs_lon, 115, 160), between(obs_lat, -45, -10))
+```
+
 ## Step 2: Save Cleaned Dataset
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}

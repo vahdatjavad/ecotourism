@@ -39,33 +39,14 @@ This vignette demonstrates how to download, process, and visualize the locations
 
 ------------------------------------------------------------------------
 
-## Load Utilities
-
-```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
-#source(here::here("inst/vignette-helpers/vignette-utils.R"))
-utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
-if (file.exists(utils_path)) {
-  source(utils_path, encoding = "UTF-8")
-}
-```
-
-------------------------------------------------------------------------
-
-## Weather Station Distribution by State
-
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
-library(ecotourism)
-data("weather_stations")
-weather_stations |> count(stn_state, sort = TRUE) 
-```
-
-------------------------------------------------------------------------
-
 ## Preview of Weather Station Data
+
+This is the glimpse of your data :
 
 ```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(ecotourism)
+
 data("weather_stations")
 weather_stations |> glimpse()
 ```
@@ -74,27 +55,12 @@ weather_stations |> glimpse()
 
 ## Visualization: Map of Weather Stations
 
-```{r eval=TRUE, echo=TRUE, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
-data(oz_lga)
-aus_map <- oz_lga
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
 
 ggplot() +
-  geom_sf(data = aus_map, fill = "gray95", color = "gray50") +
+  geom_sf(data = oz_lga) +
   geom_point(data = weather_stations, 
              aes(x = stn_lon, y = stn_lat, colour = stn_state),
-             alpha = 0.6, size = 2) +
-  coord_sf(xlim = c(115, 155), ylim = c(-45, -10)) +
-  labs(
-    title = "Weather Stations in Australia",
-    x = "Longitude",
-    y = "Latitude",
-    colour = "State"
-  ) +
+             alpha = 0.6, size = 1) +
   theme_minimal()
 ```
-
-------------------------------------------------------------------------
-
-## Conclusion
-
-You now have a cleaned, geocoded, and mapped dataset of weather stations across Australia. This can be used to join with ecological data to analyze regional weather trends in biodiversity and tourism patterns.

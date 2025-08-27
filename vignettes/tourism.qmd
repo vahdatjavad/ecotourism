@@ -39,43 +39,31 @@ suppressPackageStartupMessages(library(ecotourism))
 A quick tour of the **ecotourism** package's tourism datasets, how to join regional metadata and quarterly counts, and (optionally) how to enrich rows with the nearest weather station information.
 :::
 
-## Setup
-
-```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
-#source(here::here("inst/vignette-helpers/vignette-utils.R"))
-utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
-if (file.exists(utils_path)) {
-  source(utils_path, encoding = "UTF-8")
-}
-```
-
 ## Data overview
 
-List included objects and short descriptions:
+This is the glimpse of your data :
 
-```{r}
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(ecotourism)
+
 data("tourism_region")
+tourism_region |> glimpse()
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 data("tourism_quarterly")
+tourism_quarterly |> glimpse()
 ```
 
-Quick peeks at the two tourism datasets used here:
-
-```{r}
-#| message: true
-#| warning: false
-#| include: true
-dplyr::glimpse(tourism_region)
-dplyr::glimpse(tourism_quarterly)
-```
+------------------------------------------------------------------------
 
 ## Join regional metadata to quarterly counts
 
 We keep only rows with a valid region name after the join.
 
-```{r}
-#| message: true
-#| warning: false
-#| include: true
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+
 tourism <- tourism_quarterly |>
   dplyr::left_join(tourism_region, by = "region_id") |>
   dplyr::filter(!is.na(region))
@@ -91,10 +79,8 @@ If you only need a subset of columns, select them first to keep memory small, fo
 
 If your quarterly table contains a `ws_id`, you can join station attributes:
 
-```{r}
-#| message: false
-#| warning: false
-#| include: true
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+
   tourism <- tourism |>
     dplyr::left_join(ecotourism::weather_stations, by = "ws_id")
 ```
@@ -103,68 +89,23 @@ If your quarterly table contains a `ws_id`, you can join station attributes:
 
 We’ll plot tourism site coordinates and, when available, their weather stations.
 
-```{r}
-#| message: true
-#| warning: false
-#| include: true
-# Keep rows with geographic coordinates
-spots <- tourism |> dplyr::filter(!is.na(lon), !is.na(lat))
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+library(ggplot2)
 
-aus <- oz_lga
-
-# Plot
 ggplot() +
-  geom_sf(data = aus, fill = "grey95", color = "grey60", linewidth = 0.3) +
-  geom_point(data = spots, aes(x = lon, y = lat),
-               alpha = 0.8, size = 2) +
-  coord_sf(xlim = c(110, 155), ylim = c(-45, -10), expand = FALSE) +
-  labs(title = "Tourism Locations in Australia", x = NULL, y = NULL) +
-  theme_minimal(base_size = 12) +
-  theme(panel.grid.major = element_line(color = "grey90"))
+  geom_sf(data = oz_lga) +
+  geom_point(data = tourism, aes(x = lon, y = lat),
+               alpha = 0.8, size = 0.5)
 ```
 
 If station coordinates `stn_lon` and `stn_lat` are present, overlay them too:
 
-```{r}
-#| message: true
-#| warning: false
-#| include: true
-if (all(c("stn_lon","stn_lat") %in% names(tourism))) {
-  ggplot() +
-    geom_sf(data = aus, fill = "grey95", color = "grey60", linewidth = 0.3) +
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+
+ggplot() +
+    geom_sf(data = oz_lga) +
     geom_point(data = tourism, aes(x = lon, y = lat),
-               alpha = 0.5, size = 2, color = "blue") +
+               alpha = 0.5, size = 0.4, color = "blue") +
     geom_point(data = tourism, aes(x = stn_lon, y = stn_lat),
-               shape = 17, size = 1.5, alpha = 0.5, color = "red") +
-    coord_sf(xlim = c(110, 155), ylim = c(-45, -10), expand = FALSE) +
-    labs(title = "Tourism Locations and Weather Stations",
-         x = NULL, y = NULL) +
-    theme_minimal(base_size = 12) +
-    theme(panel.grid.major = element_line(color = "grey90"))
-}
-```
-
-## Simple time-series slice
-
-Plot quarterly visitors for one example region (pick the first with data).
-
-```{r}
-#| message: true
-#| warning: false
-#| include: true
-if (all(c("region","quarter","trips") %in% names(tourism))) {
-  example_region <- tourism |>
-    dplyr::filter(!is.na(trips)) |>
-    dplyr::count(region, wt = trips, name = "total", sort = TRUE) |>
-    dplyr::slice(1) |>
-    dplyr::pull(region)
-
-  tourism |>
-    dplyr::filter(region == example_region) |>
-    ggplot(aes(x = quarter, y = trips)) +
-    geom_line() +
-    labs(title = paste0("Quarterly trips – ", example_region),
-         x = NULL, y = "trips") +
-    theme_minimal()
-}
+               shape = 17, size = 0.5, alpha = 0.5, color = "red")
 ```

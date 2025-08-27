@@ -41,41 +41,13 @@ This vignette guides you through the process of reproducing and analyzing occurr
 
 ------------------------------------------------------------------------
 
-## Load Required Packages and Utilities
+This is the glimpse of your data :
 
-Required functions are included in `vignette-utils.R`, which you can load using:
-
-```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
-#source(here::here("inst/vignette-helpers/vignette-utils.R"))
-utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
-if (file.exists(utils_path)) {
-  source(utils_path, encoding = "UTF-8")
-}
-```
-
-```{r}
-organism_name = "gouldian_finch"
-organism_title = "Gouldian Finch"
-```
-
-------------------------------------------------------------------------
-
-## Data Analysis
-
-We now explore the cleaned dataset in more detail.
-
-### Preview Dataset
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 library(dplyr)
+library(ecotourism)
 data("gouldian_finch")
 gouldian_finch |> glimpse()
-```
-
-### Occurrence by State
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
-gouldian_finch |> count(sci_name, obs_state)
 ```
 
 ------------------------------------------------------------------------
@@ -84,79 +56,51 @@ gouldian_finch |> count(sci_name, obs_state)
 
 ### Spatial Distribution Map
 
-```{r echo=TRUE, eval=TRUE, fig.width=7.5,message = FALSE, warning = FALSE}
-gouldian_finch |> plot_map1(legend = FALSE)
-```
+Distribution of Occurrence Gouldian Finch Sightings in Australia
 
-### Weekly Trends
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+library(ggplot2)
 
-```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4,message = FALSE, warning = FALSE}
-gouldian_finch |> plot_bar_week(legend = FALSE)
-```
-
-### Monthly Trends
-
-```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4,message = FALSE, warning = FALSE}
-gouldian_finch |> plot_bar_month(legend = FALSE)
-```
-
-### Yearly Trends
-
-```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4,message = FALSE, warning = FALSE}
-gouldian_finch |> plot_bar_year(legend = FALSE)
+gouldian_finch |> 
+  ggplot() +
+    geom_sf(data = oz_lga) +
+    geom_point(aes(x = obs_lon, y = obs_lat), color = "red") +
+    theme_minimal()
 ```
 
 ------------------------------------------------------------------------
 
-## Pattern Analysis
+## Weekly, Monthly, and Yearly Trends
 
-```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4,message = FALSE, warning = FALSE}
-gouldian_finch |> plot_monthly_occurrences_by_state()
-gouldian_finch |> plot_weekly_occurrences_by_state()
-gouldian_finch |> plot_seasonal_occurrence_polar()
-gouldian_finch |> plot_monthly_occurrence_map()
-gouldian_finch |> plot_monthly_occurrence_map_by_state()
-gouldian_finch |> plot_monthly_distribution_map()
+Weekday Distribution of Gouldian Finch Sightings
+
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+
+week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+gouldian_finch |> 
+  ggplot(aes(x = factor(weekday, levels = week_order))) +
+    geom_bar() +
+    labs(x = "Weekday", y = "Number of Records") +
+    theme_minimal()
 ```
 
-Work with Tourism dataset:
+Monthly Distribution of Gouldian Finch Sightings
 
-```{r, warning=FALSE, message=FALSE}
-# make full tourism dataset
-data("tourism_region")
-data("tourism_quarterly")
-
-tourism <- tourism_quarterly |>
-  dplyr::left_join(tourism_region, by = "region_id") |> 
-  dplyr::left_join(ecotourism::weather_stations, by = "ws_id")
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+gouldian_finch |>
+    dplyr::mutate(month = lubridate::month(month, label = TRUE, abbr = FALSE)) |>
+    ggplot(aes(x = factor(month, levels = month.name))) +
+    geom_bar() +
+    labs(x = "Month", y = "Number of Records") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-```{r}
-# load top station for organism
-data("top_stations")
+Yearly Distribution of Gouldian Finch Sightings
 
-top_stations_manta_rays <- top_stations |> filter(organism == "manta_rays")
-```
-
-No we can find related tourism spots
-
-```{r}
-tourism |> filter(ws_id %in% top_stations_manta_rays$ws_id)
-```
-
-If you want to match quarter data use this code:
-
-```{r}
-# 1. Aggregate manta observations to quarter
-manta_quarter <- manta_rays %>%
-  mutate(quarter = floor_date(date, "quarter")) %>%
-  count(quarter, name = "manta_sightings")
-
-# 2. Make sure tourism$quarter is also floor_date
-tourism_clean <- tourism %>%
-  mutate(quarter = floor_date(quarter, "quarter"))
-
-# 3. Left join: keep all manta quarters, match tourism by quarter
-manta_tourism <- manta_quarter %>%
-  left_join(tourism_clean, by = "quarter")
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+gouldian_finch |>
+    ggplot(aes(x = factor(year))) +
+    geom_bar() +
+    labs(x = "Year", y = "Number of Records")
 ```

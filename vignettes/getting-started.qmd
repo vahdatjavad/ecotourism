@@ -83,6 +83,7 @@ Combine ecological observations with environmental data:
 -   📊 [**Tourism Data**](tourism.html)\
 
 ------------------------------------------------------------------------
+
 ## 🚀 Get Started
 
 To begin, choose an organism above or dive into the weather data tools to enrich your analyses. The `ecotourism` package makes it easy to explore interactions between biodiversity and climate in Australia.

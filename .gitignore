@@ -4,3 +4,4 @@
 run-javad.R
 inst/doc
 .DS_Store
+^README\.html$

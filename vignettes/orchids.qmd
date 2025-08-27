@@ -40,105 +40,66 @@ This vignette guides you through downloading, processing, and analyzing **Orchid
 
 ------------------------------------------------------------------------
 
-## Load Required Packages and Utilities
+This is the glimpse of your data :
 
-Load all the helper functions using:
-
-```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
-#source(here::here("inst/vignette-helpers/vignette-utils.R"))
-utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
-if (file.exists(utils_path)) {
-  source(utils_path, encoding = "UTF-8")
-}
-```
-
-## Data Analysis
-
-### Preview Data-set
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
-organism_title <- "Orchids"
-organism_name <- "orchids"
-data("orchids", package = "ecotourism")
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(ecotourism)
+data("orchids")
 orchids |> glimpse()
-```
-
-### Occurrence by State
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
-orchids |> count(sci_name, obs_state,  sort = T)
 ```
 
 ------------------------------------------------------------------------
 
 ## Visualization
 
-We'll focus on selected species for visualization:
+### Spatial Distribution Map
 
-### Weekly Trends
+Distribution of Occurrence Orchids Sightings in Australia
 
-```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
-orchids  |> plot_bar_week() + theme(legend.position = "none")
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+library(ggplot2)
+
+orchids |> 
+  ggplot() +
+    geom_sf(data = oz_lga) +
+    geom_point(aes(x = obs_lon, y = obs_lat), color = "red") +
+    theme_minimal()
 ```
 
-### Monthly Trends
+------------------------------------------------------------------------
 
-```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
-orchids |> plot_bar_month() + theme(legend.position = "none")
+## Weekly, Monthly, and Yearly Trends
+
+Weekday Distribution of Orchids Sightings
+
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+
+week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+orchids |> 
+  ggplot(aes(x = factor(weekday, levels = week_order))) +
+    geom_bar() +
+    labs(x = "Weekday", y = "Number of Records") +
+    theme_minimal()
 ```
 
-### Yearly Trends
+Monthly Distribution of Orchids Sightings
 
-```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
-orchids |> plot_bar_year() + theme(legend.position = "none")
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+orchids |>
+    dplyr::mutate(month = lubridate::month(month, label = TRUE, abbr = FALSE)) |>
+    ggplot(aes(x = factor(month, levels = month.name))) +
+    geom_bar() +
+    labs(x = "Month", y = "Number of Records") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-## Pattern Analysis
+Yearly Distribution of Orchids Sightings
 
-```{r echo=TRUE, eval=TRUE, fig.width=6, fig.height=4}
-orchids |> plot_weekly_occurrences_by_state(legend = 1) 
-orchids |> plot_seasonal_occurrence_polar(legend = 1)
-orchids |> plot_monthly_occurrence_map(legend = 1)
-```
-
-Work with Tourism dataset:
-
-```{r, warning=FALSE, message=FALSE}
-# make full tourism dataset
-data("tourism_region")
-data("tourism_quarterly")
-
-tourism <- tourism_quarterly |>
-  dplyr::left_join(tourism_region, by = "region_id") |> 
-  dplyr::left_join(ecotourism::weather_stations, by = "ws_id")
-```
-
-```{r}
-# load top station for organism
-data("top_stations")
-
-top_stations_manta_rays <- top_stations |> filter(organism == "manta_rays")
-```
-
-No we can find related tourism spots
-
-```{r}
-tourism |> filter(ws_id %in% top_stations_manta_rays$ws_id)
-```
-
-If you want to match quarter data use this code:
-
-```{r}
-# 1. Aggregate manta observations to quarter
-manta_quarter <- manta_rays %>%
-  mutate(quarter = floor_date(date, "quarter")) %>%
-  count(quarter, name = "manta_sightings")
-
-# 2. Make sure tourism$quarter is also floor_date
-tourism_clean <- tourism %>%
-  mutate(quarter = floor_date(quarter, "quarter"))
-
-# 3. Left join: keep all manta quarters, match tourism by quarter
-manta_tourism <- manta_quarter %>%
-  left_join(tourism_clean, by = "quarter")
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+orchids |>
+    ggplot(aes(x = factor(year))) +
+    geom_bar() +
+    labs(x = "Year", y = "Number of Records")
 ```

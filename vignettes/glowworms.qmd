@@ -43,23 +43,7 @@ This vignette demonstrates how to reproduce and analyze occurrence data for **Gl
 
 ------------------------------------------------------------------------
 
-## Load Required Packages and Utilities
-
-All required functions are organized in `vignette-utils.R`. You can import them using:
-
-```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
-#source(here::here("inst/vignette-helpers/vignette-utils.R"))
-utils_path <- system.file("vignette-helpers", "vignette-utils.R", package = "ecotourism")
-if (file.exists(utils_path)) {
-  source(utils_path, encoding = "UTF-8")
-}
-```
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-This is the glimps of your data :
+This is the glimpse of your data :
 
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 library(dplyr)
@@ -72,86 +56,51 @@ glowworms |> glimpse()
 
 ### Spatial Distribution Map
 
-```{r echo=TRUE, fig.width=6, fig.height=4, eval=FALSE}
-glowworms |> plot_map1(color_by = scientificName)
-```
+Distribution of Occurrence Glowworms Sightings in Australia
 
-### Occurrence by State (Updated)
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+library(ggplot2)
 
-```{r echo=TRUE, fig.width=6, fig.height=4, eval=FALSE}
-glowworms |> count(sci_name, obs_state) 
+glowworms |> 
+  ggplot() +
+    geom_sf(data = oz_lga) +
+    geom_point(aes(x = obs_lon, y = obs_lat), color = "red") +
+    theme_minimal()
 ```
 
 ------------------------------------------------------------------------
 
 ## Weekly, Monthly, and Yearly Trends
 
-```{r echo=TRUE, fig.width=6, fig.height=4, eval=FALSE}
-glowworms |> plot_bar_week()
-glowworms |> plot_bar_week_100()
-glowworms |> plot_bar_month()
-glowworms |> plot_bar_year()
+Weekday Distribution of Glowworms Sightings
+
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+
+week_order <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+glowworms |> 
+  ggplot(aes(x = factor(weekday, levels = week_order))) +
+    geom_bar() +
+    labs(x = "Weekday", y = "Number of Records") +
+    theme_minimal()
 ```
 
-------------------------------------------------------------------------
+Monthly Distribution of Glowworms Sightings
 
-## Monthly and Seasonal Pattern Analysis
-
-```{r echo=TRUE, fig.width=6, fig.height=4, eval=FALSE}
-plot_monthly_occurrences_by_state(organism_name)
-plot_weekly_occurrences_by_state(organism_name)
-plot_seasonal_occurrence_polar(organism_name)
-plot_monthly_occurrence_map(organism_name)
-plot_monthly_occurrence_map_by_state(organism_name)
-plot_monthly_distribution_map(organism_name)
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+glowworms |>
+    dplyr::mutate(month = lubridate::month(month, label = TRUE, abbr = FALSE)) |>
+    ggplot(aes(x = factor(month, levels = month.name))) +
+    geom_bar() +
+    labs(x = "Month", y = "Number of Records") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-------------------------------------------------------------------------
+Yearly Distribution of Glowworms Sightings
 
-## Appendix
-
-All helper functions used here are defined in:\
-`vignettes/vignette-utils.R`
-
-Work with Tourism dataset:
-
-```{r, warning=FALSE, message=FALSE}
-# make full tourism dataset
-data("tourism_region")
-data("tourism_quarterly")
-
-tourism <- tourism_quarterly |>
-  dplyr::left_join(tourism_region, by = "region_id") |> 
-  dplyr::left_join(ecotourism::weather_stations, by = "ws_id")
-```
-
-```{r}
-# load top station for organism
-data("top_stations")
-
-top_stations_manta_rays <- top_stations |> filter(organism == "manta_rays")
-```
-
-No we can find related tourism spots
-
-```{r}
-tourism |> filter(ws_id %in% top_stations_manta_rays$ws_id)
-```
-
-If you want to match quarter data use this code:
-
-```{r}
-
-# 1. Aggregate manta observations to quarter
-manta_quarter <- manta_rays %>%
-  mutate(quarter = lubridate::floor_date(date, "quarter")) %>%
-  count(quarter, name = "manta_sightings")
-
-# 2. Make sure tourism$quarter is also floor_date
-tourism_clean <- tourism %>%
-  mutate(quarter = lubridate::floor_date(quarter, "quarter"))
-
-# 3. Left join: keep all manta quarters, match tourism by quarter
-manta_tourism <- manta_quarter %>%
-  left_join(tourism_clean, by = "quarter")
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+glowworms |>
+    ggplot(aes(x = factor(year))) +
+    geom_bar() +
+    labs(x = "Year", y = "Number of Records")
 ```
