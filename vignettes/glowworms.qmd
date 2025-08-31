@@ -35,7 +35,9 @@ if (nzchar(libdir)) {
 suppressPackageStartupMessages(library(ecotourism))
 ```
 
-![Image credit: Guardian Design – StellaNature – Alamy. Used under licence.](image/glowworm.jpg){fig-align="center" width="300"}
+![Glowworm(Arachnocampa)](image/glowworm.jpg){fig-align="center" width="300"}
+
+*Photo by Alan Rockefeller. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).*
 
 ## Introduction
 

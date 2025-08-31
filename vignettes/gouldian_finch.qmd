@@ -31,9 +31,9 @@ if (nzchar(libdir)) {
 suppressPackageStartupMessages(library(ecotourism))
 ```
 
-![Male adult Gouldian Finch.\
-Image credit: Martin Pot (Martybugs at en.wikipedia). Licence: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).\
-File: Male adult Gouldian Finch.jpg. Created: 16 February 2008. Uploaded: 17 April 2009.](image/gouldian_finch.jpg){fig-align="center" width="300"}
+![Gouldian Finch](image/gouldian_finch.jpg){fig-align="center" width="300"}
+
+*Photo by Kym Nicolson. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).*
 
 ## Introduction
 

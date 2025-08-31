@@ -31,8 +31,7 @@ if (nzchar(libdir)) {
 suppressPackageStartupMessages(library(ecotourism))
 ```
 
-![White orchid in Clara Bog.\
-Image credit: Niall Kearney – Own work. Licence: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).](image/orchids.jpg){fig-align="center" width="300"}
+![Orchids, Photo taken by Lyn Cook.](image/orchids.jpeg){fig-align="center" width="300"}
 
 ## Introduction
 

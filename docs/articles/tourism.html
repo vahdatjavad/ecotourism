@@ -74,22 +74,11 @@
 <p>A quick tour of the <strong>ecotourism</strong> package’s tourism datasets, how to join regional metadata and quarterly counts, and (optionally) how to enrich rows with the nearest weather station information.</p>
 </blockquote>
 </div>
-<section class="level2" data-number="1"><h2 data-number="1" id="setup">
-<span class="header-section-number">1</span> Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+<section class="level2" data-number="1"><h2 data-number="1" id="data-overview">
+<span class="header-section-number">1</span> Data overview<a class="anchor" aria-label="anchor" href="#data-overview"></a>
 </h2>
-</section><section class="level2" data-number="2"><h2 data-number="2" id="data-overview">
-<span class="header-section-number">2</span> Data overview<a class="anchor" aria-label="anchor" href="#data-overview"></a>
-</h2>
-<p>List included objects and short descriptions:</p>
+<p>This is the glimpse of your data :</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"tourism_region"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"tourism_quarterly"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<p>Quick peeks at the two tourism datasets used here:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">tourism_region</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 2,930
 Columns: 5
@@ -99,8 +88,8 @@ $ lat       &lt;dbl&gt; -35.37625, -27.05758, -37.80368, -35.07996, -33.73492, -
 $ region_id &lt;int&gt; 1, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 19…
 $ ws_id     &lt;chr&gt; "949250-99999", "944740-99999", "959360-99999", "946830-9999…</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">tourism_quarterly</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 50,314
 Columns: 4
@@ -110,17 +99,11 @@ $ trips     &lt;dbl&gt; 3.2724, 1.7111, 104.5548, 96.3376, 37.1830, 11.2575, 67.
 $ region_id &lt;int&gt; 4, 6, 9, 9, 14, 16, 16, 20, 20, 23, 29, 29, 30, 30, 32, 33, …</code></pre>
 </div>
 </div>
-</section><section class="level2" data-number="3"><h2 data-number="3" id="join-regional-metadata-to-quarterly-counts">
-<span class="header-section-number">3</span> Join regional metadata to quarterly counts<a class="anchor" aria-label="anchor" href="#join-regional-metadata-to-quarterly-counts"></a>
+<hr></section><section class="level2" data-number="2"><h2 data-number="2" id="join-regional-metadata-to-quarterly-counts">
+<span class="header-section-number">2</span> Join regional metadata to quarterly counts<a class="anchor" aria-label="anchor" href="#join-regional-metadata-to-quarterly-counts"></a>
 </h2>
 <p>We keep only rows with a valid region name after the join.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tourism</span> <span class="op">&lt;-</span> <span class="va">tourism_quarterly</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">tourism_region</span>, by <span class="op">=</span> <span class="st">"region_id"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">region</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">tourism</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 64,336
 Columns: 8
@@ -140,92 +123,41 @@ $ ws_id     &lt;chr&gt; "946830-99999", "948650-99999", "949260-99999", "946750-
 <p>If you only need a subset of columns, select them first to keep memory small, for example: <code>select(region_id, quarter, visitors, lon, lat)</code>.</p>
 </blockquote>
 </div>
-</section><section class="level2" data-number="4"><h2 data-number="4" id="optional-add-nearest-weather-station-metadata">
-<span class="header-section-number">4</span> Optional: add nearest weather station metadata<a class="anchor" aria-label="anchor" href="#optional-add-nearest-weather-station-metadata"></a>
+</section><section class="level2" data-number="3"><h2 data-number="3" id="optional-add-nearest-weather-station-metadata">
+<span class="header-section-number">3</span> Optional: add nearest weather station metadata<a class="anchor" aria-label="anchor" href="#optional-add-nearest-weather-station-metadata"></a>
 </h2>
 <p>If your quarterly table contains a <code>ws_id</code>, you can join station attributes:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>  <span class="va">tourism</span> <span class="op">&lt;-</span> <span class="va">tourism</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu">ecotourism</span><span class="fu">::</span><span class="va"><a href="../reference/weather_stations.html">weather_stations</a></span>, by <span class="op">=</span> <span class="st">"ws_id"</span><span class="op">)</span></span></code></pre></div>
-</div>
-</section><section class="level2" data-number="5"><h2 data-number="5" id="a-quick-map">
-<span class="header-section-number">5</span> A quick map<a class="anchor" aria-label="anchor" href="#a-quick-map"></a>
+</section><section class="level2" data-number="4"><h2 data-number="4" id="a-quick-map">
+<span class="header-section-number">4</span> A quick map<a class="anchor" aria-label="anchor" href="#a-quick-map"></a>
 </h2>
 <p>We’ll plot tourism site coordinates and, when available, their weather stations.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Keep rows with geographic coordinates</span></span>
-<span><span class="va">spots</span> <span class="op">&lt;-</span> <span class="va">tourism</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">lon</span><span class="op">)</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">lat</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Convert to sf (WGS84)</span></span>
-<span><span class="va">spots_sf</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">st_as_sf</a></span><span class="op">(</span><span class="va">spots</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lon"</span>,<span class="st">"lat"</span><span class="op">)</span>, crs <span class="op">=</span> <span class="fl">4326</span>, remove <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Australia basemap</span></span>
-<span><span class="va">aus</span> <span class="op">&lt;-</span> <span class="fu">rnaturalearth</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/rnaturalearth/reference/ne_states.html" class="external-link">ne_states</a></span><span class="op">(</span>country <span class="op">=</span> <span class="st">"australia"</span>, returnclass <span class="op">=</span> <span class="st">"sf"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Plot</span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">aus</span>, fill <span class="op">=</span> <span class="st">"grey95"</span>, color <span class="op">=</span> <span class="st">"grey60"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">spots_sf</span>, color <span class="op">=</span> <span class="st">"#2C7FB8"</span>, alpha <span class="op">=</span> <span class="fl">0.8</span>, size <span class="op">=</span> <span class="fl">1.6</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">coord_sf</span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">110</span>, <span class="fl">155</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">45</span>, <span class="op">-</span><span class="fl">10</span><span class="op">)</span>, expand <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Tourism Locations in Australia"</span>, x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme</span><span class="op">(</span>panel.grid.major <span class="op">=</span> <span class="fu">element_line</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"grey90"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">oz_lga</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">tourism</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span>,</span>
+<span>               alpha <span class="op">=</span> <span class="fl">0.8</span>, size <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
-<figure><p><img src="tourism_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
+<figure><p><img src="tourism_files/figure-html/unnamed-chunk-6-1.png" width="576"></p>
 </figure>
 </div>
 </div>
 </div>
 <p>If station coordinates <code>stn_lon</code> and <code>stn_lat</code> are present, overlay them too:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"stn_lon"</span>,<span class="st">"stn_lat"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tourism</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">geom_sf</span><span class="op">(</span>data <span class="op">=</span> <span class="va">aus</span>, fill <span class="op">=</span> <span class="st">"grey95"</span>, color <span class="op">=</span> <span class="st">"grey60"</span>, linewidth <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">tourism</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span>,</span>
-<span>               alpha <span class="op">=</span> <span class="fl">0.8</span>, size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">tourism</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">stn_lon</span>, y <span class="op">=</span> <span class="va">stn_lat</span><span class="op">)</span>,</span>
-<span>               shape <span class="op">=</span> <span class="fl">17</span>, size <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">coord_sf</span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">110</span>, <span class="fl">155</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">45</span>, <span class="op">-</span><span class="fl">10</span><span class="op">)</span>, expand <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Tourism Locations and Weather Stations"</span>,</span>
-<span>         x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">theme</span><span class="op">(</span>panel.grid.major <span class="op">=</span> <span class="fu">element_line</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"grey90"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsf.html" class="external-link">geom_sf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">oz_lga</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">tourism</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lon</span>, y <span class="op">=</span> <span class="va">lat</span><span class="op">)</span>,</span>
+<span>               alpha <span class="op">=</span> <span class="fl">0.5</span>, size <span class="op">=</span> <span class="fl">0.4</span>, color <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">tourism</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">stn_lon</span>, y <span class="op">=</span> <span class="va">stn_lat</span><span class="op">)</span>,</span>
+<span>               shape <span class="op">=</span> <span class="fl">17</span>, size <span class="op">=</span> <span class="fl">0.5</span>, alpha <span class="op">=</span> <span class="fl">0.5</span>, color <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
-<figure><p><img src="tourism_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section><section class="level2" data-number="6"><h2 data-number="6" id="simple-time-series-slice">
-<span class="header-section-number">6</span> Simple time-series slice<a class="anchor" aria-label="anchor" href="#simple-time-series-slice"></a>
-</h2>
-<p>Plot quarterly visitors for one example region (pick the first with data).</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"region"</span>,<span class="st">"quarter"</span>,<span class="st">"trips"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">tourism</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">example_region</span> <span class="op">&lt;-</span> <span class="va">tourism</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">trips</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">region</span>, wt <span class="op">=</span> <span class="va">trips</span>, name <span class="op">=</span> <span class="st">"total"</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">region</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="va">tourism</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">region</span> <span class="op">==</span> <span class="va">example_region</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">quarter</span>, y <span class="op">=</span> <span class="va">trips</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Quarterly trips – "</span>, <span class="va">example_region</span><span class="op">)</span>,</span>
-<span>         x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"trips"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<div class="cell-output-display">
-<div>
-<figure><p><img src="tourism_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
+<figure><p><img src="tourism_files/figure-html/unnamed-chunk-7-1.png" width="576"></p>
 </figure>
 </div>
 </div>

@@ -33,9 +33,9 @@ if (nzchar(libdir)) {
 suppressPackageStartupMessages(library(ecotourism))
 ```
 
-![Manta Rays at Dharavandhoo Thila (Black Pearl).\
-Image credit: Shiyam ElkCloner – Own work. Licence: [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).\
-File: Dharavandhoo Thila - Manata Black Pearl.JPG. Created: 27 May 2012. Uploaded: 27 May 2012.](image/manta_rays.jpg){fig-align="center" width="300"}
+![Manta Rays](image/manta_rays.jpeg){fig-align="center" width="300"}
+
+*Photograph by Shiyam ElkCloner. Licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).*
 
 ## Introduction
 
