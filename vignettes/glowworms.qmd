@@ -47,7 +47,7 @@ This vignette demonstrates how to reproduce and analyze occurrence data for **Gl
 
 This is the glimpse of your data :
 
-```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(ecotourism)
 data("glowworms")
@@ -105,4 +105,42 @@ glowworms |>
     ggplot(aes(x = factor(year))) +
     geom_bar() +
     labs(x = "Year", y = "Number of Records")
+```
+
+------------------------------------------------------------------------
+
+We want to see if `glowworms` occurrences are related to precipitation on the same day from the weather dataset.
+
+Here’s a short R script that:
+
+1.  Joins `glowworms` with **weather_data** using `ws_id` and `date`.
+
+2.  Counts daily occurrences.
+
+3.  Plots precipitation vs number of `glowworms` sightings.
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ecotourism)
+
+# Prepare glowworms occurrence counts per day
+glowworms_daily <- glowworms %>%
+  group_by(ws_id, date) %>%
+  summarise(occurrence = n(), .groups = "drop")
+
+# Join with weather data for precipitation
+glowworms_weather <- glowworms_daily %>%
+  left_join(weather_data %>% select(ws_id, date, prcp), 
+            by = c("ws_id", "date"))
+
+# Simple scatter plot: precipitation vs gouldian_finch occurrence
+ggplot(glowworms_weather, aes(x = prcp, y = occurrence)) +
+  geom_point(alpha = 0.6) +
+  labs(
+    title = "Relationship between Precipitation and glowworms Occurrence",
+    x = "Precipitation (mm)",
+    y = "Number of glowworms Records"
+  ) +
+  theme_minimal()
 ```

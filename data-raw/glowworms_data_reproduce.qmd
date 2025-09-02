@@ -94,14 +94,14 @@ assign_if_close_to_flava <- function(lat, lon, flava_data, radius) {
 
 unknowns_updated <- unknowns |> 
   rowwise() |> 
-  mutate(scientificName = assign_if_close_to_flava(obs_lat, obs_lon, references, radius_threshold)) |> 
+  mutate(sci_name = assign_if_close_to_flava(obs_lat, obs_lon, references, radius_threshold)) |> 
   ungroup()
 
 organism <- organism_raw |> 
   filter(sci_name != "Arachnocampa") |> 
   bind_rows(unknowns_updated) |> 
   filter(!is.na(obs_lat), !is.na(obs_lon), !is.na(month),
-         scientificName %in% c("Arachnocampa flava", "Arachnocampa tasmaniensis"))
+         sci_name %in% c("Arachnocampa flava", "Arachnocampa tasmaniensis"))
 
 mysave(organism_name, organism)
 ```

@@ -50,6 +50,10 @@ List all available datasets and their short titles:
 | tourism_quarterly| Australian tourism spots quarterly counts       |
 | tourism_region   | Australian tourism regions with lat and lon.    |
 
+This is the relational dataset in this package:
+
+<img src="man/figures/datasets.png" alt="Ecotourism dataset schema" width="500"/>
+
 To see documentation for any dataset, use:
 
 ``` r

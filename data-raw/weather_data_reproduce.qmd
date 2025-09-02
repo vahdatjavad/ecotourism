@@ -37,7 +37,7 @@ save(top_stations, file = "../data/top_stations.rda")
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 # Download and prepare data (optional)
 weather_data_list <- lapply(top_stations$ws_id, function(stn) {
-  get_GSOD(years = 2014:2024, station = stn)
+  GSODR::get_GSOD(years = 2014, station = stn)
 })
 
 top_weather <- bind_rows(weather_data_list) |> 
@@ -71,3 +71,353 @@ save(weather_data, file = "../data/weather_data.rda")
 ## Conclusion
 
 You now have a decade of daily weather observations for the most relevant weather stations associated with each organism in the ecotourism package. This can be used to study climate impacts, seasonal patterns, or ecological correlations with biodiversity data.
+
+```{r}
+left_join(top_stations, weather_stations) |> 
+  select(stn_lat, stn_lon)
+```
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+Plan B: Because GSOD does not work so we can use other way `rnoaa`
+
+```{r}
+# Fetch daily GHCN data for stations
+# remotes::install_github("ropensci/rnoaa")
+library(dplyr)
+library(purrr)
+library(rnoaa)
+library(tibble)
+
+
+# go and get your token https://www.ncdc.noaa.gov/cdo-web/token
+options(noaakey = "eoSIZMLaAzuONBgDhUraRhVFqZIwzjSE")
+
+
+# getting all station information
+stations <- ghcnd_stations()
+
+# by this we can get data just for one station
+nearby <- meteo_nearby_stations(
+  station_data = stations,
+  lat_lon_df   = data.frame(id = "site1", latitude = -34.633	, longitude = 117.633), limit = 1
+)
+
+weather_data_1111 <- meteo_pull_monitors(nearby[[1]]$id,
+                                    date_min = "2014-01-01",
+                                    date_max = "2024-12-31")
+
+```
+
+Here is a function that we can use to get weather data for each station on `top_stations`.\
+\
+*Also it is possible to change all of the `weather_stations` dataset and build this dataset with new `rnoaa` package.*
+
+this function takes `top_stations` data set that has top stations id for each organism, also `weather_stations` that has coordinated information for each those top stations.
+
+```{r}
+#---------------------------------------------
+# Main helper
+#---------------------------------------------
+fetch_weather_for_top_stations <- function(top_stations,
+                                           weather_stations,
+                                           date_min = "2014-01-01",
+                                           date_max = "2024-12-31",
+                                           k_nearest = 1,          # how many candidate stations; keep 1 by default
+                                           quietly = TRUE) {
+  
+  # 1) Join to get coordinates for each ws_id
+  stations_df <- top_stations %>%
+    left_join(weather_stations, by = "ws_id") %>%
+    distinct(ws_id, stn_lat, stn_lon) %>%
+    mutate(
+      stn_lat = suppressWarnings(as.numeric(stn_lat)),
+      stn_lon = suppressWarnings(as.numeric(stn_lon))
+    ) %>%
+    filter(is.finite(stn_lat), is.finite(stn_lon))
+
+  if (nrow(stations_df) == 0L) {
+    stop("No valid stations with numeric stn_lat/stn_lon after join.")
+  }
+
+  # 2) Load GHCN station catalogue (cached in session after first call)
+  #    This can take a bit the first time; it's okay for a one-off helper.
+  ghcnd_meta <- rnoaa::ghcnd_stations()
+
+  # 3) Build the lat/lon data frame expected by meteo_nearby_stations()
+  lat_lon_df <- stations_df %>%
+    transmute(id = ws_id, latitude = stn_lat, longitude = stn_lon)
+
+  # 4) Find nearest GHCN stations for each of your ws_id points
+  near_list <- rnoaa::meteo_nearby_stations(
+    station_data = ghcnd_meta,
+    lat_lon_df   = lat_lon_df,
+    limit        = k_nearest
+  )
+
+  # 5) Make a mapping table ws_id -> chosen GHCN id (pick the first/nearest)
+  map_tbl <- imap_dfr(near_list, ~ {
+    cand <- .x
+    if (nrow(cand) == 0) return(tibble(ws_id = .y, ghcnd_id = NA_character_))
+    cand %>% slice(1) %>% transmute(ws_id = .y, ghcnd_id = id)
+  }) %>% filter(!is.na(ghcnd_id))
+
+  if (nrow(map_tbl) == 0L) {
+    stop("meteo_nearby_stations() did not return any candidate GHCN stations.")
+  }
+
+  # 6) Download data per station with try-catch, so one failure won’t stop all
+  fetch_one <- function(ws, ghc) {
+    tryCatch({
+      df <- rnoaa::meteo_pull_monitors(
+        monitors = ghc,
+        date_min = date_min,
+        date_max = date_max
+      )
+      if (!nrow(df)) return(tibble())
+      # meteo_pull_monitors returns column 'id' as the GHCN id; keep it if you want, but add your ws_id
+      df %>%
+        mutate(ghcnd_id = id, ws_id = ws, .before = 1) %>%
+        select(-id)  # drop NOAA id if you want only ws_id
+    }, error = function(e) {
+      if (!quietly) message("Failed for ", ws, " (", ghc, "): ", conditionMessage(e))
+      tibble()
+    })
+  }
+
+  weather_list <- pmap(list(map_tbl$ws_id, map_tbl$ghcnd_id), fetch_one)
+  weather_all  <- bind_rows(weather_list)
+
+  if (!nrow(weather_all)) {
+    warning("No weather rows were downloaded for the given stations and dates.")
+  }
+
+  # Optional: convert common GHCN units (uncomment if desired)
+  # GHCN vars often in tenths:
+  # weather_all <- weather_all %>%
+  #   mutate(
+  #     tmax_c = dplyr::if_else(!is.na(tmax), tmax/10, NA_real_),
+  #     tmin_c = dplyr::if_else(!is.na(tmin), tmin/10, NA_real_),
+  #     prcp_mm = dplyr::if_else(!is.na(prcp), prcp/10, NA_real_)
+  #   )
+
+  weather_all
+}
+
+#---------------------------------------------
+# Example usage
+#---------------------------------------------
+weather_all <- fetch_weather_for_top_stations(
+  top_stations = top_stations,
+  weather_stations = weather_stations,
+  date_min = "2014-01-01",
+  date_max = "2024-12-31"
+)
+# glimpse(weather_all)
+```
+
+```{r}
+weather_all_polished <- left_join(weather_all, ghcnd_meta, by = c("ghcnd_id" = "id"))
+weather_all_polished <- weather_all_polished |> 
+  transmute(
+    ws_id = ws_id,
+    stn_lat = latitude,
+    stn_lon = longitude,
+    date = date,
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    day = lubridate::day(date),
+    weekday = lubridate::wday(date, label = TRUE, abbr = FALSE,
+                               week_start = getOption("lubridate.week.start", 1)),
+    dayofyear = lubridate::yday(date),
+    temp = (tmin+tmax)/2/10,
+    min = tmin/10,
+    max = tmax/10,
+    dewp = dwpr/10,
+    rh = NA,
+    prcp = prcp,
+    rainy = ifelse(prcp > 5, 1, 0),
+    wind_speed = NA,
+    max_speed = NA
+  )
+
+```
+
+Now I have two data set for weather stations `weather_all_polished` from new method and also `weather_data` from GSOD package data set, so here I am doing some matching and selecting to best and less missing data.
+
+```{r}
+library(dplyr)
+
+# Step 1. Combine both datasets with a source flag
+wx_all <- bind_rows(
+  weather_all_polished %>% mutate(source = "polished"),
+  weather_data %>% mutate(source = "raw")
+)
+
+# Step 2. Filter to only top stations
+wx_all <- wx_all %>%
+  filter(ws_id %in% top_stations$ws_id)
+
+# Step 3. Count NAs per station+source
+na_summary <- wx_all %>%
+  group_by(ws_id, source) %>%
+  summarise(
+    total_rows = n(),
+    na_count   = sum(is.na(temp) | is.na(min) | is.na(max) |
+                     is.na(prcp) | is.na(rh) | is.na(wind_speed)),
+    .groups = "drop"
+  ) %>%
+  mutate(na_rate = na_count / total_rows)
+
+# Step 4. Pick the best source (lowest NA rate) for each station
+best_sources <- na_summary %>%
+  group_by(ws_id) %>%
+  slice_min(order_by = na_rate, n = 1, with_ties = FALSE) %>%
+  ungroup()
+
+# Step 5. Build the final clean dataset
+weather_clean <- wx_all %>%
+  inner_join(best_sources %>% select(ws_id, source), by = c("ws_id", "source")) %>%
+  select(-source)
+
+```
+
+```{r}
+weather_clean_unique <- weather_clean %>%
+  group_by(ws_id, date) %>%
+  summarise(across(
+    c(temp, min, max, dewp, rh, prcp, rainy, wind_speed, max_speed),
+    ~ mean(.x, na.rm = TRUE)
+  ), .groups = "drop")
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(purrr)
+
+# ---- settings --------------------------------------------------------------
+date_min <- as.Date("2014-01-01")
+date_max <- as.Date("2024-12-31")
+vars_numeric <- c("temp","min","max","dewp","rh","prcp","rainy","wind_speed","max_speed")
+
+# ensure we only use your 12 stations
+ws12 <- unique(top_stations$ws_id)
+stopifnot(length(ws12) == 12)
+
+top_stations <- left_join(top_stations, weather_stations, by = join_by(ws_id))
+# keep station coordinates to reattach later (prefer non-missing)
+stn_ref <- top_stations %>%
+  distinct(ws_id, stn_lat, stn_lon)
+
+# ---- 1) stack both sources with a label -----------------------------------
+wx_all <- bind_rows(
+  weather_all_polished %>% mutate(source = "polished"),
+  weather_data          %>% mutate(source = "raw")
+) %>%
+  # restrict to the 12 stations of interest
+  filter(ws_id %in% ws12)
+
+# ---- 2) NA-rate per station & source --------------------------------------
+na_summary <- wx_all %>%
+  group_by(ws_id, source) %>%
+  summarise(
+    total_rows = n(),
+    na_count   = rowSums(is.na(across(all_of(vars_numeric)))) %>% sum(),
+    .groups = "drop"
+  ) %>%
+  mutate(na_rate = na_count / pmax(total_rows, 1))
+
+# ---- 3) choose best source per station (fewest NAs) -----------------------
+best_sources <- na_summary %>%
+  group_by(ws_id) %>%
+  slice_min(order_by = na_rate, n = 1, with_ties = TRUE) %>%  # if tie, keeps both; we’ll handle below
+  ungroup()
+
+# If there’s a tie, prefer 'polished' over 'raw'
+best_sources <- best_sources %>%
+  group_by(ws_id) %>%
+  arrange(match(source, c("polished","raw")), na_rate) %>%
+  slice(1) %>%
+  ungroup() %>%
+  select(ws_id, source)
+
+# ---- 4) build the clean base using the chosen source ----------------------
+weather_clean <- wx_all %>%
+  inner_join(best_sources, by = c("ws_id","source")) %>%
+  select(-source)
+
+# ---- 5) deduplicate to one row per station-date ---------------------------
+# If duplicates exist, we average numeric weather vars and keep the first non-missing lat/lon
+weather_clean <- weather_clean %>%
+  group_by(ws_id, date) %>%
+  summarise(
+    across(all_of(vars_numeric), ~ mean(.x, na.rm = TRUE)),
+    stn_lat = suppressWarnings(first(na.omit(stn_lat))),
+    stn_lon = suppressWarnings(first(na.omit(stn_lon))),
+    year       = first(year),
+    month      = first(month),
+    day        = first(day),
+    weekday    = first(weekday),
+    dayofyear  = first(dayofyear),
+    .groups = "drop"
+  )
+
+# Reattach canonical coords from top_stations if missing
+weather_clean <- weather_clean %>%
+  select(ws_id, date, all_of(vars_numeric), stn_lat, stn_lon, year, month, day, weekday, dayofyear) %>%
+  left_join(stn_ref, by = "ws_id", suffix = c("", "_ref")) %>%
+  mutate(
+    stn_lat = coalesce(stn_lat, stn_lat_ref),
+    stn_lon = coalesce(stn_lon, stn_lon_ref)
+  ) %>%
+  select(-stn_lat_ref, -stn_lon_ref)
+
+# ---- 6) expand to full daily range for each station -----------------------
+full_dates <- tibble(date = seq(date_min, date_max, by = "day"))
+weather_12 <- weather_clean %>%
+  group_by(ws_id) %>%
+  right_join(full_dates, by = "date") %>%   # keep all dates per station
+  arrange(ws_id, date) %>%
+  fill(stn_lat, stn_lon, .direction = "downup") %>%  # keep station coords filled
+  ungroup()
+
+# Recompute helpers if they were NA on inserted dates
+# weather_12 <- weather_12 %>%
+#   mutate(
+#     year      = if_else(is.na(year),  year(date),  year),
+#     month     = if_else(is.na(month), month(date), month),
+#     day       = if_else(is.na(day),   day(date),   day),
+#     weekday   = if_else(is.na(weekday), wday(date, label = TRUE, abbr = FALSE), weekday),
+#     dayofyear = if_else(is.na(dayofyear), yday(date), dayofyear)
+#   )
+
+# ---- 7) quick coverage summary per station --------------------------------
+coverage_summary <- weather_12 %>%
+  group_by(ws_id) %>%
+  summarise(
+    n_days      = n(),
+    n_complete  = sum(complete.cases(across(all_of(vars_numeric)))),
+    pct_complete = round(100 * n_complete / n_days, 1),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(pct_complete))
+
+# outputs:
+#   - weather_12: final clean dataset for exactly your 12 stations (daily 2014–2024)
+#   - coverage_summary: how much data each station has in that window
+
+```
+
+```{r}
+library(ecotourism)
+ws12 <- unique(top_stations$ws_id)
+have  <- unique(weather_data$ws_id)        # or weather_clean$ws_id if earlier stage
+missing_ws <- setdiff(ws12, have)
+missing_ws
+
+```

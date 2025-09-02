@@ -104,3 +104,42 @@ manta_rays |>
     geom_bar() +
     labs(x = "Year", y = "Number of Records")
 ```
+
+------------------------------------------------------------------------
+
+We want to see if `manta_rays` occurrences are related to precipitation on the same day from the weather dataset.
+
+Here’s a short R script that:
+
+1.  Joins `manta_rays` with **weather_data** using `ws_id` and `date`.
+
+2.  Counts daily occurrences.
+
+3.  Plots precipitation vs number of `manta_rays` sightings.
+
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE, message=TRUE, warning=FALSE}
+library(dplyr)
+library(ggplot2)
+library(ecotourism)
+
+# Prepare manta_rays occurrence counts per day
+manta_rays_daily <- manta_rays %>%
+  group_by(ws_id, date) %>%
+  summarise(occurrence = n(), .groups = "drop")
+
+# Join with weather data for precipitation
+manta_rays_weather <- manta_rays_daily %>%
+  left_join(weather_data %>% select(ws_id, date, prcp), 
+            by = c("ws_id", "date"))
+
+# Simple scatter plot: precipitation vs manta_rays occurrence
+ggplot(manta_rays_weather, aes(x = prcp, y = occurrence)) +
+  geom_point(alpha = 0.6) +
+  labs(
+    title = "Relationship between Precipitation and Manta Rays Occurrence",
+    x = "Precipitation (mm)",
+    y = "Number of Manta Rays Records"
+  ) +
+  theme_minimal()
+
+```
