@@ -119,7 +119,7 @@ Here’s a short R script that:
 
 3.  Plots precipitation vs number of `glowworms` sightings.
 
-```{r}
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
 library(dplyr)
 library(ggplot2)
 library(ecotourism)
