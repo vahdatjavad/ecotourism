@@ -37,7 +37,7 @@ suppressPackageStartupMessages(library(ecotourism))
 
 ![Glowworm(Arachnocampa)](image/glowworm.jpg){fig-align="center" width="300"}
 
-<span style=font-size: 50%;> *Photo by Alan Rockefeller. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).*</span>
+<span style="font-size: 50%; align: center;"> Photo by Alan Rockefeller. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). </span>
 
 ## Introduction
 

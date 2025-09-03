@@ -60,12 +60,13 @@ Distribution of Occurrence Gouldian Finch Sightings in Australia
 
 ```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
 library(ggplot2)
+library(ggthemes)
 
 gouldian_finch |> 
   ggplot() +
     geom_sf(data = oz_lga) +
     geom_point(aes(x = obs_lon, y = obs_lat), color = "red") +
-    theme_minimal()
+    theme_map()
 ```
 
 ------------------------------------------------------------------------
@@ -89,11 +90,10 @@ Monthly Distribution of Gouldian Finch Sightings
 
 ```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
 gouldian_finch |>
-    dplyr::mutate(month = lubridate::month(month, label = TRUE, abbr = FALSE)) |>
-    ggplot(aes(x = factor(month, levels = month.name))) +
+    dplyr::mutate(month = lubridate::month(month, label = TRUE, abbr = TRUE)) |>
+    ggplot(aes(x = factor(month))) +
     geom_bar() +
-    labs(x = "Month", y = "Number of Records") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    labs(x = "Month", y = "Number of Records") 
 ```
 
 Yearly Distribution of Gouldian Finch Sightings
@@ -121,6 +121,7 @@ Here’s a short R script that:
 library(dplyr)
 library(ggplot2)
 library(ecotourism)
+library(ggbeeswarm)
 
 # Prepare gouldian_finch occurrence counts per day
 gouldian_finch_daily <- gouldian_finch %>%
@@ -133,8 +134,12 @@ gouldian_finch_weather <- gouldian_finch_daily %>%
             by = c("ws_id", "date"))
 
 # Simple scatter plot: precipitation vs gouldian_finch occurrence
-ggplot(gouldian_finch_weather, aes(x = prcp, y = occurrence)) +
-  geom_point(alpha = 0.6) +
+gouldian_finch_weather |>
+  filter(!is.na(prcp)) |>
+  mutate(rain = if_else(prcp > 5, "yes", "no")) |>
+  ggplot(aes(x = rain, y = occurrence)) +
+  geom_quasirandom(alpha = 0.6) +
+  ylim(c(0, 15)) +
   labs(
     title = "Relationship between Precipitation and Gouldian Finch Occurrence",
     x = "Precipitation (mm)",
