@@ -37,7 +37,7 @@ suppressPackageStartupMessages(library(ecotourism))
 
 ![Glowworm(Arachnocampa)](image/glowworm.jpg){fig-align="center" width="300"}
 
-*Photo by Alan Rockefeller. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).*
+<span style=font-size: 50%;> *Photo by Alan Rockefeller. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).*</span>
 
 ## Introduction
 
@@ -62,12 +62,13 @@ Distribution of Occurrence Glowworms Sightings in Australia
 
 ```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
 library(ggplot2)
+library(ggthemes)
 
 glowworms |> 
   ggplot() +
     geom_sf(data = oz_lga) +
     geom_point(aes(x = obs_lon, y = obs_lat), color = "red") +
-    theme_minimal()
+    theme_map()
 ```
 
 ------------------------------------------------------------------------
@@ -90,12 +91,12 @@ glowworms |>
 Monthly Distribution of Glowworms Sightings
 
 ```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+library(lubridate)
 glowworms |>
-    dplyr::mutate(month = lubridate::month(month, label = TRUE, abbr = FALSE)) |>
-    ggplot(aes(x = factor(month, levels = month.name))) +
+    dplyr::mutate(month = month(month, label = TRUE, abbr = TRUE)) |>
+    ggplot(aes(x = factor(month))) +
     geom_bar() +
-    labs(x = "Month", y = "Number of Records") +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    labs(x = "Month", y = "Number of Records") 
 ```
 
 Yearly Distribution of Glowworms Sightings
@@ -120,27 +121,37 @@ Here’s a short R script that:
 3.  Plots precipitation vs number of `glowworms` sightings.
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
-library(dplyr)
-library(ggplot2)
-library(ecotourism)
-
+library(ggbeeswarm)
 # Prepare glowworms occurrence counts per day
-glowworms_daily <- glowworms %>%
-  group_by(ws_id, date) %>%
+glowworms_quarterly <- glowworms |>
+  mutate(quarter = quarter(date)) |>
+  group_by(year, quarter, ws_id) |>
   summarise(occurrence = n(), .groups = "drop")
 
-# Join with weather data for precipitation
-glowworms_weather <- glowworms_daily %>%
-  left_join(weather_data %>% select(ws_id, date, prcp), 
-            by = c("ws_id", "date"))
+data("tourism_quarterly")
+tourism_region_sub <- tourism_region |> 
+  filter(ws_id %in% glowworms$ws_id)
+  
+tourism_sub <- tourism_quarterly |>
+  filter(region_id %in% tourism_region_sub$region_id) |>
+  mutate(year = year(quarter),
+         quarter = quarter(quarter)) |>
+  select(year, quarter, purpose, trips, region_id) 
 
-# Simple scatter plot: precipitation vs gouldian_finch occurrence
-ggplot(glowworms_weather, aes(x = prcp, y = occurrence)) +
-  geom_point(alpha = 0.6) +
+glowworms_regions <- glowworms_quarterly |>
+  left_join(tourism_region_sub, by="ws_id")
+
+glowworms_tourism <- glowworms_regions |>
+  left_join(tourism_sub, by=c("region_id", "year", "quarter"))
+
+# Simple scatter plot: precipitation vs glowworms occurrence
+ggplot(glowworms_tourism, aes(x = quarter, y = occurrence)) +
+  geom_jitter(width=0.1) +
+  stat_summary(colour="red", geom = "point", size=5) +
   labs(
-    title = "Relationship between Precipitation and glowworms Occurrence",
-    x = "Precipitation (mm)",
-    y = "Number of glowworms Records"
+    title = "Relationship between tourism and glowworms occurrence",
+    x = "Quarter",
+    y = "Occurrence (jittered)"
   ) +
   theme_minimal()
 ```
