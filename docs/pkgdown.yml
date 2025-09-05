@@ -1,5 +1,5 @@
 pandoc: '3.4'
-pkgdown: 2.1.1
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   getting-started: getting-started.html
@@ -10,4 +10,7 @@ articles:
   tourism: tourism.html
   weather_data: weather_data.html
   weather_stations: weather_stations.html
-last_built: 2025-09-03T01:04Z
+last_built: 2025-09-05T06:26Z
+urls:
+  reference: https://vahdatjavad.github.io/ecotourism/reference
+  article: https://vahdatjavad.github.io/ecotourism/articles

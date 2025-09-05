@@ -29,6 +29,6 @@ data(top_stations)
 head(top_stations)
 }
 \seealso{
-\code{\link{weather_data}}, \code{\link{weather_stations}}
+\code{\link{weather}}, \code{\link{weather_stations}}
 }
 \keyword{datasets}

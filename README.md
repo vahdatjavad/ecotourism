@@ -52,7 +52,7 @@ List all available datasets and their short titles:
 
 This is the relational dataset in this package:
 
-<img src="man/figures/datasets.png" alt="Ecotourism dataset schema" width="500"/>
+<img src="man/figures/datasets.png" alt="ecotourism dataset schema" width="500"/>
 
 To see documentation for any dataset, use:
 

@@ -6,15 +6,16 @@
 \title{Quarterly Tourism Trips by Region and Purpose}
 \format{
 A data frame with `r nrow(tourism_quarterly)` rows and 4 variables:
-* **quarter**: Quarter label in the format `"Month YYYY nn"`, where
-  `nn` is the month number for the start of the quarter (e.g.,
-  `"December 1998 01"`).
+* **year**: The year of the tourism data
+* **quarter**: Quarter number like 1, 2, 3, 4
 * **purpose**: Purpose of visit category:
   - `"Holiday"`
   - `"Business"`
 * **trips**: Number of overnight trips (in thousands).
 * **region_id**: Unique integer identifier linking to the
   \code{\link{tourism_region}} dataset.
+  * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station
+  to the tourism region.
 }
 \usage{
 tourism_quarterly

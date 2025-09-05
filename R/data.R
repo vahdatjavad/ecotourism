@@ -67,7 +67,7 @@
 #' then standardized, cleaned, and matched to the three closest weather stations using geospatial tools.
 #'
 #' @source Atlas of Living Australia via \pkg{galah}
-#' @seealso \code{\link{glowworms}}, \code{\link{weather_data}}
+#' @seealso \code{\link{glowworms}}, \code{\link{weather}}
 #'
 #' @examples
 #' data(gouldian_finch)
@@ -107,7 +107,7 @@
 #' to weather stations for climate-related analysis.
 #'
 #' @source Atlas of Living Australia via \pkg{galah}
-#' @seealso \code{\link{gouldian_finch}}, \code{\link{weather_data}}
+#' @seealso \code{\link{gouldian_finch}}, \code{\link{weather}}
 #'
 #' @examples
 #' data(manta_rays)
@@ -147,7 +147,7 @@
 #' The records span multiple orchid genera and include a range of observation types.
 #'
 #' @source Atlas of Living Australia via \pkg{galah}
-#' @seealso \code{\link{glowworms}}, \code{\link{gouldian_finch}}, \code{\link{weather_data}}
+#' @seealso \code{\link{glowworms}}, \code{\link{gouldian_finch}}, \code{\link{weather}}
 #'
 #' @examples
 #' data(orchids)
@@ -173,14 +173,14 @@
 #' and selecting the top 3 stations per organism. These top stations are used for downloading daily
 #' weather data via the \pkg{GSODR} package.
 #'
-#' @seealso \code{\link{weather_data}}, \code{\link{weather_stations}}
+#' @seealso \code{\link{weather}}, \code{\link{weather_stations}}
 #'
 #' @examples
 #' data(top_stations)
 #' head(top_stations)
 "top_stations"
 
-#### weather_data ---------------------------------------
+#### weather ---------------------------------------
 
 #' Daily Weather Data for Top Stations (2014–2024)
 #'
@@ -219,9 +219,9 @@
 #' @seealso \code{\link{top_stations}}, \code{\link{glowworms}}, \code{\link{gouldian_finch}}, \code{\link{weather_stations}}
 #'
 #' @examples
-#' data(weather_data)
-#' head(weather_data)
-"weather_data"
+#' data(weather)
+#' head(weather)
+"weather"
 
 
 
@@ -250,7 +250,7 @@
 #' used to match ecological observations with relevant local weather conditions.
 #'
 #' @source GSOD inventory via \pkg{GSODR}; geocoded with OpenStreetMap
-#' @seealso \code{\link{weather_data}}, \code{\link{top_stations}}, \code{\link{gouldian_finch}}
+#' @seealso \code{\link{weather}}, \code{\link{top_stations}}, \code{\link{gouldian_finch}}
 #'
 #' @examples
 #' data(weather_stations)
@@ -308,15 +308,16 @@
 #' in Australia, broken down by trip purpose and tourism region.
 #'
 #' @format A data frame with `r nrow(tourism_quarterly)` rows and 4 variables:
-#' * **quarter**: Quarter label in the format `"Month YYYY nn"`, where
-#'   `nn` is the month number for the start of the quarter (e.g.,
-#'   `"December 1998 01"`).
+#' * **year**: The year of the tourism data
+#' * **quarter**: Quarter number like 1, 2, 3, 4
 #' * **purpose**: Purpose of visit category:
 #'   - `"Holiday"`
 #'   - `"Business"`
 #' * **trips**: Number of overnight trips (in thousands).
 #' * **region_id**: Unique integer identifier linking to the
 #'   \code{\link{tourism_region}} dataset.
+#'   * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station
+#'   to the tourism region.
 #'
 #' @details
 #' Tourism regions are formed through the aggregation of Statistical

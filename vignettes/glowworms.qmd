@@ -35,13 +35,17 @@ if (nzchar(libdir)) {
 suppressPackageStartupMessages(library(ecotourism))
 ```
 
-![Glowworm(Arachnocampa)](image/glowworm.jpg){fig-align="center" width="300"}
+::: {style="text-align:center"}
+![](image/glowworm.jpg){width="300"}
 
-<span style="font-size: 50%; align: center;"> Photo by Alan Rockefeller. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). </span>
+[Photo by Alan Rockefeller. Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).]{style="font-size: 50%; align: center; margin-top:0.02em;"}
+:::
 
 ## Introduction
 
-This vignette demonstrates how to reproduce and analyze occurrence data for **Glowworms** in Australia, using data from the [Atlas of Living Australia (ALA)](https://www.ala.org.au/). You'll learn how to download, clean, enrich, and visualize data with practical, reproducible R functions.
+This vignette demonstrates how to **analyze occurrence data for Glowworms in Australia**, using records from the [Atlas of Living Australia (ALA)](https://www.ala.org.au/).
+
+The dataset has been prepared for you to explore, making it suitable for both study and practice with real-world ecological data. In this vignette we provide short examples of how to manipulate and visualize the dataset, but you are encouraged to develop your own creative approaches for analysis and visualization.
 
 ------------------------------------------------------------------------
 
@@ -90,13 +94,14 @@ glowworms |>
 
 Monthly Distribution of Glowworms Sightings
 
-```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
+```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE, message=FALSE, warning=FALSE}
 library(lubridate)
 glowworms |>
     dplyr::mutate(month = month(month, label = TRUE, abbr = TRUE)) |>
     ggplot(aes(x = factor(month))) +
     geom_bar() +
-    labs(x = "Month", y = "Number of Records") 
+    labs(x = "Month", y = "Number of Records") +
+    theme_minimal()
 ```
 
 Yearly Distribution of Glowworms Sightings
@@ -105,49 +110,43 @@ Yearly Distribution of Glowworms Sightings
 glowworms |>
     ggplot(aes(x = factor(year))) +
     geom_bar() +
-    labs(x = "Year", y = "Number of Records")
+    labs(x = "Year", y = "Number of Records")+
+    theme_minimal()
 ```
 
 ------------------------------------------------------------------------
 
-We want to see if `glowworms` occurrences are related to precipitation on the same day from the weather dataset.
+## Relational visualization 
+
+We want to see if `glowworms` occurrences are related to tourism quarter trips on the same day from the weather dataset.
 
 Here’s a short R script that:
 
-1.  Joins `glowworms` with **weather_data** using `ws_id` and `date`.
+1.  Joins `glowworms` with **weather** using `ws_id` and `date`.
 
 2.  Counts daily occurrences.
 
-3.  Plots precipitation vs number of `glowworms` sightings.
+3.  Plots quarter number of `glowworms` sightings.
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
-library(ggbeeswarm)
-# Prepare glowworms occurrence counts per day
+
+# Prepare glowworms occurrence counts per quarter
 glowworms_quarterly <- glowworms |>
   mutate(quarter = quarter(date)) |>
   group_by(year, quarter, ws_id) |>
   summarise(occurrence = n(), .groups = "drop")
 
-data("tourism_quarterly")
-tourism_region_sub <- tourism_region |> 
-  filter(ws_id %in% glowworms$ws_id)
-  
+# tourism quarterly spot data set near glowworms occurrence
 tourism_sub <- tourism_quarterly |>
-  filter(region_id %in% tourism_region_sub$region_id) |>
-  mutate(year = year(quarter),
-         quarter = quarter(quarter)) |>
-  select(year, quarter, purpose, trips, region_id) 
+   filter(ws_id %in% glowworms$ws_id)
 
-glowworms_regions <- glowworms_quarterly |>
-  left_join(tourism_region_sub, by="ws_id")
-
-glowworms_tourism <- glowworms_regions |>
-  left_join(tourism_sub, by=c("region_id", "year", "quarter"))
+glowworms_tourism <- glowworms_quarterly |>
+  left_join(tourism_sub, by=c("ws_id", "year", "quarter"))
 
 # Simple scatter plot: precipitation vs glowworms occurrence
 ggplot(glowworms_tourism, aes(x = quarter, y = occurrence)) +
   geom_jitter(width=0.1) +
-  stat_summary(colour="red", geom = "point", size=5) +
+  stat_summary(colour="red", geom = "point", size=3) +
   labs(
     title = "Relationship between tourism and glowworms occurrence",
     x = "Quarter",
@@ -155,3 +154,7 @@ ggplot(glowworms_tourism, aes(x = quarter, y = occurrence)) +
   ) +
   theme_minimal()
 ```
+
+
+
+

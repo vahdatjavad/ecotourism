@@ -44,6 +44,6 @@ data(manta_rays)
 head(manta_rays)
 }
 \seealso{
-\code{\link{gouldian_finch}}, \code{\link{weather_data}}
+\code{\link{gouldian_finch}}, \code{\link{weather}}
 }
 \keyword{datasets}

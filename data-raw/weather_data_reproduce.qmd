@@ -1,5 +1,5 @@
 ---
-title: "weather_data_reproduce"
+title: "weather_reproduce"
 format: html
 ---
 
@@ -18,11 +18,11 @@ for (org in organism_names) {
   load(paste0("../data/", org, ".rda"))
   org_data <- get(org)
 
-  top_stations <- org_data %>%
-    count(ws_id, sort = TRUE) %>%
-    slice_max(n, n = 3) %>%
-    left_join(weather_stations, by = c("ws_id")) %>%
-    mutate(organism = org) %>%
+  top_stations <- org_data |>
+    count(ws_id, sort = TRUE) |>
+    slice_max(n, n = 3) |>
+    left_join(weather_stations, by = c("ws_id")) |>
+    mutate(organism = org) |>
     select(organism, ws_id)
 
   all_top_stations[[org]] <- top_stations
@@ -36,11 +36,11 @@ save(top_stations, file = "../data/top_stations.rda")
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 # Download and prepare data (optional)
-weather_data_list <- lapply(top_stations$ws_id, function(stn) {
+weather_list <- lapply(top_stations$ws_id, function(stn) {
   GSODR::get_GSOD(years = 2014, station = stn)
 })
 
-top_weather <- bind_rows(weather_data_list) |> 
+top_weather <- bind_rows(weather_list) |> 
   transmute(
     ws_id = STNID,
     stn_lat = LATITUDE,
@@ -64,8 +64,8 @@ top_weather <- bind_rows(weather_data_list) |>
   )
 
 # Save to data folder
-assign("weather_data", top_weather)
-save(weather_data, file = "../data/weather_data.rda")
+assign("weather", top_weather)
+save(weather, file = "../data/weather.rda")
 ```
 
 ## Conclusion
@@ -105,7 +105,7 @@ nearby <- meteo_nearby_stations(
   lat_lon_df   = data.frame(id = "site1", latitude = -34.633	, longitude = 117.633), limit = 1
 )
 
-weather_data_1111 <- meteo_pull_monitors(nearby[[1]]$id,
+weather_1111 <- meteo_pull_monitors(nearby[[1]]$id,
                                     date_min = "2014-01-01",
                                     date_max = "2024-12-31")
 
@@ -129,13 +129,13 @@ fetch_weather_for_top_stations <- function(top_stations,
                                            quietly = TRUE) {
   
   # 1) Join to get coordinates for each ws_id
-  stations_df <- top_stations %>%
-    left_join(weather_stations, by = "ws_id") %>%
-    distinct(ws_id, stn_lat, stn_lon) %>%
+  stations_df <- top_stations |>
+    left_join(weather_stations, by = "ws_id") |>
+    distinct(ws_id, stn_lat, stn_lon) |>
     mutate(
       stn_lat = suppressWarnings(as.numeric(stn_lat)),
       stn_lon = suppressWarnings(as.numeric(stn_lon))
-    ) %>%
+    ) |>
     filter(is.finite(stn_lat), is.finite(stn_lon))
 
   if (nrow(stations_df) == 0L) {
@@ -147,7 +147,7 @@ fetch_weather_for_top_stations <- function(top_stations,
   ghcnd_meta <- rnoaa::ghcnd_stations()
 
   # 3) Build the lat/lon data frame expected by meteo_nearby_stations()
-  lat_lon_df <- stations_df %>%
+  lat_lon_df <- stations_df |>
     transmute(id = ws_id, latitude = stn_lat, longitude = stn_lon)
 
   # 4) Find nearest GHCN stations for each of your ws_id points
@@ -161,8 +161,8 @@ fetch_weather_for_top_stations <- function(top_stations,
   map_tbl <- imap_dfr(near_list, ~ {
     cand <- .x
     if (nrow(cand) == 0) return(tibble(ws_id = .y, ghcnd_id = NA_character_))
-    cand %>% slice(1) %>% transmute(ws_id = .y, ghcnd_id = id)
-  }) %>% filter(!is.na(ghcnd_id))
+    cand |> slice(1) |> transmute(ws_id = .y, ghcnd_id = id)
+  }) |> filter(!is.na(ghcnd_id))
 
   if (nrow(map_tbl) == 0L) {
     stop("meteo_nearby_stations() did not return any candidate GHCN stations.")
@@ -178,8 +178,8 @@ fetch_weather_for_top_stations <- function(top_stations,
       )
       if (!nrow(df)) return(tibble())
       # meteo_pull_monitors returns column 'id' as the GHCN id; keep it if you want, but add your ws_id
-      df %>%
-        mutate(ghcnd_id = id, ws_id = ws, .before = 1) %>%
+      df |>
+        mutate(ghcnd_id = id, ws_id = ws, .before = 1) |>
         select(-id)  # drop NOAA id if you want only ws_id
     }, error = function(e) {
       if (!quietly) message("Failed for ", ws, " (", ghc, "): ", conditionMessage(e))
@@ -196,7 +196,7 @@ fetch_weather_for_top_stations <- function(top_stations,
 
   # Optional: convert common GHCN units (uncomment if desired)
   # GHCN vars often in tenths:
-  # weather_all <- weather_all %>%
+  # weather_all <- weather_all |>
   #   mutate(
   #     tmax_c = dplyr::if_else(!is.na(tmax), tmax/10, NA_real_),
   #     tmin_c = dplyr::if_else(!is.na(tmin), tmin/10, NA_real_),
@@ -245,48 +245,48 @@ weather_all_polished <- weather_all_polished |>
 
 ```
 
-Now I have two data set for weather stations `weather_all_polished` from new method and also `weather_data` from GSOD package data set, so here I am doing some matching and selecting to best and less missing data.
+Now I have two data set for weather stations `weather_all_polished` from new method and also `weather` from GSOD package data set, so here I am doing some matching and selecting to best and less missing data.
 
 ```{r}
 library(dplyr)
 
 # Step 1. Combine both datasets with a source flag
 wx_all <- bind_rows(
-  weather_all_polished %>% mutate(source = "polished"),
-  weather_data %>% mutate(source = "raw")
+  weather_all_polished |> mutate(source = "polished"),
+  weather |> mutate(source = "raw")
 )
 
 # Step 2. Filter to only top stations
-wx_all <- wx_all %>%
+wx_all <- wx_all |>
   filter(ws_id %in% top_stations$ws_id)
 
 # Step 3. Count NAs per station+source
-na_summary <- wx_all %>%
-  group_by(ws_id, source) %>%
+na_summary <- wx_all |>
+  group_by(ws_id, source) |>
   summarise(
     total_rows = n(),
     na_count   = sum(is.na(temp) | is.na(min) | is.na(max) |
                      is.na(prcp) | is.na(rh) | is.na(wind_speed)),
     .groups = "drop"
-  ) %>%
+  ) |>
   mutate(na_rate = na_count / total_rows)
 
 # Step 4. Pick the best source (lowest NA rate) for each station
-best_sources <- na_summary %>%
-  group_by(ws_id) %>%
-  slice_min(order_by = na_rate, n = 1, with_ties = FALSE) %>%
+best_sources <- na_summary |>
+  group_by(ws_id) |>
+  slice_min(order_by = na_rate, n = 1, with_ties = FALSE) |>
   ungroup()
 
 # Step 5. Build the final clean dataset
-weather_clean <- wx_all %>%
-  inner_join(best_sources %>% select(ws_id, source), by = c("ws_id", "source")) %>%
+weather_clean <- wx_all |>
+  inner_join(best_sources |> select(ws_id, source), by = c("ws_id", "source")) |>
   select(-source)
 
 ```
 
 ```{r}
-weather_clean_unique <- weather_clean %>%
-  group_by(ws_id, date) %>%
+weather_clean_unique <- weather_clean |>
+  group_by(ws_id, date) |>
   summarise(across(
     c(temp, min, max, dewp, rh, prcp, rainy, wind_speed, max_speed),
     ~ mean(.x, na.rm = TRUE)
@@ -311,50 +311,50 @@ stopifnot(length(ws12) == 12)
 
 top_stations <- left_join(top_stations, weather_stations, by = join_by(ws_id))
 # keep station coordinates to reattach later (prefer non-missing)
-stn_ref <- top_stations %>%
+stn_ref <- top_stations |>
   distinct(ws_id, stn_lat, stn_lon)
 
 # ---- 1) stack both sources with a label -----------------------------------
 wx_all <- bind_rows(
-  weather_all_polished %>% mutate(source = "polished"),
-  weather_data          %>% mutate(source = "raw")
-) %>%
+  weather_all_polished |> mutate(source = "polished"),
+  weather          |> mutate(source = "raw")
+) |>
   # restrict to the 12 stations of interest
   filter(ws_id %in% ws12)
 
 # ---- 2) NA-rate per station & source --------------------------------------
-na_summary <- wx_all %>%
-  group_by(ws_id, source) %>%
+na_summary <- wx_all |>
+  group_by(ws_id, source) |>
   summarise(
     total_rows = n(),
-    na_count   = rowSums(is.na(across(all_of(vars_numeric)))) %>% sum(),
+    na_count   = rowSums(is.na(across(all_of(vars_numeric)))) |> sum(),
     .groups = "drop"
-  ) %>%
+  ) |>
   mutate(na_rate = na_count / pmax(total_rows, 1))
 
 # ---- 3) choose best source per station (fewest NAs) -----------------------
-best_sources <- na_summary %>%
-  group_by(ws_id) %>%
-  slice_min(order_by = na_rate, n = 1, with_ties = TRUE) %>%  # if tie, keeps both; we’ll handle below
+best_sources <- na_summary |>
+  group_by(ws_id) |>
+  slice_min(order_by = na_rate, n = 1, with_ties = TRUE) |>  # if tie, keeps both; we’ll handle below
   ungroup()
 
 # If there’s a tie, prefer 'polished' over 'raw'
-best_sources <- best_sources %>%
-  group_by(ws_id) %>%
-  arrange(match(source, c("polished","raw")), na_rate) %>%
-  slice(1) %>%
-  ungroup() %>%
+best_sources <- best_sources |>
+  group_by(ws_id) |>
+  arrange(match(source, c("polished","raw")), na_rate) |>
+  slice(1) |>
+  ungroup() |>
   select(ws_id, source)
 
 # ---- 4) build the clean base using the chosen source ----------------------
-weather_clean <- wx_all %>%
-  inner_join(best_sources, by = c("ws_id","source")) %>%
+weather_clean <- wx_all |>
+  inner_join(best_sources, by = c("ws_id","source")) |>
   select(-source)
 
 # ---- 5) deduplicate to one row per station-date ---------------------------
 # If duplicates exist, we average numeric weather vars and keep the first non-missing lat/lon
-weather_clean <- weather_clean %>%
-  group_by(ws_id, date) %>%
+weather_clean <- weather_clean |>
+  group_by(ws_id, date) |>
   summarise(
     across(all_of(vars_numeric), ~ mean(.x, na.rm = TRUE)),
     stn_lat = suppressWarnings(first(na.omit(stn_lat))),
@@ -368,26 +368,26 @@ weather_clean <- weather_clean %>%
   )
 
 # Reattach canonical coords from top_stations if missing
-weather_clean <- weather_clean %>%
-  select(ws_id, date, all_of(vars_numeric), stn_lat, stn_lon, year, month, day, weekday, dayofyear) %>%
-  left_join(stn_ref, by = "ws_id", suffix = c("", "_ref")) %>%
+weather_clean <- weather_clean |>
+  select(ws_id, date, all_of(vars_numeric), stn_lat, stn_lon, year, month, day, weekday, dayofyear) |>
+  left_join(stn_ref, by = "ws_id", suffix = c("", "_ref")) |>
   mutate(
     stn_lat = coalesce(stn_lat, stn_lat_ref),
     stn_lon = coalesce(stn_lon, stn_lon_ref)
-  ) %>%
+  ) |>
   select(-stn_lat_ref, -stn_lon_ref)
 
 # ---- 6) expand to full daily range for each station -----------------------
 full_dates <- tibble(date = seq(date_min, date_max, by = "day"))
-weather_12 <- weather_clean %>%
-  group_by(ws_id) %>%
-  right_join(full_dates, by = "date") %>%   # keep all dates per station
-  arrange(ws_id, date) %>%
-  fill(stn_lat, stn_lon, .direction = "downup") %>%  # keep station coords filled
+weather_12 <- weather_clean |>
+  group_by(ws_id) |>
+  right_join(full_dates, by = "date") |>   # keep all dates per station
+  arrange(ws_id, date) |>
+  fill(stn_lat, stn_lon, .direction = "downup") |>  # keep station coords filled
   ungroup()
 
 # Recompute helpers if they were NA on inserted dates
-# weather_12 <- weather_12 %>%
+# weather_12 <- weather_12 |>
 #   mutate(
 #     year      = if_else(is.na(year),  year(date),  year),
 #     month     = if_else(is.na(month), month(date), month),
@@ -397,14 +397,14 @@ weather_12 <- weather_clean %>%
 #   )
 
 # ---- 7) quick coverage summary per station --------------------------------
-coverage_summary <- weather_12 %>%
-  group_by(ws_id) %>%
+coverage_summary <- weather_12 |>
+  group_by(ws_id) |>
   summarise(
     n_days      = n(),
     n_complete  = sum(complete.cases(across(all_of(vars_numeric)))),
     pct_complete = round(100 * n_complete / n_days, 1),
     .groups = "drop"
-  ) %>%
+  ) |>
   arrange(desc(pct_complete))
 
 # outputs:
@@ -416,7 +416,7 @@ coverage_summary <- weather_12 %>%
 ```{r}
 library(ecotourism)
 ws12 <- unique(top_stations$ws_id)
-have  <- unique(weather_data$ws_id)        # or weather_clean$ws_id if earlier stage
+have  <- unique(weather$ws_id)        # or weather_clean$ws_id if earlier stage
 missing_ws <- setdiff(ws12, have)
 missing_ws
 

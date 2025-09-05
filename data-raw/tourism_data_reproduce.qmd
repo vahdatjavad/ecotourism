@@ -153,3 +153,23 @@ nearest_station_ids <- sapply(1:nrow(spots), function(i) {
 tourism_region <- spots
 usethis::use_data(tourism_region, overwrite = T)
 ```
+
+changing data type to have separate column for year and quarter:
+
+```{r}
+library(ecotourism)
+
+tourism_region_unique <- tourism_region %>%
+  distinct(region_id, .keep_all = TRUE)
+
+ left_join(tourism_quarterly, tourism_region_unique, by = "region_id") |> 
+  mutate(year = lubridate::year(quarter), 
+         quarter = lubridate::quarter(quarter)) |> 
+  select(year, quarter, purpose, trips, region_id, ws_id) -> tourism_quarterly
+
+ tourism_region_unique -> tourism_region
+ 
+ usethis::use_data(tourism_region, overwrite = T)
+ usethis::use_data(tourism_quarterly, overwrite = T)
+
+```

@@ -43,6 +43,6 @@ data(gouldian_finch)
 head(gouldian_finch)
 }
 \seealso{
-\code{\link{glowworms}}, \code{\link{weather_data}}
+\code{\link{glowworms}}, \code{\link{weather}}
 }
 \keyword{datasets}

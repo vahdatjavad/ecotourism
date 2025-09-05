@@ -21,6 +21,8 @@ LazyDataCompression: xz
 Suggests: 
     dplyr,
     ggplot2,
+    ggthemes,
+    ggbeeswarm,
     sf,
     knitr,
     lubridate,

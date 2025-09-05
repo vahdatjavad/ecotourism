@@ -35,14 +35,13 @@ suppressPackageStartupMessages(library(ecotourism))
 
 ## Introduction
 
-This vignette explains how to retrieve and organize **weather data** for ecotourism analysis in Australia.\
-We identify the top 3 weather stations associated with each focal organism and optionally download 10 years of daily weather data (2014–2024) for each.
+This vignette demonstrates the use of two datasets: `top_stations` and `weather`. After selecting an organism of interest, we linked each occurrence to its nearest weather station. We then counted the matches, identified the top three weather stations most closely associated with the organism’s occurrences, and downloaded the corresponding weather data for further analysis.
 
 ------------------------------------------------------------------------
 
-This is the glimpse of your data :
+This is the glimpse of your `top_stations` data :
 
-```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(ecotourism)
 
@@ -50,29 +49,27 @@ data("top_stations")
 top_stations |> glimpse()
 ```
 
-```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-data("weather_stations")
-weather_stations |> glimpse()
+and this is `weather` data related to those top stations:
+
+```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+
+data("weather")
+weather |> glimpse()
 ```
 
 ------------------------------------------------------------------------
 
-## Map of Top Weather Stations
+Map of Top Weather Stations
 
-```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(ggthemes)
 
 top_stations |> left_join(weather_stations) |> 
 ggplot() +
   geom_sf(data = oz_lga) +
-  geom_point(aes(x = stn_lon, y = stn_lat, color = organism), shape = 17, size = 3)
-  theme_minimal()
+  geom_point(aes(x = stn_lon, y = stn_lat, color = organism), shape = 17, size = 3) +
+  theme_map()
 ```
 
 ------------------------------------------------------------------------
-
-## Final Weather Data-set
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE}
-data("weather_data")
-weather_data |> glimpse()
-```

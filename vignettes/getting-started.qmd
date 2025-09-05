@@ -1,5 +1,5 @@
 ---
-title: "Getting Started with the Ecotourism Package"
+title: "Getting Started with the ecotourism Package"
 format:
   html:
     toc: true
@@ -16,7 +16,7 @@ editor: visual
 
 ---
 vignette: >
-  %\VignetteIndexEntry{Getting Started with the Ecotourism Package}
+  %\VignetteIndexEntry{Getting Started with the ecotourism Package}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 ---
@@ -84,7 +84,7 @@ Combine ecological observations with environmental data:
 
 ------------------------------------------------------------------------
 
-![](images/datasets.png){width="500"}
+<img src="image/datasets.png" alt="Ecotourism dataset schema" width="500"/>
 
 ## 🚀 Get Started
 

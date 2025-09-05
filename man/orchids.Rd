@@ -44,6 +44,6 @@ data(orchids)
 head(orchids)
 }
 \seealso{
-\code{\link{glowworms}}, \code{\link{gouldian_finch}}, \code{\link{weather_data}}
+\code{\link{glowworms}}, \code{\link{gouldian_finch}}, \code{\link{weather}}
 }
 \keyword{datasets}

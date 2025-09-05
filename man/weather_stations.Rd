@@ -36,6 +36,6 @@ data(weather_stations)
 head(weather_stations)
 }
 \seealso{
-\code{\link{weather_data}}, \code{\link{top_stations}}, \code{\link{gouldian_finch}}
+\code{\link{weather}}, \code{\link{top_stations}}, \code{\link{gouldian_finch}}
 }
 \keyword{datasets}

@@ -35,7 +35,7 @@ suppressPackageStartupMessages(library(ecotourism))
 
 ## Introduction
 
-This vignette demonstrates how to download, process, and visualize the locations of weather stations across **Australia** using the `GSODR` package. These stations are key to understanding long-term climate patterns in ecotourism studies.
+This vignette introduces the `weather_stations` dataset, obtained from the GSODR package. These stations provide essential information for understanding long-term climate patterns, making them a valuable resource for ecotourism studies.
 
 ------------------------------------------------------------------------
 
@@ -56,11 +56,14 @@ weather_stations |> glimpse()
 ## Visualization: Map of Weather Stations
 
 ```{r echo=TRUE, eval=FALSE, fig.width=6, fig.height=4}
+library(ggplot2)
+library(ggthemes)
 
 ggplot() +
   geom_sf(data = oz_lga) +
   geom_point(data = weather_stations, 
              aes(x = stn_lon, y = stn_lat, colour = stn_state),
              alpha = 0.6, size = 1) +
-  theme_minimal()
+  theme_map() +
+  theme(legend.position = "none")
 ```
