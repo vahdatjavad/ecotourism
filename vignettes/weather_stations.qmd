@@ -12,9 +12,6 @@ format:
     theme: flatly
     page-layout: full
 editor: visual
----
-
----
 vignette: >
   %\VignetteIndexEntry{Australia Weather Station}
   %\VignetteEngine{quarto::html}

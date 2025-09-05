@@ -12,7 +12,6 @@ format:
     theme: flatly
     page-layout: full
 editor: visual
-
 vignette: >
   %\VignetteIndexEntry{Orchids}
   %\VignetteEngine{quarto::html}
@@ -116,7 +115,7 @@ orchids |>
 
 ------------------------------------------------------------------------
 
-## Relational visualization 
+## Relational visualization
 
 We want to see if `orchids` occurrences are related to precipitation on the same day from the weather dataset.
 
@@ -176,4 +175,3 @@ ggplot(orchids_weather, aes(temp, occurrence, color = prcp)) +
   theme_minimal()
 
 ```
-

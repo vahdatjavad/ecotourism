@@ -14,9 +14,6 @@ format:
     theme: flatly
     page-layout: full
 editor: visual
----
-
----
 vignette: >
   %\VignetteIndexEntry{Glowworms}
   %\VignetteEngine{quarto::html}
@@ -116,7 +113,7 @@ glowworms |>
 
 ------------------------------------------------------------------------
 
-## Relational visualization 
+## Relational visualization
 
 We want to see if `glowworms` occurrences are related to tourism quarter trips on the same day from the weather dataset.
 
@@ -154,7 +151,3 @@ ggplot(glowworms_tourism, aes(x = quarter, y = occurrence)) +
   ) +
   theme_minimal()
 ```
-
-
-
-
