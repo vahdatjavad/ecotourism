@@ -1,7 +1,7 @@
 Package: ecotourism
 Type: Package
-Title: Collection of data on records of wild life sightings, tourism counts and weather from Australia
-Version: 0.0.0.9000
+Title: Collection of Data on Wildlife Sightings, Tourism Counts, and Weather from Australia
+Version: 0.1.0
 Authors@R:
     c(
     person("Dianne", "Cook", email="visnut@gmail.com", role = c("aut"),
