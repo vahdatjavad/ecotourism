@@ -7,7 +7,7 @@ format: html
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 # Download and filter weather stations for Australia
-stations_all <- get_inventory()
+stations_all <- GSODR::get_inventory()
 
 weather_stations <- stations_all |>
   filter(CTRY == "AS") |>

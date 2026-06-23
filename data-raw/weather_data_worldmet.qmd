@@ -1,0 +1,144 @@
+
+Because the previous code for fetching weather data from the World Meteorological Organization GSODR was not working, I switched to using the `worldmet` package which provides a more direct interface to the NOAA ISD data. The code below demonstrates how to fetch and process weather data for the top stations identified in the previous steps.
+
+```{r}
+# install.packages("worldmet")
+library(worldmet)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+# import the station data
+# stations_worldmet <- import_isd_stations()
+# head(stations_worldmet)
+```
+
+```{r}
+top_obj <- load("data/top_stations.rda")
+ws_obj  <- load("data/weather_stations.rda")
+
+top_stations <- get(top_obj[1])
+weather_stations <- get(ws_obj[1])
+```
+
+
+```{r}
+stations <- top_stations %>%
+  distinct(ws_id) %>%
+  left_join(
+    weather_stations %>% select(ws_id, stn_lat, stn_lon),
+    by = "ws_id"
+  ) %>%
+  mutate(
+    stn_lat = as.numeric(stn_lat),
+    stn_lon = as.numeric(stn_lon)
+  ) %>%
+  filter(!is.na(stn_lat), !is.na(stn_lon))
+
+safe_mean <- function(x) if (all(is.na(x))) NA_real_ else mean(x, na.rm = TRUE)
+safe_min  <- function(x) if (all(is.na(x))) NA_real_ else min(x, na.rm = TRUE)
+safe_max  <- function(x) if (all(is.na(x))) NA_real_ else max(x, na.rm = TRUE)
+safe_sum  <- function(x) if (all(is.na(x))) NA_real_ else sum(x, na.rm = TRUE)
+
+fetch_weather_one <- function(ws_id, stn_lat, stn_lon, years = 2014:2024) {
+  purrr::map_dfr(years, function(yr) {
+    raw <- tryCatch(
+      worldmet::importNOAA(code = ws_id, year = yr, quiet = TRUE),
+      error = function(e) NULL
+    )
+
+    if (is.null(raw) || !nrow(raw)) return(tibble())
+
+    raw <- raw %>%
+      as_tibble()
+
+    if (!"precip" %in% names(raw)) {
+      raw$precip <- NA_real_
+    }
+
+    if ("precip_6" %in% names(raw)) {
+      raw$precip <- dplyr::coalesce(raw$precip, raw$precip_6)
+    }
+
+    if ("precip_12" %in% names(raw)) {
+      raw$precip <- dplyr::coalesce(raw$precip, raw$precip_12)
+    }
+
+    raw %>%
+      mutate(
+        ws_id = ws_id,
+        stn_lat = stn_lat,
+        stn_lon = stn_lon,
+        date = as.Date(date),
+        year = lubridate::year(date),
+        month = lubridate::month(date),
+        day = lubridate::day(date),
+        weekday = lubridate::wday(date, label = TRUE, abbr = FALSE, week_start = 1),
+        dayofyear = lubridate::yday(date)
+      ) %>%
+      group_by(ws_id, stn_lat, stn_lon, date, year, month, day, weekday, dayofyear) %>%
+      summarise(
+        temp = safe_mean(air_temp),
+        min = safe_min(air_temp),
+        max = safe_max(air_temp),
+        dewp = safe_mean(dew_point),
+        rh = safe_mean(RH),
+        prcp = safe_sum(precip),
+        rainy = as.integer(!is.na(prcp) & prcp > 5),
+        wind_speed = safe_mean(ws),
+        max_speed = safe_max(ws),
+        .groups = "drop"
+      ) %>%
+      select(
+        ws_id, stn_lat, stn_lon, date, year, month, day, weekday, dayofyear,
+        temp, min, max, dewp, rh, prcp, rainy, wind_speed, max_speed
+      )
+  })
+}
+
+weather_new <- stations %>%
+  select(ws_id, stn_lat, stn_lon) %>%
+  purrr::pmap_dfr(fetch_weather_one) %>%
+  arrange(ws_id, date)
+
+weather_new |> str()
+```
+
+
+```{r}
+saveRDS(weather_new, "data-raw/weather_data_worldmet.rda")
+```
+
+
+```{r}
+# compare number of NA in air temperature between the new and old datasets between each station. I need a dataset that show me in row statrions and column the number of NA in air temperature for each station in the old and new datasets. I can then compare the two datasets to see if there are any differences in the number of NA values for each station. also give me number of rows in each dataset for each station.
+weather_old_V1 <- readRDS("data-raw/weather_data_V1_old.rda")
+weather_new <- readRDS("data-raw/weather_data_worldmet.rda")
+
+weather_old_summary <- weather_old_V1 %>%
+  group_by(ws_id) %>%
+  summarise(
+    old_na_count = sum(is.na(temp)),
+    old_row_count = n(),
+    .groups = "drop"
+  )
+weather_new_summary <- weather_new %>%
+  group_by(ws_id) %>%
+  summarise(
+    new_na_count = sum(is.na(temp)),
+    new_row_count = n(),
+    .groups = "drop"
+  )
+comparison <- weather_old_summary %>%
+  full_join(weather_new_summary, by = "ws_id") %>%
+  replace_na(list(old_na_count = 0, old_row_count = 0, new_na_count = 0, new_row_count = 0))
+print(comparison)
+```
+
+
+```{r}
+# save the new dataset to data folder for package update
+weather <- weather_new
+save(weather, file = "data/weather.rda")
+```

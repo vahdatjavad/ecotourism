@@ -8,8 +8,8 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^run-javad.R
 ^.Rhistory
 ^vignettes/.quarto
 ^\.github$
 ^README\.html$
+^Javad-Notes.R
