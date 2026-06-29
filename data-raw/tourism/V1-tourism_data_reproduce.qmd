@@ -171,5 +171,4 @@ tourism_region_unique <- tourism_region %>%
  
  usethis::use_data(tourism_region, overwrite = T)
  usethis::use_data(tourism_quarterly, overwrite = T)
-
 ```
