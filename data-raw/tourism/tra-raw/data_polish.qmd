@@ -244,3 +244,20 @@ tourism_reason %>%
   group_by(year, stop_reason, name) %>%
   summarise(trips = sum(trips, na.rm = TRUE)*1000, n_sample = sum(n_sample, na.rm = TRUE), .groups = "drop")
 ```
+
+
+```{r}
+tourism_reason <- read.csv("data-raw/tourism/tra-raw/tourism_reason.csv")
+tourism_region <- readRDS("data-raw/tourism/tourism_region.rds")
+
+# convert sa2_code_tra to integer in tourism_region
+tourism_region <- tourism_region %>%
+  mutate(sa2_code_tra = as.integer(sa2_code_tra))
+
+# find total of trips for each region
+tourism_region %>%
+  left_join(tourism_reason, by = "sa2_code_tra") %>%
+  group_by(state, region, ws_id, sa2_code_tra) %>%
+  summarise(trips = sum(trips, na.rm = TRUE)*1000, 
+  n_sample = sum(n_sample, na.rm = TRUE), .groups = "drop")
+```

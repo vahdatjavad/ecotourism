@@ -278,6 +278,8 @@
 #'   for joining with other tourism-related datasets.
 #' * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station
 #'   to the tourism region.
+#' * **sa2_code_tra**: SA2 code used by Tourism Research Australia to define the
+#'   boundaries of the tourism region.
 #'
 #' @details
 #' Coordinates for each tourism region are intended to represent a
