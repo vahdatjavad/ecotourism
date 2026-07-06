@@ -125,9 +125,7 @@ tourism_region2 <- tourism_region %>% mutate(region_id = region_id,
 ```{r}
 left_join(tourism_region2, stopover_state_region_sa2, by = c("sa2_norm" = "sa2_norm")) %>%
   select(state, region, sa2, lon, lat, ws_id, code3) %>%
-  rename(sa2_code_trv = code3) |> 
+  rename(sa2_code_tra = code3) |> 
   arrange(state, region, sa2) |> 
   saveRDS("data-raw/tourism/tourism_region.rds")
 ```
-
-
