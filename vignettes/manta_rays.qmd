@@ -50,6 +50,8 @@ This is the glimpse of your data :
 library(dplyr)
 library(ecotourism)
 data("manta_rays")
+data("oz_lga", package = "ecotourism")
+data("weather", package = "ecotourism")
 manta_rays |> glimpse()
 ```
 

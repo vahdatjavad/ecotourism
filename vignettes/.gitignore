@@ -2,3 +2,5 @@
 /.quarto/
 *.html
 *.R
+
+**/*.quarto_ipynb

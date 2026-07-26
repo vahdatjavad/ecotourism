@@ -52,6 +52,8 @@ This is the glimpse of your data :
 library(dplyr)
 library(ecotourism)
 data("glowworms")
+data("oz_lga", package = "ecotourism")
+data("tourism_quarterly", package = "ecotourism")
 glowworms |> glimpse()
 ```
 

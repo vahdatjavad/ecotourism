@@ -6,7 +6,6 @@ format:
     toc-depth: 2
     number-sections: true
     toc-location: left
-    fig-cap-location: top
     code-fold: false
     code-tools: true
     theme: flatly
@@ -19,93 +18,118 @@ vignette: >
 ---
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-# Ensure the temporary library from R CMD check is visible (esp. on Windows)
 libdir <- Sys.getenv("R_LIBS")
 if (nzchar(libdir)) {
   parts <- strsplit(libdir, .Platform$path.sep, fixed = TRUE)[[1]]
   .libPaths(unique(c(parts, .libPaths())))
 }
 
-# now load your package
 suppressPackageStartupMessages(library(ecotourism))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(sf))
 ```
 
-**What this vignette covers**\
-
-This vignette provides a quick tour of the `ecotourism` package’s tourism datasets. You’ll learn how to join quarterly counts with regional metadata, and optionally how to enrich the data by linking each region to its nearest weather station.
-
--   Because of its size, the tourism dataset was split into two separate datasets, with a shared key provided for joining them.
+The `ecotourism` package contains complementary tourism datasets at quarterly tourism-region and monthly SA2 resolutions. This vignette introduces the monthly stopover reason and activity datasets, their code-name lookup tables, and the geographic metadata used to map them.
 
 ## Data overview
 
-This is the glimpse of your data :
+`tourism_reason` contains monthly domestic overnight-trip estimates classified by the reason for the stopover.
 
-```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
-library(dplyr)
-library(ecotourism)
+```{r, message=FALSE}
+data("tourism_reason")
+glimpse(tourism_reason)
+```
 
+`tourism_activity` contains the corresponding estimates classified by activity.
+
+```{r, message=FALSE}
+data("tourism_activity")
+glimpse(tourism_activity)
+```
+
+Both datasets cover 2014--2024. Trip estimates are expressed in thousands, and `n_sample` gives the survey sample supporting each estimate. Rows with zero `trips` or zero `n_sample` have been removed.
+
+## Add descriptive category names
+
+The compact integer category fields can be decoded with `tourism_reason_name` and `tourism_activity_name`.
+
+```{r, message=FALSE}
+data("tourism_reason_name")
+data("tourism_activity_name")
+
+tourism_reason_name
+tourism_activity_name
+```
+
+Join the lookup table appropriate to the detailed dataset:
+
+```{r, message=FALSE}
+reason_named <- tourism_reason |>
+  left_join(tourism_reason_name, by = "stop_reason")
+
+activity_named <- tourism_activity |>
+  left_join(tourism_activity_name, by = "stop_activity")
+
+reason_named |>
+  count(year, name, wt = trips, name = "trips_thousands") |>
+  arrange(year, desc(trips_thousands)) |>
+  head()
+```
+
+## Add tourism-region metadata
+
+The detailed datasets share `sa2_code_tra` with `tourism_region`. The packaged region table stores this identifier as character, so harmonise the type before joining.
+
+```{r, message=FALSE}
 data("tourism_region")
-tourism_region |> glimpse()
+
+region_lookup <- tourism_region |>
+  mutate(sa2_code_tra = as.integer(sa2_code_tra)) |>
+  distinct(sa2_code_tra, state, region, sa2, lon, lat, ws_id)
+
+reason_with_region <- reason_named |>
+  left_join(region_lookup, by = "sa2_code_tra")
+
+reason_with_region |>
+  select(year, month, state, region, sa2, name, trips, n_sample) |>
+  head()
 ```
 
-```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE}
+The same `region_lookup` can be joined to `tourism_activity`. The `ws_id` column can subsequently be joined to `weather_stations` when weather context is needed.
+
+## SA2 polygons and representative points
+
+`oz_sa2` provides simplified 2021 SA2 polygons for every TRA code represented
+by the detailed tourism data. Its `lat` and `lon` columns provide one
+representative interior point per SA2 when point geometry is more convenient.
+
+```{r, message=FALSE}
+data("oz_sa2")
+glimpse(oz_sa2)
+```
+
+Join an SA2 summary directly to the polygon table for mapping:
+
+```{r, message=FALSE}
+reason_by_sa2 <- tourism_reason |>
+  summarise(
+    trips_thousands = sum(trips),
+    .by = sa2_code_tra
+  )
+
+reason_map <- oz_sa2 |>
+  left_join(reason_by_sa2, by = "sa2_code_tra")
+
+reason_map |>
+  select(sa2_code_tra, lat, lon, trips_thousands) |>
+  head()
+```
+
+## Quarterly tourism data
+
+`tourism_quarterly` provides the older quarterly series by purpose and source region identifier. Its `ws_id` can be joined to `weather_stations`.
+
+```{r, message=FALSE}
 data("tourism_quarterly")
-tourism_quarterly |> glimpse()
-```
-
-------------------------------------------------------------------------
-
-## Join regional metadata to quarterly counts
-
-We keep only rows with a valid region name after the join.
-
-```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-
-tourism <- tourism_quarterly |>
-  left_join(tourism_region, by = c("region_id", "ws_id")) |>
-  filter(!is.na(region))
-
-glimpse(tourism)
-```
-
-If you only need a subset of columns, select them first to keep memory small, for example: `select(region_id, quarter, visitors, lon, lat)`.
-
-## Optional: add nearest weather station metadata
-
-If your quarterly table contains a `ws_id`, you can join station attributes:
-
-```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
-
-  tourism <- tourism |>
-    dplyr::left_join(ecotourism::weather_stations, by = "ws_id")
-```
-
-## A quick map
-
-We’ll plot tourism site coordinates and, when available, their weather stations.
-
-```{r echo=TRUE, fig.width=6, fig.height=4, eval=FALSE}
-library(ggplot2)
-library(ggthemes)
-
-ggplot() +
-  geom_sf(data = oz_lga) +
-  geom_point(data = tourism, aes(x = lon, y = lat),
-               alpha = 0.8, size = 0.5) +
-  theme_map()
-```
-
-If station coordinates `stn_lon` and `stn_lat` are present, overlay them too:
-
-```{r echo=TRUE, fig.width=6, fig.height=4, eval=TRUE}
-library(ggplot2)
-library(ggthemes)
-
-ggplot() +
-    geom_sf(data = oz_lga) +
-    geom_point(data = tourism, aes(x = lon, y = lat),
-               alpha = 0.5, size = 0.4, color = "blue") +
-    geom_point(data = tourism, aes(x = stn_lon, y = stn_lat),
-               shape = 17, size = 0.5, alpha = 0.5, color = "red") +
-  theme_map()
+glimpse(tourism_quarterly)
 ```

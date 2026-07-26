@@ -268,28 +268,29 @@
 #' weather station. Each region is assigned a unique identifier for
 #' linking to other tourism datasets.
 #'
-#' @format A data frame with `r nrow(tourism_region)` rows and 5 variables:
+#' @format A tibble with 2,353 rows and 7 variables:
+#' * **state**: Australian state or territory abbreviation.
 #' * **region**: Name of the tourism region. Tourism regions are defined by
 #'   Tourism Research Australia and generally formed through the aggregation of
-#'   Statistical Local Areas (SLAs) or other ABS-defined geographies.
-#' * **lon**: Longitude of the tourism region representative point (WGS84).
-#' * **lat**: Latitude of the tourism region representative point (WGS84).
-#' * **region_id**: Unique integer identifier for the tourism region. Useful
-#'   for joining with other tourism-related datasets.
+#'   Statistical Area Level 2 (SA2) geographies.
+#' * **sa2**: Name of the SA2 area.
+#' * **lon**: Longitude of the SA2 representative point (WGS84).
+#' * **lat**: Latitude of the SA2 representative point (WGS84).
 #' * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station
-#'   to the tourism region.
-#' * **sa2_code_tra**: SA2 code used by Tourism Research Australia to define the
-#'   boundaries of the tourism region.
+#'   to the SA2 area.
+#' * **sa2_code_tra**: Character SA2 code used by Tourism Research Australia.
+#'   Join this field to the identically named field in the detailed tourism
+#'   datasets after harmonising its type.
 #'
 #' @details
-#' Coordinates for each tourism region are intended to represent a
-#' central location within the region (e.g., polygon centroid). The
+#' Coordinates for each SA2 are intended to represent a central location
+#' within the area (e.g., polygon centroid). The
 #' nearest weather station is determined using great-circle distance
 #' calculations based on the Bureau of Meteorology's official station list.
 #'
 #' @references
 #' Tourism Research Australia: \url{https://www.tra.gov.au}
-#' Australian Bureau of Meteorology: \url{http://www.bom.gov.au}
+#' Australian Bureau of Meteorology.
 #'
 #' @docType data
 #' @name tourism_region
@@ -309,24 +310,23 @@
 #' A dataset containing quarterly estimates of overnight tourism trips
 #' in Australia, broken down by trip purpose and tourism region.
 #'
-#' @format A data frame with `r nrow(tourism_quarterly)` rows and 4 variables:
+#' @format A tibble with 50,314 rows and 6 variables:
 #' * **year**: The year of the tourism data
 #' * **quarter**: Quarter number like 1, 2, 3, 4
 #' * **purpose**: Purpose of visit category:
 #'   - `"Holiday"`
 #'   - `"Business"`
 #' * **trips**: Number of overnight trips (in thousands).
-#' * **region_id**: Unique integer identifier linking to the
-#'   \code{\link{tourism_region}} dataset.
-#'   * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station
-#'   to the tourism region.
+#' * **region_id**: Integer identifier from the source quarterly geography.
+#' * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station.
 #'
 #' @details
 #' Tourism regions are formed through the aggregation of Statistical
 #' Local Areas (SLAs) or similar ABS-defined geographies, as determined
 #' by state and territory tourism authorities. This dataset is designed
-#' for analysis of seasonal tourism patterns and can be joined to
-#' \code{\link{tourism_region}} for spatial analysis.
+#' for analysis of seasonal tourism patterns. Its \code{ws_id} field can be
+#' joined to \code{\link{weather_stations}}. For current SA2-based analysis,
+#' use \code{\link{tourism_reason}} or \code{\link{tourism_activity}}.
 #'
 #' @references
 #' Tourism Research Australia: \url{https://www.tra.gov.au}
@@ -338,6 +338,132 @@
 #' data(tourism_quarterly)
 #' head(tourism_quarterly)
 "tourism_quarterly"
+
+
+
+#### tourism_reason ---------------------------------------
+
+#' Monthly Tourism Trips by Stopover Reason
+#'
+#' Estimated domestic overnight trips to Australian SA2 areas by month and
+#' stopover reason. The data contain only observations with non-zero trip
+#' estimates and non-zero survey sample sizes.
+#'
+#' @format A tibble with 196,044 rows and 6 variables:
+#' * **year**: Calendar year, from 2014 to 2024.
+#' * **month**: Ordered factor giving the month returned from the trip.
+#' * **sa2_code_tra**: Integer SA2 code used by Tourism Research Australia.
+#'   This can be joined to \code{\link{tourism_region}}.
+#' * **stop_reason**: Integer reason code that can be joined to
+#'   \code{\link{tourism_reason_name}}.
+#' * **trips**: Estimated number of overnight trips, in thousands.
+#' * **n_sample**: Number of survey responses supporting the estimate.
+#'
+#' @details
+#' Records for which either \code{trips} or \code{n_sample} equals zero are
+#' excluded. Estimates with small sample sizes should be interpreted with
+#' appropriate caution.
+#'
+#' @references
+#' Tourism Research Australia: \url{https://www.tra.gov.au}
+#'
+#' @seealso \code{\link{tourism_reason_name}},
+#'   \code{\link{tourism_activity}}, \code{\link{tourism_region}}
+#' @docType data
+#' @name tourism_reason
+#' @usage tourism_reason
+#' @examples
+#' data(tourism_reason)
+#' head(tourism_reason)
+"tourism_reason"
+
+
+
+#### tourism_reason_name ----------------------------------
+
+#' Tourism Stopover Reason Names
+#'
+#' A lookup table matching the stopover reason codes in
+#' \code{\link{tourism_reason}} to descriptive names.
+#'
+#' @format A tibble with 7 rows and 2 variables:
+#' * **stop_reason**: Integer stopover reason code.
+#' * **name**: Descriptive name of the stopover reason.
+#'
+#' @references
+#' Tourism Research Australia: \url{https://www.tra.gov.au}
+#'
+#' @seealso \code{\link{tourism_reason}}
+#' @docType data
+#' @name tourism_reason_name
+#' @usage tourism_reason_name
+#' @examples
+#' data(tourism_reason_name)
+#' tourism_reason_name
+"tourism_reason_name"
+
+
+
+#### tourism_activity -------------------------------------
+
+#' Monthly Tourism Trips by Stopover Activity
+#'
+#' Estimated domestic overnight trips to Australian SA2 areas by month and
+#' stopover activity. The data contain only observations with non-zero trip
+#' estimates and non-zero survey sample sizes.
+#'
+#' @format A tibble with 320,188 rows and 6 variables:
+#' * **year**: Calendar year, from 2014 to 2024.
+#' * **month**: Ordered factor giving the month returned from the trip.
+#' * **sa2_code_tra**: Integer SA2 code used by Tourism Research Australia.
+#'   This can be joined to \code{\link{tourism_region}}.
+#' * **stop_activity**: Integer activity code that can be joined to
+#'   \code{\link{tourism_activity_name}}.
+#' * **trips**: Estimated number of overnight trips, in thousands.
+#' * **n_sample**: Number of survey responses supporting the estimate.
+#'
+#' @details
+#' Records for which either \code{trips} or \code{n_sample} equals zero are
+#' excluded. Estimates with small sample sizes should be interpreted with
+#' appropriate caution.
+#'
+#' @references
+#' Tourism Research Australia: \url{https://www.tra.gov.au}
+#'
+#' @seealso \code{\link{tourism_activity_name}},
+#'   \code{\link{tourism_reason}}, \code{\link{tourism_region}}
+#' @docType data
+#' @name tourism_activity
+#' @usage tourism_activity
+#' @examples
+#' data(tourism_activity)
+#' head(tourism_activity)
+"tourism_activity"
+
+
+
+#### tourism_activity_name --------------------------------
+
+#' Tourism Stopover Activity Names
+#'
+#' A lookup table matching the stopover activity codes in
+#' \code{\link{tourism_activity}} to descriptive names.
+#'
+#' @format A tibble with 8 rows and 2 variables:
+#' * **stop_activity**: Integer stopover activity code.
+#' * **name**: Descriptive name of the stopover activity.
+#'
+#' @references
+#' Tourism Research Australia: \url{https://www.tra.gov.au}
+#'
+#' @seealso \code{\link{tourism_activity}}
+#' @docType data
+#' @name tourism_activity_name
+#' @usage tourism_activity_name
+#' @examples
+#' data(tourism_activity_name)
+#' tourism_activity_name
+"tourism_activity_name"
 
 
 
@@ -356,3 +482,50 @@
 #' head(oz_lga)
 "oz_lga"
 
+
+
+#### oz_sa2 -----------------------------------------------
+
+#' Australian Statistical Area Level 2 Boundaries
+#'
+#' Simplified 2021 Statistical Area Level 2 (SA2) polygon boundaries for the
+#' SA2 codes used in Tourism Research Australia exports. Representative
+#' interior-point coordinates are included for analyses that need one point
+#' per SA2.
+#'
+#' @format An \code{sf} data frame with 2,350 rows and 4 variables:
+#' * **sa2_code_tra**: Integer SA2 identifier used by Tourism Research
+#'   Australia. This field can be joined to \code{\link{tourism_reason}},
+#'   \code{\link{tourism_activity}}, and \code{\link{tourism_region}}.
+#' * **lat**: Latitude of a representative point located within the SA2,
+#'   in decimal degrees.
+#' * **lon**: Longitude of a representative point located within the SA2,
+#'   in decimal degrees.
+#' * **geometry**: Simplified SA2 polygon or multipolygon geometry in GDA2020
+#'   (EPSG:7844).
+#'
+#' @details
+#' Boundaries were obtained from the Australian Bureau of Statistics ASGS
+#' Edition 3 digital boundary files. Full-resolution polygons were matched to
+#' TRA codes by state and SA2 name. Representative points were calculated from
+#' the full-resolution geometry in Australian Albers (EPSG:3577), using a point
+#' guaranteed to lie on the SA2 surface. Polygon geometry was simplified with
+#' \pkg{rmapshaper}, retaining five percent of removable vertices while
+#' preserving shapes and shared boundaries.
+#'
+#' @source Australian Bureau of Statistics,
+#' \href{https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs/edition-3-july-2021-june-2026/access-and-downloads/digital-boundary-files}{ASGS Edition 3 digital boundary files}.
+#'
+#' @references
+#' Australian Bureau of Statistics. Australian Statistical Geography Standard
+#' (ASGS), Edition 3, July 2021--June 2026.
+#'
+#' @seealso \code{\link{oz_lga}}, \code{\link{tourism_region}},
+#'   \code{\link{tourism_reason}}, \code{\link{tourism_activity}}
+#' @docType data
+#' @name oz_sa2
+#' @usage oz_sa2
+#' @examples
+#' data(oz_sa2)
+#' head(oz_sa2)
+"oz_sa2"

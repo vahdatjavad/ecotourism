@@ -49,6 +49,8 @@ This is the glimpse of your data :
 library(dplyr)
 library(ecotourism)
 data("gouldian_finch")
+data("oz_lga", package = "ecotourism")
+data("weather", package = "ecotourism")
 gouldian_finch |> glimpse()
 ```
 

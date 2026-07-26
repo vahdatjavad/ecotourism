@@ -20,10 +20,13 @@ LazyData: true
 LazyDataCompression: xz
 Suggests: 
     dplyr,
+    fs,
     ggplot2,
     ggthemes,
     ggbeeswarm,
+    rmapshaper,
     sf,
+    stringr,
     knitr,
     lubridate,
     quarto,
