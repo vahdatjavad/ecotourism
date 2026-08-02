@@ -57,7 +57,7 @@ library(ggplot2)
 library(ggthemes)
 
 ggplot() +
-  geom_sf(data = oz_lga) +
+  geom_sf(data = oz_sa2) +
   geom_point(data = weather_stations, 
              aes(x = stn_lon, y = stn_lat, colour = stn_state),
              alpha = 0.6, size = 1) +

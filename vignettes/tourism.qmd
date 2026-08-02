@@ -99,9 +99,7 @@ The same `region_lookup` can be joined to `tourism_activity`. The `ws_id` column
 
 ## SA2 polygons and representative points
 
-`oz_sa2` provides simplified 2021 SA2 polygons for every TRA code represented
-by the detailed tourism data. Its `lat` and `lon` columns provide one
-representative interior point per SA2 when point geometry is more convenient.
+`oz_sa2` provides simplified 2021 SA2 polygons for every TRA code represented by the detailed tourism data. Its `lat` and `lon` columns provide one representative interior point per SA2 when point geometry is more convenient.
 
 ```{r, message=FALSE}
 data("oz_sa2")
@@ -125,11 +123,21 @@ reason_map |>
   head()
 ```
 
-## Quarterly tourism data
+## Recover omitted zero rows
 
-`tourism_quarterly` provides the older quarterly series by purpose and source region identifier. Its `ws_id` can be joined to `weather_stations`.
+Use `tidyr::complete()` to restore the full monthly panels; combinations absent from the packaged data are assigned zero `trips` and `n_sample`.
 
 ```{r, message=FALSE}
-data("tourism_quarterly")
-glimpse(tourism_quarterly)
+all_sa2 <- union(tourism_reason$sa2_code_tra, tourism_activity$sa2_code_tra)
+months <- factor(month.name, levels = month.name, ordered = TRUE)
+
+tourism_reason_full <- tourism_reason |>
+  tidyr::complete(year = 2014:2024, month = months, sa2_code_tra = all_sa2,
+                  stop_reason = tourism_reason_name$stop_reason,
+                  fill = list(trips = 0, n_sample = 0))
+
+tourism_activity_full <- tourism_activity |>
+  tidyr::complete(year = 2014:2024, month = months, sa2_code_tra = all_sa2,
+                  stop_activity = tourism_activity_name$stop_activity,
+                  fill = list(trips = 0, n_sample = 0))
 ```

@@ -302,45 +302,6 @@
 
 
 
-#### tourism_quarterly ------------------------------------
-
-
-#' Quarterly Tourism Trips by Region and Purpose
-#'
-#' A dataset containing quarterly estimates of overnight tourism trips
-#' in Australia, broken down by trip purpose and tourism region.
-#'
-#' @format A tibble with 50,314 rows and 6 variables:
-#' * **year**: The year of the tourism data
-#' * **quarter**: Quarter number like 1, 2, 3, 4
-#' * **purpose**: Purpose of visit category:
-#'   - `"Holiday"`
-#'   - `"Business"`
-#' * **trips**: Number of overnight trips (in thousands).
-#' * **region_id**: Integer identifier from the source quarterly geography.
-#' * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station.
-#'
-#' @details
-#' Tourism regions are formed through the aggregation of Statistical
-#' Local Areas (SLAs) or similar ABS-defined geographies, as determined
-#' by state and territory tourism authorities. This dataset is designed
-#' for analysis of seasonal tourism patterns. Its \code{ws_id} field can be
-#' joined to \code{\link{weather_stations}}. For current SA2-based analysis,
-#' use \code{\link{tourism_reason}} or \code{\link{tourism_activity}}.
-#'
-#' @references
-#' Tourism Research Australia: \url{https://www.tra.gov.au}
-#'
-#' @docType data
-#' @name tourism_quarterly
-#' @usage tourism_quarterly
-#' @examples
-#' data(tourism_quarterly)
-#' head(tourism_quarterly)
-"tourism_quarterly"
-
-
-
 #### tourism_reason ---------------------------------------
 
 #' Monthly Tourism Trips by Stopover Reason
@@ -467,23 +428,6 @@
 
 
 
-#### oz_lga ---------------------------------------
-
-#' oz_lga
-#'
-#' LGA polygons for Australia
-#'
-#' @name oz_lga
-#' @docType data
-#' @format A spatial polygon object
-#' @keywords datasets
-#' @examples
-#'
-#' head(oz_lga)
-"oz_lga"
-
-
-
 #### oz_sa2 -----------------------------------------------
 
 #' Australian Statistical Area Level 2 Boundaries
@@ -520,8 +464,8 @@
 #' Australian Bureau of Statistics. Australian Statistical Geography Standard
 #' (ASGS), Edition 3, July 2021--June 2026.
 #'
-#' @seealso \code{\link{oz_lga}}, \code{\link{tourism_region}},
-#'   \code{\link{tourism_reason}}, \code{\link{tourism_activity}}
+#' @seealso \code{\link{tourism_region}}, \code{\link{tourism_reason}},
+#'   \code{\link{tourism_activity}}
 #' @docType data
 #' @name oz_sa2
 #' @usage oz_sa2

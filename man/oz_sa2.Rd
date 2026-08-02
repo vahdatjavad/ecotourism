@@ -47,7 +47,7 @@ Australian Bureau of Statistics. Australian Statistical Geography Standard
 (ASGS), Edition 3, July 2021--June 2026.
 }
 \seealso{
-\code{\link{oz_lga}}, \code{\link{tourism_region}},
-  \code{\link{tourism_reason}}, \code{\link{tourism_activity}}
+\code{\link{tourism_region}}, \code{\link{tourism_reason}},
+  \code{\link{tourism_activity}}
 }
 \keyword{datasets}
