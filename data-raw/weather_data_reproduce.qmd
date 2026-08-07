@@ -11,11 +11,11 @@ source(here::here("data-raw/data_reproduce_utiles.R"))
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 organism_names <- c("orchids", "gouldian_finch", "manta_rays", "glowworms")
-load("../data/weather_stations.rda")
+load("data/weather_stations.rda")
 all_top_stations <- list()
 
 for (org in organism_names) {
-  load(paste0("../data/", org, ".rda"))
+  load(paste0("data/", org, ".rda"))
   org_data <- get(org)
 
   top_stations <- org_data |>
@@ -37,7 +37,7 @@ save(top_stations, file = "../data/top_stations.rda")
 ```{r, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
 # Download and prepare data (optional)
 weather_list <- lapply(top_stations$ws_id, function(stn) {
-  GSODR::get_GSOD(years = 2014, station = stn)
+  GSODR::get_GSOD(years = 2014:2024, station = stn)
 })
 
 top_weather <- bind_rows(weather_list) |> 

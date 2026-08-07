@@ -1,0 +1,351 @@
+```{r}
+library(tidyverse)
+library(fs)
+
+# Quarto renders from the directory containing this file, whereas this notebook
+# is often run interactively from the repository root. Use one stable root in
+# both cases so all relative paths resolve correctly.
+project_root <- if (dir_exists("data-raw/tourism")) {
+  path_abs(".")
+} else {
+  path_abs("../../..")
+}
+knitr::opts_knit$set(root.dir = project_root)
+```
+
+```{r}
+# Folder containing the raw TRA exports.
+folder <- path(project_root, "data-raw/tourism/tra-raw")
+
+# Accept the new annual exports (for example, activity-2014.csv) and the older
+# quarterly exports (for example, activity-2014-q1.csv). Underscores are also
+# accepted when files have been renamed.
+activity_files <- dir_ls(folder, glob = path(folder, "*.csv")) |>
+  keep(~ str_detect(
+    path_file(.x),
+    regex("^activity[-_][0-9]{4}(?:[-_]q[1-4])?\\.csv$", ignore_case = TRUE)
+  )) |>
+  sort()
+
+if (is_empty(activity_files)) {
+  stop("No activity CSV files found in: ", folder)
+}
+
+# Prefer an annual file when both annual and quarterly files exist for a year.
+# This prevents the same observations from being counted twice.
+file_info <- tibble(
+  path = activity_files,
+  file = path_file(activity_files),
+  year = str_extract(file, "[0-9]{4}"),
+  is_annual = !str_detect(file, regex("[-_]q[1-4]\\.csv$", ignore_case = TRUE))
+)
+
+years_with_annual_files <- file_info |>
+  filter(is_annual) |>
+  pull(year) |>
+  unique()
+
+activity_files <- file_info |>
+  filter(is_annual | !year %in% years_with_annual_files) |>
+  pull(path)
+
+expected_output_cols <- c(
+  "year",
+  "month",
+  "address",
+  "stop_activity",
+  "trips",
+  "n_sample"
+)
+
+standardise_month <- function(month_value) {
+  month_value <- month_value |>
+    as.character() |>
+    str_to_title() |>
+    str_squish() |>
+    na_if("")
+
+  month_map <- tibble(
+    raw = c(as.character(1:12), month.abb, month.name),
+    month = rep(month.name, times = 3)
+  ) |>
+    distinct(raw, .keep_all = TRUE)
+
+  tibble(raw = month_value, row_id = row_number()) |>
+    mutate(raw = if_else(raw == "Sept", "Sep", raw)) |>
+    left_join(month_map, by = "raw") |>
+    arrange(row_id) |>
+    transmute(month = coalesce(month, raw)) |>
+    pull(month)
+}
+
+read_activity_file <- function(file_path) {
+  file_name <- path_file(file_path)
+  message("Reading: ", file_name)
+
+  lines <- tryCatch(
+    read_lines(file_path, progress = FALSE),
+    error = function(e) {
+      warning("Could not read file: ", file_name, " | ", conditionMessage(e))
+      NULL
+    }
+  )
+
+  if (is.null(lines)) {
+    return(NULL)
+  }
+
+  # Older exports use "State"; annual exports use
+  # "Stopover state/region/SA2" for the geographic field.
+  header_pattern <- regex(
+    paste0(
+      '^"?Calendar year"?,"?Month returned from trip"?,',
+      '"?(?:State|Stopover state/region/SA2)"?,"?Stopover activity"?'
+    ),
+    ignore_case = TRUE
+  )
+  header_row <- which(str_detect(lines, header_pattern))[1]
+
+  if (is.na(header_row)) {
+    warning("Could not find the table header in: ", file_name)
+    return(NULL)
+  }
+
+  header_line <- lines[seq(max(1, header_row - 1), header_row)] |>
+    str_c(collapse = " ")
+
+  expected_header_labels <- c(
+    "Calendar year",
+    "Month returned from trip",
+    "Stopover activity",
+    "Overnight trips (000)",
+    "Sample"
+  )
+
+  missing_header_labels <- expected_header_labels |>
+    discard(~ str_detect(header_line, fixed(.x)))
+
+  if (!is_empty(missing_header_labels)) {
+    warning(
+      "Header in ",
+      file_name,
+      " is missing expected labels: ",
+      str_c(missing_header_labels, collapse = ", ")
+    )
+  }
+
+  footer_row <- which(
+    str_detect(lines, fixed("(c) Tourism Research Australia")) |
+      str_detect(lines, fixed("Tourism Research Australia"))
+  )[1]
+
+  data_start <- header_row + 1
+  data_end <- if (is.na(footer_row)) length(lines) else footer_row - 1
+
+  if (data_start > data_end) {
+    warning("No data rows found after the header in: ", file_name)
+    return(NULL)
+  }
+
+  data_block <- lines[seq(data_start, data_end)]
+
+  activity_data <- tryCatch(
+    read_csv(
+      I(str_c(data_block, collapse = "\n")),
+      col_names = FALSE,
+      col_types = cols(.default = col_character()),
+      na = c("", "NA"),
+      show_col_types = FALSE,
+      progress = FALSE
+    ),
+    error = function(e) {
+      warning(
+        "Could not parse data rows in: ",
+        file_name,
+        " | ",
+        conditionMessage(e)
+      )
+      NULL
+    }
+  )
+
+  if (is.null(activity_data)) {
+    return(NULL)
+  }
+
+  if (ncol(activity_data) < 6) {
+    warning(
+      "Expected at least 6 columns in: ",
+      file_name,
+      " but found ",
+      ncol(activity_data),
+      ". Missing columns will be filled with NA."
+    )
+
+    missing_columns <- tibble(
+      !!!set_names(
+        rep(list(NA_character_), 6 - ncol(activity_data)),
+        str_c("missing_", seq_len(6 - ncol(activity_data)))
+      )
+    )
+    activity_data <- bind_cols(activity_data, missing_columns)
+  }
+
+  activity_data <- activity_data |>
+    select(1:6) |>
+    set_names(expected_output_cols) |>
+    mutate(across(everything(), ~ .x |> str_squish() |> na_if(""))) |>
+    fill(year, month, address, .direction = "down") |>
+    filter(
+      if_all(
+        c(year, month, address, stop_activity),
+        ~ coalesce(str_to_lower(.x), "") != "total"
+      )
+    ) |>
+    filter(!if_all(everything(), is.na))
+
+  if (nrow(activity_data) == 0) {
+    warning("No usable data rows remained after cleaning: ", file_name)
+    return(NULL)
+  }
+
+  activity_data |>
+    transmute(
+      year = as.integer(parse_number(year)),
+      month = standardise_month(month),
+      address = as.integer(parse_number(address)),
+      stop_activity = as.integer(parse_number(stop_activity)),
+      trips = parse_number(trips),
+      n_sample = as.integer(parse_number(n_sample)),
+      source_file = file_name
+    ) |>
+    drop_na(year, month, address, stop_activity)
+}
+
+activity_results <- tibble(
+  file = activity_files,
+  data = map(activity_files, read_activity_file)
+)
+
+failed_files <- activity_results |>
+  filter(map_lgl(data, is.null)) |>
+  pull(file)
+
+if (!is_empty(failed_files)) {
+  warning(
+    "Some files could not be parsed and were skipped: ",
+    failed_files |> path_file() |> str_c(collapse = ", ")
+  )
+}
+
+activity_all <- activity_results |>
+  pull(data) |>
+  compact() |>
+  bind_rows()
+
+if (nrow(activity_all) == 0) {
+  stop("No usable activity data were found.")
+}
+
+activity_clean <- activity_all |>
+  mutate(
+    month = factor(month, levels = month.name, ordered = TRUE)
+  ) |>
+  arrange(year, month, address, stop_activity) |>
+  select(all_of(expected_output_cols))
+
+# Retain only SA2 codes represented in the tourism-region lookup.
+tourism_region <- read_rds("data-raw/tourism/tourism_region.rds") |>
+  mutate(sa2_code_tra = as.integer(sa2_code_tra))
+
+filtered_activity_clean <- activity_clean |>
+  semi_join(
+    tourism_region |> distinct(sa2_code_tra),
+    by = c("address" = "sa2_code_tra")
+  ) |>
+  rename(sa2_code_tra = address)
+
+activity_clean |>
+  write_csv(path(folder, "tourism_activity_raw.csv"), na = "")
+
+filtered_activity_clean |>
+  write_csv(path(folder, "tourism_activity.csv"), na = "")
+
+# Keep records supported by both a non-zero trip estimate and a non-zero
+# survey sample, then save them as a separate analysis-ready dataset.
+tourism_activity_filtered <- filtered_activity_clean |>
+  filter(
+    trips != 0,
+    n_sample != 0
+  )
+
+tourism_activity_filtered |>
+  write_csv(path(folder, "tourism_activity_filtered.csv"), na = "")
+
+# Save package datasets in the format supported by data() and LazyData.
+package_data_folder <- path(project_root, "data")
+dir_create(package_data_folder)
+
+tourism_activity <- tourism_activity_filtered
+tourism_activity_name <- read_csv(
+  path(folder, "stop_activity_names.csv"),
+  show_col_types = FALSE
+) |>
+  mutate(stop_activity = as.integer(stop_activity)) |>
+  select(stop_activity, name) |>
+  arrange(stop_activity)
+
+save(
+  tourism_activity,
+  file = path(package_data_folder, "tourism_activity.rda"),
+  compress = "xz"
+)
+save(
+  tourism_activity_name,
+  file = path(package_data_folder, "tourism_activity_name.rda"),
+  compress = "xz"
+)
+
+# Helpful checks.
+glimpse(filtered_activity_clean)
+head(filtered_activity_clean)
+
+filtered_activity_clean |>
+  count(year, month, name = "rows") |>
+  arrange(year, month) |>
+  print(n = Inf)
+```
+
+The `tourism_region` dataset maps `sa2_code_tra` values to their corresponding
+tourism-region names.
+
+```{r}
+stop_activity_names <- read_csv(
+  path(folder, "stop_activity_names.csv"),
+  show_col_types = FALSE
+)
+tourism_activity <- read_csv(
+  path(folder, "tourism_activity.csv"),
+  show_col_types = FALSE
+)
+
+# Summarise trips for each named stopover activity.
+tourism_activity |>
+  inner_join(stop_activity_names, by = "stop_activity") |>
+  summarise(
+    trips = sum(trips, na.rm = TRUE) * 1000,
+    n_sample = sum(n_sample, na.rm = TRUE),
+    .by = c(year, stop_activity, name)
+  )
+```
+
+```{r}
+# Find total trips for each tourism region.
+tourism_region |>
+  left_join(tourism_activity, by = "sa2_code_tra") |>
+  summarise(
+    trips = sum(trips, na.rm = TRUE) * 1000,
+    n_sample = sum(n_sample, na.rm = TRUE),
+    .by = c(state, region, ws_id, sa2_code_tra)
+  )
+```

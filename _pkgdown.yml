@@ -19,6 +19,5 @@ home:
   title: "Ecotourism Package"
   links:
     - text: "Get Started"
-      href: articles/getting_started.html
+      href: articles/getting-started.html
       logo: man/figures/logo.png
-

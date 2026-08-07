@@ -1,7 +1,7 @@
 
 .Rproj.user
 .Rhistory
-run-javad.R
 inst/doc
 .DS_Store
 ^README\.html$
+Javad-Notes.R

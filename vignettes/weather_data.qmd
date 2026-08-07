@@ -64,7 +64,7 @@ library(ggthemes)
 
 top_stations |> left_join(weather_stations) |> 
 ggplot() +
-  geom_sf(data = oz_lga) +
+  geom_sf(data = oz_sa2) +
   geom_point(aes(x = stn_lon, y = stn_lat, color = organism), shape = 17, size = 3) +
   theme_map()
 ```

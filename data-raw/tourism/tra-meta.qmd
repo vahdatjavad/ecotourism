@@ -1,0 +1,131 @@
+```{r}
+library(readxl)
+library(dplyr)
+library(stringr)
+library(readr)
+```
+
+```{r}
+# Path to your Excel file
+file_path <- "data-raw/tourism/trv-meta.xlsx"
+```
+
+```{r}
+# Read sheet 3 as text because some code columns contain both numbers and "Total"
+raw <- read_excel(
+  file_path,
+  sheet = 3,
+  col_types = "text"
+) |>
+  rename(
+    group_code1 = `group-code1`,
+    group_code2 = `group-code2`
+  ) |>
+  mutate(
+    across(everything(), ~ na_if(str_squish(as.character(.x)), ""))
+  )
+```
+
+```{r}
+# Helper: region parent codes use 11, 22, 33, ...
+# while state codes are 1, 2, 3, ...
+make_state_parent_code <- function(code1) {
+  case_when(
+    code1 %in% as.character(1:8) ~ str_c(code1, code1),
+    TRUE ~ code1
+  )
+}
+
+# 1. State lookup: layer1/code1
+state_lookup <- raw |>
+  filter(!is.na(layer1), layer1 != "Total") |>
+  transmute(
+    state = layer1,
+    state_code = code1,
+    state_parent_code = make_state_parent_code(code1)
+  ) |>
+  distinct(state_parent_code, .keep_all = TRUE)
+
+# 2. Region lookup: layer2/code2
+# We remove the first repeated layer1 rows where layer2 == layer1.
+region_lookup <- raw |>
+  filter(
+    !is.na(layer2),
+    layer2 != "Total",
+    is.na(layer1) | layer2 != layer1
+  ) |>
+  transmute(
+    region = layer2,
+    region_code = code2,
+    state_parent_code = group_code1
+  ) |>
+  distinct(region_code, .keep_all = TRUE) |>
+  left_join(state_lookup, by = "state_parent_code")
+
+# 3. SA2 lookup: layer3/code3
+sa2_lookup <- raw |>
+  filter(!is.na(layer3), layer3 != "Total") |>
+  transmute(
+    sa2 = layer3,
+    code3 = code3,
+    region_code = group_code2
+  )
+
+# 4. Final structured table
+stopover_state_region_sa2 <- sa2_lookup |>
+  left_join(region_lookup, by = "region_code") |>
+  select(
+    state,
+    region,
+    sa2,
+    code3
+  )
+
+```
+
+
+```{r}
+# Quick checks
+head(stopover_state_region_sa2)
+
+nrow(stopover_state_region_sa2)
+count(stopover_state_region_sa2, is.na(state), is.na(region))
+```
+
+
+```{r}
+# Save if you want
+# write_csv(stopover_state_region_sa2, "stopover_state_region_sa2.csv")
+```
+
+For coordinates, because this is SA2-level data, the best approach is not normal address geocoding. Instead, join your code3 to official ABS SA2 boundary files, then calculate an SA2 centroid. ABS provides ASGS digital boundary files in GeoPackage and shapefile formats, which is ideal for this.
+
+```{r}
+load("data/tourism_region.rda")
+```
+
+```{r}
+# 2) Normalise names on both sides (handles dashes, case, spaces)
+norm <- \(x) x |>
+  str_replace_all("[–—-]", "-") |>
+  str_squish() |>
+  str_to_title()
+
+```
+
+```{r}
+stopover_state_region_sa2 <- stopover_state_region_sa2 %>%
+  mutate(region_norm = norm(region),
+         sa2_norm = norm(sa2))
+
+tourism_region2 <- tourism_region %>% mutate(region_id = region_id,
+                                             sa2_norm = norm(region)) |> select(region_id, sa2_norm, lon, lat, ws_id)
+```
+
+```{r}
+left_join(tourism_region2, stopover_state_region_sa2, by = c("sa2_norm" = "sa2_norm")) %>%
+  select(state, region, sa2, lon, lat, ws_id, code3) %>%
+  rename(sa2_code_tra = code3) |> 
+  arrange(state, region, sa2) |> 
+  saveRDS("data-raw/tourism/tourism_region.rds")
+```

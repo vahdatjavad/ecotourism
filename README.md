@@ -47,7 +47,6 @@ List all available datasets and their short titles:
 | top_stations     | Top Weather Stations for Each Organism          |
 | weather_data     | Daily Weather Data for Top Stations (2014–2024) |
 | weather_stations | Australian Weather Station Metadata             |
-| tourism_quarterly| Australian tourism spots quarterly counts       |
 | tourism_region   | Australian tourism regions with lat and lon.    |
 
 This is the relational dataset in this package:

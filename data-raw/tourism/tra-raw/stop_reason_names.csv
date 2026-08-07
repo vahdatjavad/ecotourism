@@ -1,0 +1,8 @@
+﻿name,stop_reason
+Holiday,1
+Visiting friends and relatives,2
+Business,3
+Other reason,6
+No other reason,7
+In transit,8
+Not stated/not asked,9

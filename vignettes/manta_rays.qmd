@@ -50,6 +50,8 @@ This is the glimpse of your data :
 library(dplyr)
 library(ecotourism)
 data("manta_rays")
+data("oz_sa2", package = "ecotourism")
+data("weather", package = "ecotourism")
 manta_rays |> glimpse()
 ```
 
@@ -67,7 +69,7 @@ library(ggthemes)
 
 manta_rays |> 
   ggplot() +
-    geom_sf(data = oz_lga) +
+    geom_sf(data = oz_sa2) +
     geom_point(aes(x = obs_lon, y = obs_lat), color = "red") +
     theme_map()
 ```

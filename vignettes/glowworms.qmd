@@ -52,6 +52,7 @@ This is the glimpse of your data :
 library(dplyr)
 library(ecotourism)
 data("glowworms")
+data("oz_sa2", package = "ecotourism")
 glowworms |> glimpse()
 ```
 
@@ -67,7 +68,7 @@ library(ggthemes)
 
 glowworms |> 
   ggplot() +
-    geom_sf(data = oz_lga) +
+    geom_sf(data = oz_sa2) +
     geom_point(aes(x = obs_lon, y = obs_lat), color = "red") +
     theme_map()
 ```
@@ -109,45 +110,4 @@ glowworms |>
     geom_bar() +
     labs(x = "Year", y = "Number of Records")+
     theme_minimal()
-```
-
-------------------------------------------------------------------------
-
-## Relational visualization
-
-We want to see if `glowworms` occurrences are related to tourism quarter trips on the same day from the weather dataset.
-
-Here’s a short R script that:
-
-1.  Joins `glowworms` with **weather** using `ws_id` and `date`.
-
-2.  Counts daily occurrences.
-
-3.  Plots quarter number of `glowworms` sightings.
-
-```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
-
-# Prepare glowworms occurrence counts per quarter
-glowworms_quarterly <- glowworms |>
-  mutate(quarter = quarter(date)) |>
-  group_by(year, quarter, ws_id) |>
-  summarise(occurrence = n(), .groups = "drop")
-
-# tourism quarterly spot data set near glowworms occurrence
-tourism_sub <- tourism_quarterly |>
-   filter(ws_id %in% glowworms$ws_id)
-
-glowworms_tourism <- glowworms_quarterly |>
-  left_join(tourism_sub, by=c("ws_id", "year", "quarter"))
-
-# Simple scatter plot: precipitation vs glowworms occurrence
-ggplot(glowworms_tourism, aes(x = quarter, y = occurrence)) +
-  geom_jitter(width=0.1) +
-  stat_summary(colour="red", geom = "point", size=3) +
-  labs(
-    title = "Relationship between tourism and glowworms occurrence",
-    x = "Quarter",
-    y = "Occurrence (jittered)"
-  ) +
-  theme_minimal()
 ```

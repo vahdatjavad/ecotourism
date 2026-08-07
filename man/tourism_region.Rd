@@ -5,16 +5,19 @@
 \alias{tourism_region}
 \title{Tourism Regions and Nearest Weather Stations}
 \format{
-A data frame with `r nrow(tourism_region)` rows and 5 variables:
+A tibble with 2,353 rows and 7 variables:
+* **state**: Australian state or territory abbreviation.
 * **region**: Name of the tourism region. Tourism regions are defined by
   Tourism Research Australia and generally formed through the aggregation of
-  Statistical Local Areas (SLAs) or other ABS-defined geographies.
-* **lon**: Longitude of the tourism region representative point (WGS84).
-* **lat**: Latitude of the tourism region representative point (WGS84).
-* **region_id**: Unique integer identifier for the tourism region. Useful
-  for joining with other tourism-related datasets.
+  Statistical Area Level 2 (SA2) geographies.
+* **sa2**: Name of the SA2 area.
+* **lon**: Longitude of the SA2 representative point (WGS84).
+* **lat**: Latitude of the SA2 representative point (WGS84).
 * **ws_id**: Identifier of the nearest Bureau of Meteorology weather station
-  to the tourism region.
+  to the SA2 area.
+* **sa2_code_tra**: Character SA2 code used by Tourism Research Australia.
+  Join this field to the identically named field in the detailed tourism
+  datasets after harmonising its type.
 }
 \usage{
 tourism_region
@@ -26,8 +29,8 @@ weather station. Each region is assigned a unique identifier for
 linking to other tourism datasets.
 }
 \details{
-Coordinates for each tourism region are intended to represent a
-central location within the region (e.g., polygon centroid). The
+Coordinates for each SA2 are intended to represent a central location
+within the area (e.g., polygon centroid). The
 nearest weather station is determined using great-circle distance
 calculations based on the Bureau of Meteorology's official station list.
 }
@@ -37,6 +40,6 @@ head(tourism_region)
 }
 \references{
 Tourism Research Australia: \url{https://www.tra.gov.au}
-Australian Bureau of Meteorology: \url{http://www.bom.gov.au}
+Australian Bureau of Meteorology.
 }
 \keyword{datasets}

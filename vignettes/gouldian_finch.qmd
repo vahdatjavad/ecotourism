@@ -49,6 +49,8 @@ This is the glimpse of your data :
 library(dplyr)
 library(ecotourism)
 data("gouldian_finch")
+data("oz_sa2", package = "ecotourism")
+data("weather", package = "ecotourism")
 gouldian_finch |> glimpse()
 ```
 
@@ -66,7 +68,7 @@ library(ggthemes)
 
 gouldian_finch |> 
   ggplot() +
-    geom_sf(data = oz_lga) +
+    geom_sf(data = oz_sa2) +
     geom_point(aes(x = obs_lon, y = obs_lat), color = "red") +
     theme_map()
 ```
@@ -114,7 +116,7 @@ gouldian_finch |>
 
 ------------------------------------------------------------------------
 
-## Relational visualization 
+## Relational visualization
 
 We want to see if `gouldian_finch` occurrences are related to precipitation on the same day from the weather dataset.
 
@@ -153,7 +155,6 @@ gouldian_finch_weather |>
   theme_minimal()
 
 ```
-
 
 ```{r, echo=TRUE, eval=TRUE, message=FALSE, warning=FALSE, fig.width=6, fig.height=4}
 

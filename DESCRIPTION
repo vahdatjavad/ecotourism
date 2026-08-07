@@ -20,10 +20,13 @@ LazyData: true
 LazyDataCompression: xz
 Suggests: 
     dplyr,
+    fs,
     ggplot2,
     ggthemes,
     ggbeeswarm,
+    rmapshaper,
     sf,
+    stringr,
     knitr,
     lubridate,
     quarto,
@@ -35,5 +38,5 @@ Depends:
     R (>= 3.5)
 URL: https://github.com/vahdatjavad/ecotourism
 BugReports: https://github.com/vahdatjavad/ecotourism/issues
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Config/testthat/edition: 3
