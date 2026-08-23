@@ -34,6 +34,29 @@ Each vignette covers data cleaning and wrangling, mapping and temporal summaries
 
 <img src="articles/image/datasets.png" alt="Ecotourism dataset schema" width="500"/>
 
+## 🎓 Teaching and Assessment Resources
+
+Two companion resources help lecturers turn the package datasets into
+reproducible exercises and quizzes:
+
+- [**ecosanctuary**](https://vahdatjavad.github.io/ecosanctuary/) is an R
+  package that validates, selects, and builds reusable Quarto or R Markdown
+  questions. It produces Moodle XML, interactive student practice quizzes,
+  teacher answer keys with worked solutions, printable PDFs, and a selection
+  manifest.
+- The [**GSoC 2026 ecotourism question bank**](https://github.com/vahdatjavad/GSoC2026-questions)
+  contains 45 ready-to-use R questions based on `ecotourism`: 15 easy, 15
+  medium, and 15 hard. Topics range from data exploration and visualisation to
+  joins, functions, iteration, and multi-dataset analysis.
+
+The question bank supplies the teaching content; `ecosanctuary` supplies the
+tools that validate, select, and render it. Use the entire bank or select
+questions by ID, topic, and difficulty to create reproducible teaching and
+assessment materials.
+
 ## 🚀 Get Started
 
-Choose an organism above or explore the weather and tourism workflows. The `ecotourism` package makes it easy to investigate interactions between biodiversity, tourism, and climate in Australia.
+Choose an organism above, explore the weather and tourism workflows, or use
+the companion question bank for teaching. The `ecotourism` package makes it
+easy to investigate interactions between biodiversity, tourism, and climate
+in Australia.

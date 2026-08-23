@@ -64,6 +64,28 @@ To see documentation for any dataset, use:
 ?ecotourism::DATASET_NAME
 ```
 
+## Teaching and assessment resources
+
+Two companion resources make it easier to use these datasets in
+teaching:
+
+- [**ecosanctuary**](https://vahdatjavad.github.io/ecosanctuary/) is an
+  R package for validating, selecting, and building reusable Quarto or R
+  Markdown questions. It can produce Moodle XML, interactive student
+  practice quizzes, teacher answer keys with worked solutions, printable
+  PDFs, and a record of the selected questions.
+- The [**GSoC 2026 ecotourism question
+  bank**](https://github.com/vahdatjavad/GSoC2026-questions) is a
+  ready-to-use collection of 45 R questions based on the datasets in
+  this package. It contains 15 easy, 15 medium, and 15 hard questions
+  that cover data exploration, transformation, visualisation, joins,
+  functions, iteration, and multi-dataset analysis.
+
+The question bank provides the teaching content, while `ecosanctuary`
+provides the tools that validate, select, and render that content.
+Lecturers can use the complete bank or select questions by ID, topic,
+and difficulty to create reproducible quizzes and teaching materials.
+
 ## Example
 
 This is a minimal usage sketch. Replace `DATASET_NAME` with one from the
